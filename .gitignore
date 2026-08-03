@@ -1,0 +1,27 @@
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+secrets.yaml
+configuration.local.yaml
+
+# Runtime data
+appdata/
+postgres/
+library/
+backups/
+*.log
+*.pid
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.idea/
+
+# Generated archives
+*.zip
+*.tar.gz

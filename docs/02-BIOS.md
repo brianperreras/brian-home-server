@@ -1,0 +1,133 @@
+# 02 - Gigabyte BIOS Configuration
+
+BIOS labels can move between firmware versions. Record the old value before changing a setting. Use the motherboard manual and BIOS search function when available.
+
+## 1. Update BIOS first
+
+The i5-14400 requires firmware with 14th-generation CPU support. Download the BIOS for the **exact board name and revision printed on the motherboard**. Do not flash a BIOS intended for a similar but different DS3H model.
+
+### Preferred method: Q-Flash inside BIOS
+
+1. Download and extract the BIOS file on another computer.
+2. Copy it to a FAT32 USB drive.
+3. Enter BIOS and launch Q-Flash.
+4. Select the correct file and begin the update.
+5. Do not power off the system during flashing.
+6. After reboot, load Optimized Defaults once, save, reboot, then apply the settings below.
+
+Q-Flash Plus is also supported on relevant DS3H models and can update without CPU/RAM, but use it only when normal Q-Flash is unavailable or the board will not POST.
+
+## 2. Enable XMP
+
+Typical path:
+
+`Tweaker -> Extreme Memory Profile (X.M.P.) -> Profile 1`
+
+Then verify:
+
+- Memory frequency: DDR4-3200.
+- Total memory: 32 GB.
+- DRAM voltage and timings match the Kingston kit profile.
+
+Do not manually overclock beyond the rated XMP profile. Stability is more important than a small performance gain on a server.
+
+## 3. Storage mode
+
+Set SATA operation to AHCI and disable Intel RST/VMD/RAID features that hide individual drives from Linux.
+
+Look for settings such as:
+
+- `SATA Mode -> AHCI`
+- `Intel Rapid Storage Technology -> Disabled`
+- `VMD Controller -> Disabled` unless specifically required for a future device
+
+Unraid should see each physical disk separately.
+
+## 4. Virtualization
+
+Enable:
+
+- Intel Virtualization Technology / VT-x.
+- VT-d / Intel IOMMU.
+
+These are useful for future VMs, device passthrough, and advanced container workloads.
+
+## 5. Integrated graphics
+
+Keep the Intel iGPU enabled even if a discrete GPU is installed later.
+
+Look for:
+
+- `Internal Graphics -> Enabled`
+- `Initial Display Output -> IGFX` during initial setup, or leave Auto if a monitor works reliably
+- `iGPU Multi-Monitor -> Enabled` when adding a discrete GPU and retaining Quick Sync
+
+This allows Immich/Jellyfin to use Intel Quick Sync while a future GPU is reserved for AI.
+
+## 6. PCIe and future GPU settings
+
+Enable when available:
+
+- Above 4G Decoding.
+- Re-Size BAR Support, especially after installing a modern GPU.
+
+Leave PCIe link speed on Auto unless troubleshooting.
+
+## 7. Boot configuration
+
+Recommended:
+
+- Boot mode: UEFI.
+- CSM: Disabled, unless the Unraid USB will not boot.
+- Fast Boot: Disabled during setup.
+- USB flash drive first in boot priority.
+- Secure Boot: Disabled for the simplest Unraid boot path unless current Unraid documentation explicitly confirms your chosen secure-boot configuration.
+
+## 8. Power and recovery
+
+Recommended for a 24/7 server:
+
+- Restore after AC power loss: `Power On` or `Last State`, according to preference.
+- Wake-on-LAN: optional.
+- ErP: Disable if it prevents Wake-on-LAN or USB behavior you need.
+- Intel SpeedStep/Speed Shift and CPU C-states: Enabled/Auto for low idle power.
+
+Do not disable CPU power-saving features unless troubleshooting latency or stability.
+
+## 9. CPU power limits
+
+Use Intel-default or motherboard `Normal` power behavior. Avoid unlimited power presets for a 24/7 server. The i5-14400 has ample performance without aggressive motherboard enhancement.
+
+If the board exposes `Enhanced Multi-Core Performance`, use Disabled or an Intel-default option. Confirm full-load temperatures after setup.
+
+## 10. Fan configuration with Smart Fan 6
+
+Set each connected case fan header to PWM mode.
+
+Suggested starting curve:
+
+| Sensor temperature | Front P14 | Rear/top P12 |
+|---:|---:|---:|
+| 35 C | 30% | 25% |
+| 50 C | 40% | 35% |
+| 65 C | 60% | 55% |
+| 75 C | 80% | 75% |
+| 85 C | 100% | 100% |
+
+Use a motherboard/system sensor for case fans when possible. CPU temperature can spike briefly, causing annoying fan surges. Add fan smoothing or interval delay if Smart Fan 6 provides it.
+
+Do not enable Fan Stop for the front HDD intake fan. Maintain slow airflow over the primary HDD at all times.
+
+## 11. Final verification
+
+Save settings, reboot, then verify:
+
+- DDR4-3200 is active.
+- CPU and 32 GB RAM are detected.
+- IronWolf and GM7000 are detected.
+- USB boot entry appears as UEFI.
+- LAN link is active.
+- Virtualization is enabled.
+- iGPU remains enabled.
+
+After Unraid boots, run a memory test and monitor system logs for machine-check or IOMMU errors.

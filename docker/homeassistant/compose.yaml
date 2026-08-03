@@ -1,0 +1,13 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - /mnt/user/appdata/homeassistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    # Add a stable Zigbee/USB device mapping when needed, for example:
+    # devices:
+    #   - /dev/serial/by-id/usb-REPLACE_ME:/dev/ttyZigbee
