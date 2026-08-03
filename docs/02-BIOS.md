@@ -2,20 +2,47 @@
 
 BIOS labels can move between firmware versions. Record the old value before changing a setting. Use the motherboard manual and BIOS search function when available.
 
+Official Gigabyte BIOS setup overview: [Intel 700-series BIOS](https://www.gigabyte.com/WebPage/928/intel700-bios.html)
+
 ## 1. Update BIOS first
 
 The i5-14400 requires firmware with 14th-generation CPU support. Download the BIOS for the **exact board name and revision printed on the motherboard**. Do not flash a BIOS intended for a similar but different DS3H model.
 
+### Download pages (choose your exact board)
+
+| Board printed on PCB / box | BIOS + drivers support page | Product / Q-Flash Plus page |
+|---|---|---|
+| B760M DS3H DDR4 (Rev. 1.0) | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10) |
+| B760M DS3H DDR4 GEN5 | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5) |
+
+On the support page:
+
+1. Open the **BIOS** tab.
+2. Download the newest stable BIOS zip for your exact model (not AX Wi-Fi variants unless that is what you own).
+3. Note the listed checksum if Gigabyte publishes one.
+4. Extract the zip on another computer before copying files to USB.
+
+As of August 2026, Gigabyte listed **F24** for B760M DS3H DDR4 Rev. 1.0 and **F5** for B760M DS3H DDR4 GEN5. Always re-check the support page before flashing; do not hard-code an old zip URL.
+
 ### Preferred method: Q-Flash inside BIOS
 
-1. Download and extract the BIOS file on another computer.
-2. Copy it to a FAT32 USB drive.
+1. Download and extract the BIOS file from your board's support page above.
+2. Copy the extracted BIOS file to a FAT32 USB drive.
 3. Enter BIOS and launch Q-Flash.
 4. Select the correct file and begin the update.
 5. Do not power off the system during flashing.
 6. After reboot, load Optimized Defaults once, save, reboot, then apply the settings below.
 
-Q-Flash Plus is also supported on relevant DS3H models and can update without CPU/RAM, but use it only when normal Q-Flash is unavailable or the board will not POST.
+### Optional method: Q-Flash Plus
+
+Q-Flash Plus can update without CPU/RAM/GPU when the board will not POST or normal Q-Flash is unavailable. Use only for your exact model:
+
+1. Connect 24-pin and CPU 8-pin power to the motherboard.
+2. Rename the extracted BIOS file to `gigabyte.bin` and save it on a FAT32 USB drive.
+3. Insert the USB into the dedicated **Q-Flash Plus** rear USB port (see the board page / manual).
+4. Press the Q-Flash Plus button and wait until the QFLED stops flashing.
+
+More detail: [Q-Flash Plus on the Rev. 1.0 board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10)
 
 ## 2. Enable XMP
 

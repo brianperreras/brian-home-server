@@ -55,4 +55,10 @@ Never place secrets, passwords, API keys, Tailscale auth keys, or real `.env` fi
 
 ## Source freshness
 
-The instructions were prepared in August 2026. Unraid, Immich, and Home Assistant change regularly. Before a major upgrade, compare the relevant chapter with the official documentation linked in [Sources](docs/99-Sources.md).
+The instructions were prepared in August 2026. Unraid, Immich, and Home Assistant change regularly. Before a major upgrade, compare the relevant chapter with the official documentation and download links in [Sources](docs/99-Sources.md).
+
+Quick links:
+
+- BIOS downloads: [B760M DS3H DDR4 Rev. 1.0](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10/support) · [DDR4 GEN5](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5/support)
+- Unraid USB Creator: [unraid.net/download](https://unraid.net/download)
+- Immich compose files: [latest docker-compose.yml](https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml) · [example.env](https://github.com/immich-app/immich/releases/latest/download/example.env)

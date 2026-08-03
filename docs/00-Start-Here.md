@@ -37,7 +37,7 @@ Confirm that you have:
 7. Install the IronWolf and route SATA power/data.
 8. Connect front-panel, USB, audio, and fan headers.
 9. Perform a cable inspection before applying power.
-10. Enter BIOS and complete the settings in `02-BIOS.md`.
+10. Enter BIOS and complete the settings in [`02-BIOS.md`](02-BIOS.md). Download the correct firmware from the Gigabyte support links in that chapter (or [`99-Sources.md`](99-Sources.md)).
 
 ## First-boot success criteria
 

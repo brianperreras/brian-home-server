@@ -6,3 +6,8 @@
 4. Open `http://SERVER-IP:8123`.
 
 This is Home Assistant Container, not Home Assistant OS. Supervisor and add-ons are not included.
+
+Official references:
+
+- https://www.home-assistant.io/installation/alternative/
+- https://hub.docker.com/r/homeassistant/home-assistant

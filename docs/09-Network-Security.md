@@ -9,12 +9,15 @@
 
 ## Remote access
 
-Use Tailscale for initial remote access to:
+Use [Tailscale](https://tailscale.com/download) for initial remote access to:
 
 - Unraid web UI.
 - Immich.
 - Home Assistant.
 - SSH, when needed.
+
+Install docs: https://tailscale.com/kb/1017/install  
+Unraid notes: https://tailscale.com/kb/1134/unraid
 
 Avoid router port forwarding until you deliberately deploy a reverse proxy, TLS certificates, authentication controls, logging, and an update process.
 

@@ -2,9 +2,14 @@
 
 ## Choose the installation type deliberately
 
+Official overview: [Home Assistant installation methods](https://www.home-assistant.io/installation/)
+
 ### Home Assistant Container
 
 Best when you want a lightweight Docker deployment and are comfortable managing integrations and companion containers yourself. It does not include the Home Assistant Supervisor or add-on store.
+
+Guide: [Alternative / container installation](https://www.home-assistant.io/installation/alternative/)  
+Image: [homeassistant/home-assistant on Docker Hub](https://hub.docker.com/r/homeassistant/home-assistant)
 
 ### Home Assistant OS virtual machine
 
@@ -48,7 +53,7 @@ When adding a Zigbee coordinator:
 
 ## Tuya / Smart Life
 
-Use the official Home Assistant Tuya integration first. Local-only control varies by device and firmware. Do not assume all Smatrul or Lasco devices can be locally controlled without cloud dependencies.
+Use the official [Home Assistant Tuya integration](https://www.home-assistant.io/integrations/tuya/) first. Local-only control varies by device and firmware. Do not assume all Smatrul or Lasco devices can be locally controlled without cloud dependencies.
 
 ## Backups
 
@@ -60,7 +65,7 @@ Stop the container or ensure a consistent backup process before copying SQLite d
 
 ## Updates
 
-- Read Home Assistant breaking changes each month.
+- Read [Home Assistant release notes / breaking changes](https://www.home-assistant.io/blog/categories/release-notes/) each month.
 - Back up configuration before updating.
 - Update Home Assistant separately from Unraid and other stacks.
 - After update, inspect logs and test critical automations.

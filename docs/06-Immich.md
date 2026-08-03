@@ -31,7 +31,24 @@ The PostgreSQL directory must be local storage, not SMB/NFS.
 
 ## 2. Obtain current official files
 
-From the compose project directory, download the current release files as documented by Immich. The official process provides `docker-compose.yml` and an example environment file.
+Follow the official guide: [Immich Docker Compose install](https://docs.immich.app/install/docker-compose)
+
+From the compose project directory on the server, download the current release files (not files from the GitHub `main` branch):
+
+```bash
+cd /mnt/user/appdata/compose-projects/immich
+wget -O docker-compose.yml https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
+wget -O .env https://github.com/immich-app/immich/releases/latest/download/example.env
+```
+
+Equivalent `curl` commands:
+
+```bash
+curl -L -o docker-compose.yml https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
+curl -L -o .env https://github.com/immich-app/immich/releases/latest/download/example.env
+```
+
+Release notes: https://github.com/immich-app/immich/releases
 
 Do not blindly reuse the repository's sample compose file after Immich changes its required services. Treat `docker/immich/` as a local configuration guide and diff it against the latest official release.
 
@@ -80,7 +97,7 @@ Do not manually modify files inside the managed Immich upload library. Use Immic
 
 ## 6. Intel hardware transcoding
 
-Pass `/dev/dri` to the relevant Immich server container according to the current Immich hardware-transcoding compose instructions. In Immich Administration, select the Intel/Quick Sync acceleration option supported by the installed version.
+Pass `/dev/dri` to the relevant Immich server container according to the current [Immich hardware-transcoding docs](https://docs.immich.app/features/hardware-transcoding). In Immich Administration, select the Intel/Quick Sync acceleration option supported by the installed version.
 
 Test with a video upload while watching container logs and Intel GPU activity. Do not assume hardware acceleration works merely because the container starts.
 
@@ -92,7 +109,7 @@ Schedule the initial import when the server can run uninterrupted. Monitor NVMe 
 
 ## 8. Mobile apps
 
-- Install the official Immich mobile app.
+- Install the official Immich mobile app ([quick start / app links](https://docs.immich.app/overview/quick-start)).
 - Connect while on the local network first.
 - Enable backup for selected camera folders.
 - Keep the phone on power and Wi-Fi for the initial upload.
@@ -121,9 +138,11 @@ The actual database service name and username may differ in current releases; co
 
 ## 11. Update procedure
 
-1. Read Immich release notes and breaking changes.
+1. Read Immich [release notes](https://github.com/immich-app/immich/releases) and breaking changes.
 2. Back up the database and appdata.
-3. Download the current official compose and environment example.
+3. Re-download the current official compose and environment example from:
+   - https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
+   - https://github.com/immich-app/immich/releases/latest/download/example.env
 4. Compare local changes.
 5. Pull images and restart.
 6. Review logs and test upload, search, playback, and mobile sync.

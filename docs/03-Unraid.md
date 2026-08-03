@@ -4,7 +4,11 @@ Unraid boots from a USB flash drive and loads the operating system into RAM. The
 
 ## 1. Create the USB on macOS
 
-1. Download the current Unraid USB Flash Creator from the official Unraid website.
+1. Download the current Unraid USB Flash Creator:
+   - Download hub: https://unraid.net/download
+   - macOS creator: https://releases.unraid.net/dl/stable/usb-creator.dmg
+   - Windows creator: https://releases.unraid.net/dl/stable/usb-creator.exe
+   - Install steps: https://docs.unraid.net/unraid-os/getting-started/set-up-unraid/create-your-bootable-media/
 2. Insert an 8-32 GB USB drive. Everything on it will be erased.
 3. Select the current stable Unraid release.
 4. Server name suggestion: `brian-server`.
@@ -13,6 +17,8 @@ Unraid boots from a USB flash drive and loads the operating system into RAM. The
 7. Write the image and safely eject the drive.
 
 Keep the USB in a protected rear port or on an internal USB-header adapter. Maintain a current backup of the flash configuration.
+
+If the creator tool is unavailable, use the [manual install method](https://docs.unraid.net/unraid-os/getting-started/set-up-unraid/create-your-bootable-media/) and the [Unraid OS release archive](https://docs.unraid.net/go/download-list/).
 
 ## 2. First boot
 
@@ -38,7 +44,7 @@ Do not expose the Unraid web interface via router port forwarding. Use Tailscale
 
 ## 4. Plugins to install first
 
-Install the Community Applications plugin using the current official/community instructions. Then install only the tools you need:
+Install the [Community Applications](https://unraid.net/community/apps) plugin using the current official/community instructions. Then install only the tools you need:
 
 - Appdata Backup or the currently maintained equivalent.
 - Unassigned Devices.
