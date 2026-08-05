@@ -65,18 +65,27 @@ Click **Apply** after setting Enable Docker to **Yes**.
 
 ## Step 3 — Install Compose Manager Plus
 
-The original **Compose Manager** / **Docker Compose Manager** (dcflachs) is **deprecated**. Install **Compose Manager Plus** (mstrhakr) instead — drop-in continuation; same project folder layout.
+The original **Compose Manager** / **Docker Compose Manager** (dcflachs) is **deprecated**. Install **Compose Manager Plus** (mstrhakr) instead.
 
 1. Open **Apps**.
 2. Search for **Compose Manager Plus**.
 3. Install the **stable** listing (not BETA), author **mstrhakr**.
-4. If CA still shows the old **Compose Manager**, skip it (or uninstall it first — both cannot be installed together).
+4. Skip the old **Compose Manager** if it still appears in CA.
 5. Confirm under **Plugins** that Compose Manager Plus is installed.
-6. Open a terminal (**>_** top-right, or SSH as root):
+6. Open **Settings → Compose** (Compose Manager Plus settings) and set:
+
+| Field | Value |
+|---|---|
+| Projects Folder | `/mnt/user/appdata/compose-projects` |
+
+7. Click **Apply**.
+8. In Terminal (**>_**):
 
 ```bash
 mkdir -p /mnt/user/appdata/compose-projects
 ```
+
+With Projects Folder set this way, each app is a **subfolder** under that path. When you later create `immich/` with a `docker-compose.yml` inside it, Compose Manager Plus shows an **`immich` stack on the Docker tab automatically**. Do **not** click **Add Stack** for Immich unless no stack appears after a page refresh.
 
 | Path | App |
 |---|---|
@@ -84,22 +93,19 @@ mkdir -p /mnt/user/appdata/compose-projects
 | `/mnt/user/appdata/compose-projects/homeassistant` | Home Assistant |
 | `/mnt/user/appdata/compose-projects/jellyfin` | Jellyfin |
 
-Manage stacks from **Docker** (Compose Manager Plus section). Support: https://forums.unraid.net/topic/197334-plugin-compose-manager-plus/
+Manage stacks from **Docker** → Compose section. Support: https://forums.unraid.net/topic/197334-plugin-compose-manager-plus/
 
-### How you will edit compose / `.env` files later
+### How to edit compose / `.env` files
 
 | Method | How |
 |---|---|
-| Unraid Terminal | Top-right **>_** → `nano /path/to/file` → **Ctrl+O** save, **Ctrl+X** exit |
-| Compose Manager Plus | **Docker** → Compose stack → editor → **Compose** / **.ENV** tabs → **Save All** |
-| Built-in File Manager | Top-right file manager icon → browse to the path |
-
-App chapters (`06`, `07`, `14`) give the exact paths and values.
+| Unraid Terminal | **>_** → `nano /path/to/file` → **Ctrl+O** save, **Ctrl+X** exit |
+| Compose Manager Plus | **Docker** → open the stack → **Compose** / **.ENV** tabs → **Save All** |
 
 ### Already had old Compose Manager?
 
 1. **Apps** → **Compose Manager Plus** → **(Re)Install**.
-2. Existing project folders are kept.
+2. Then set **Settings → Compose → Projects Folder** as above.
 
 ## Step 4 — Verify Intel iGPU device (for later apps)
 

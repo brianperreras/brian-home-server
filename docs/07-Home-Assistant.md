@@ -44,26 +44,19 @@ mkdir -p /mnt/user/appdata/compose-projects/homeassistant
 
 ---
 
-## Step 3 — Create the compose file (where and how)
+## Step 3 — Create the compose file
 
 **Where:** `/mnt/user/appdata/compose-projects/homeassistant/compose.yaml`
 
-### Option A — Copy from this handbook repo on your Mac
+With **Settings → Compose → Projects Folder** = `/mnt/user/appdata/compose-projects` (chapter `05`), a **`homeassistant`** stack appears on the **Docker** tab after this file exists. Do **not** click Add Stack unless no stack shows after a refresh.
 
-1. On your Mac, open the Brian-HomeServer repo.
-2. Copy `docker/homeassistant/compose.yaml` to the server, for example with SCP:
-
-```bash
-scp "/path/to/Brian-HomeServer/docker/homeassistant/compose.yaml" root@brian-server:/mnt/user/appdata/compose-projects/homeassistant/compose.yaml
-```
-
-### Option B — Create it in the Unraid Terminal
+### Create the file in Terminal
 
 ```bash
 nano /mnt/user/appdata/compose-projects/homeassistant/compose.yaml
 ```
 
-Paste this exact content (from `docker/homeassistant/compose.yaml`):
+Paste:
 
 ```yaml
 services:
@@ -76,46 +69,25 @@ services:
     restart: unless-stopped
     privileged: true
     network_mode: host
-    # Add a stable Zigbee/USB device mapping when needed, for example:
     # devices:
     #   - /dev/serial/by-id/usb-REPLACE_ME:/dev/ttyZigbee
 ```
 
 Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**.
 
-### Option C — Compose Manager Plus editor
+(Or copy from this repo’s `docker/homeassistant/compose.yaml` via `scp`.)
 
-1. Add the stack first (Step 4).
-2. Open **Compose** tab → paste the YAML → **Save All**.
-
-This template uses **host** networking (port **8123** on the host), config on GM7000, and `privileged: true` for a practical Unraid start. Tighten later if needed.
-
-No `.env` file is required for this basic HA stack.
+No `.env` file is required for this basic stack.
 
 ---
 
-## Step 4 — Add stack in Compose Manager Plus
+## Step 4 — Confirm the stack, then start
 
-1. **Docker** → Compose section → **Add New Stack**.
-2. Fill:
+1. **Docker** → Compose → **`homeassistant`** (one entry only).
+2. Open it if you want: optional WebUI URL `http://brian-server:8123`.
+3. Stack menu → **Compose Up**.
 
-| Field | Value |
-|---|---|
-| Stack name | `homeassistant` |
-| Description | `Home Assistant Container` (optional) |
-| Advanced → Indirect Path | `/mnt/user/appdata/compose-projects/homeassistant` |
-
-3. Create → confirm **Compose** tab shows the YAML.
-4. Optional **Settings**: WebUI URL = `http://brian-server:8123`
-5. **Save All**.
-
----
-
-## Step 5 — Start Home Assistant
-
-**Compose Manager Plus:** stack menu → **Compose Up**.
-
-**Or Terminal:**
+Or:
 
 ```bash
 cd /mnt/user/appdata/compose-projects/homeassistant
@@ -124,23 +96,17 @@ docker compose up -d
 docker compose logs --tail=100
 ```
 
-Open:
-
-`http://brian-server:8123`
-
-or `http://YOUR-RESERVED-IP:8123`
-
-Create the admin account in the onboarding wizard.
+Open `http://brian-server:8123` (or your IP) and create the admin account.
 
 ---
 
-## Step 6 — Networking and remote access
+## Step 4 — Networking and remote access
 
 Do not expose port 8123 publicly. Use Tailscale (chapter `09`).
 
 ---
 
-## Step 7 — Zigbee USB (optional)
+## Step 5 — Zigbee USB (optional)
 
 1. Use a USB extension cable.
 2. In Terminal, find a stable path:
@@ -161,7 +127,7 @@ devices:
 
 ---
 
-## Step 8 — Tuya / Smart Life
+## Step 6 — Tuya / Smart Life
 
 Use the official Tuya integration: https://www.home-assistant.io/integrations/tuya/
 
@@ -169,7 +135,7 @@ Local-only control varies by device.
 
 ---
 
-## Step 9 — Backup
+## Step 7 — Backup
 
 Back up `/mnt/user/appdata/homeassistant/config`. Prefer Home Assistant’s built-in backup when available. Include that folder in the weekly Exos job later.
 
@@ -177,7 +143,7 @@ Never commit `secrets.yaml` to Git.
 
 ---
 
-## Step 10 — Updates
+## Step 8 — Updates
 
 1. Read release notes: https://www.home-assistant.io/blog/categories/release-notes/
 2. Back up config.

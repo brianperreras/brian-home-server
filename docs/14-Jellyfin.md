@@ -51,17 +51,11 @@ mkdir -p /mnt/user/appdata/compose-projects/jellyfin
 
 ---
 
-## Step 3 — Create the compose file (where and how)
+## Step 3 — Create the compose file
 
 **Where:** `/mnt/user/appdata/compose-projects/jellyfin/compose.yaml`
 
-### Option A — Copy from this repo
-
-```bash
-scp "/path/to/Brian-HomeServer/docker/jellyfin/compose.yaml" root@brian-server:/mnt/user/appdata/compose-projects/jellyfin/compose.yaml
-```
-
-### Option B — Create in Terminal
+With Projects Folder set to `/mnt/user/appdata/compose-projects`, a **`jellyfin`** stack appears on **Docker** after this file exists. Do **not** Add Stack unless nothing shows after a refresh.
 
 ```bash
 nano /mnt/user/appdata/compose-projects/jellyfin/compose.yaml
@@ -84,19 +78,11 @@ services:
     devices:
       - /dev/dri:/dev/dri
     restart: unless-stopped
-    # Prefer published ports first. Switch to host networking only if LAN discovery fails:
-    # network_mode: host
 ```
 
 Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**.
 
-### Option C — Compose Manager Plus
-
-Add stack (Step 4) → **Compose** tab → paste YAML → **Save All**.
-
-No `.env` file is required for this basic Jellyfin stack.
-
-### Path map
+No `.env` required.
 
 | Container path | Host path |
 |---|---|
@@ -106,28 +92,12 @@ No `.env` file is required for this basic Jellyfin stack.
 
 ---
 
-## Step 4 — Add stack in Compose Manager Plus
+## Step 4 — Start Jellyfin
 
-1. **Docker** → Compose → **Add New Stack**.
-2. Fill:
+1. **Docker** → Compose → **`jellyfin`**.
+2. Stack menu → **Compose Up**.
 
-| Field | Value |
-|---|---|
-| Stack name | `jellyfin` |
-| Description | `Jellyfin media server` (optional) |
-| Advanced → Indirect Path | `/mnt/user/appdata/compose-projects/jellyfin` |
-
-3. Create → confirm YAML on **Compose** tab.
-4. Optional **Settings**: WebUI URL = `http://brian-server:8096`
-5. **Save All**.
-
----
-
-## Step 5 — Start Jellyfin
-
-**Compose Manager Plus:** **Compose Up**.
-
-**Or Terminal:**
+Or:
 
 ```bash
 cd /mnt/user/appdata/compose-projects/jellyfin
@@ -136,25 +106,11 @@ docker compose up -d
 docker compose logs --tail=200
 ```
 
-Open:
-
-`http://brian-server:8096`
-
-or `http://YOUR-RESERVED-IP:8096`
-
-Finish the setup wizard. When adding libraries, use container paths:
-
-| Library | Folder inside Jellyfin |
-|---|---|
-| Movies | `/media/movies` |
-| TV | `/media/tv` |
-| Music | `/media/music` |
-
-Put real files on the host under `/mnt/user/media/movies` (etc.); Jellyfin sees them under `/media/...`.
+Open `http://brian-server:8096`. In the wizard, add libraries as `/media/movies`, `/media/tv`, `/media/music` (host files under `/mnt/user/media/...`).
 
 ---
 
-## Step 6 — Hardware acceleration
+## Step 5 — Hardware acceleration
 
 1. Confirm host devices: `ls -l /dev/dri`
 2. Compose already maps `/dev/dri` (Step 3).
@@ -165,17 +121,15 @@ Keep SQLite unless you have a strong reason to add MariaDB.
 
 ---
 
-## Step 7 — Remote access
+## Step 6 — Remote access
 
 Prefer Tailscale (chapter `09`). Do not expose `8096` publicly without TLS and auth review.
 
 ---
 
-## Step 8 — Backup and updates
+## Step 7 — Backup and updates
 
 Back up `/mnt/user/appdata/jellyfin` and media as needed.
-
-Update only this stack:
 
 ```bash
 cd /mnt/user/appdata/compose-projects/jellyfin

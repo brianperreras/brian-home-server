@@ -1,63 +1,42 @@
 # 06 - Immich Installation and Setup
 
-Do this **after** Storage (`04`) and Docker (`05`). Steps are for **Unraid OS 7.3.2** with **Compose Manager Plus**.
+Do this **after** Storage (`04`) and Docker (`05`). **Unraid OS 7.3.2** + **Compose Manager Plus**.
 
-Immich changes quickly. Use the current official Docker Compose files from the latest Immich release.
-
-Official guide: https://docs.immich.app/install/docker-compose
+Official Immich guide: https://docs.immich.app/install/docker-compose
 
 ## Before you start
-
-Confirm:
 
 | Check | Where |
 |---|---|
 | Array started | **Main** |
 | Shares `appdata`, `photos`, `database-backups-staging` | **Shares** |
 | Docker enabled | **Settings → Docker** |
-| Compose Manager Plus installed | **Plugins** / **Docker** tab shows a Compose section |
-| Project folder parent exists | Terminal: `ls /mnt/user/appdata/compose-projects` |
+| Compose Manager Plus installed | **Plugins** |
+| Projects Folder | **Settings → Compose** = `/mnt/user/appdata/compose-projects` (set in chapter `05`) |
 
-If anything is missing, finish chapters `04` and `05` first.
+If Projects Folder is still the USB default, fix it in chapter `05` first so the `immich` stack appears automatically after you download files.
 
-## Layout for this server
+## Layout
 
 ```text
-Mobile apps / browser
-        |
-   Immich server (:2283)
-    /         \
-PostgreSQL   Machine learning
-   |               |
-GM7000 SSD      GM7000 (cache)
-
-Original photo/video library -> IronWolf (/mnt/user/photos/immich-library)
+Browser / phone → Immich (:2283)
+                    ├── PostgreSQL → GM7000 (/mnt/user/appdata/immich/postgres)
+                    └── Uploads    → IronWolf (/mnt/user/photos/immich-library)
 ```
 
-Project files live here:
+Compose project folder (also the Compose Manager Plus stack):
 
 `/mnt/user/appdata/compose-projects/immich/`
 
-| File | Purpose |
-|---|---|
-| `docker-compose.yml` | Official Immich stack definition |
-| `.env` | Paths and DB password (edit this on the server) |
-| `hwaccel.transcoding.yml` | Optional Intel Quick Sync snippet |
-
 ---
 
-## Step 1 — Open a terminal on Unraid
+## Step 1 — Terminal
 
-1. In the Unraid WebGUI, click the **>_** (Terminal) icon in the top-right.
-2. Or SSH: `ssh root@brian-server` (or your reserved IP).
-
-All `mkdir` / `wget` / `nano` commands below run in that terminal as root.
+WebGUI → top-right **>_** (or SSH as `root`).
 
 ---
 
 ## Step 2 — Create directories
-
-Paste:
 
 ```bash
 mkdir -p /mnt/user/appdata/immich/postgres
@@ -67,20 +46,9 @@ mkdir -p /mnt/user/appdata/compose-projects/immich
 mkdir -p /mnt/user/database-backups-staging
 ```
 
-Confirm:
-
-```bash
-ls -la /mnt/user/appdata/compose-projects/immich
-ls -la /mnt/user/photos/immich-library
-```
-
-Keep PostgreSQL on GM7000 (`appdata`). Do not put the database on the IronWolf or on SMB.
-
 ---
 
-## Step 3 — Download official Immich files
-
-In the terminal:
+## Step 3 — Download official files
 
 ```bash
 cd /mnt/user/appdata/compose-projects/immich
@@ -88,171 +56,62 @@ cd /mnt/user/appdata/compose-projects/immich
 wget -O docker-compose.yml https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
 wget -O .env https://github.com/immich-app/immich/releases/latest/download/example.env
 wget -O hwaccel.transcoding.yml https://github.com/immich-app/immich/releases/latest/download/hwaccel.transcoding.yml
+
+ls -la
 ```
 
-If `wget` is missing, use:
+(Use `curl -L -o …` instead of `wget -O …` if needed.)
 
-```bash
-curl -L -o docker-compose.yml https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
-curl -L -o .env https://github.com/immich-app/immich/releases/latest/download/example.env
-curl -L -o hwaccel.transcoding.yml https://github.com/immich-app/immich/releases/latest/download/hwaccel.transcoding.yml
-```
+You need these three files in that folder. Do not commit the real `.env` to Git.
 
-Confirm the three files exist:
+**After this step:** open **Docker** → Compose section. You should see a stack named **`immich`** (Compose Manager Plus picks up the folder).  
+**Do not click Add Stack** — that creates a duplicate like `immich-001`.
 
-```bash
-ls -la /mnt/user/appdata/compose-projects/immich
-```
+If no stack appears: refresh the Docker page. Still missing → confirm **Settings → Compose → Projects Folder** is `/mnt/user/appdata/compose-projects`, then refresh again.
 
-You should see `docker-compose.yml`, `.env`, and `hwaccel.transcoding.yml`.
-
-Do **not** commit the real `.env` to Git. Treat `docker/immich/` in this repo only as a path guide.
+If you already have **`immich` and `immich-001`**: keep one, delete the other (stack menu → Delete). Prefer the one tied to `/mnt/user/appdata/compose-projects/immich`.
 
 ---
 
-## Step 4 — Configure `.env` (where and how)
+## Step 4 — Edit `.env`
 
-**Where the file is:**
-
-`/mnt/user/appdata/compose-projects/immich/.env`
-
-You can edit it two ways. Pick one.
-
-### Option A — Terminal (`nano`) — recommended first time
-
-1. Open Unraid Terminal (**>_**).
-2. Run:
+**File:** `/mnt/user/appdata/compose-projects/immich/.env`
 
 ```bash
 cd /mnt/user/appdata/compose-projects/immich
 nano .env
 ```
 
-3. Find each variable below and set the value (arrow keys to move; edit the text after `=`).
-4. Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**.
-5. Lock permissions:
+Set these values (other official example lines can stay):
+
+| Variable | Value |
+|---|---|
+| `UPLOAD_LOCATION` | `/mnt/user/photos/immich-library` |
+| `DB_DATA_LOCATION` | `/mnt/user/appdata/immich/postgres` |
+| `IMMICH_VERSION` | `release` |
+| `DB_PASSWORD` | long random password (password manager; prefer `A-Za-z0-9` only) |
+| `DB_USERNAME` | `postgres` |
+| `DB_DATABASE_NAME` | `immich` |
+| `TZ` | e.g. `Asia/Manila` (if present in the file) |
+
+Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**.
 
 ```bash
 chmod 600 .env
+grep -E 'UPLOAD_LOCATION|DB_DATA_LOCATION|DB_PASSWORD|IMMICH_VERSION' .env
 ```
 
-### Option B — Compose Manager Plus UI
-
-1. First register the stack (Step 5 below) if you have not yet.
-2. Open **Docker** → in the **Compose** section, open the **immich** stack editor (pencil / edit).
-3. Open the **.ENV** (or **ENV**) tab.
-4. Paste or edit the same values as in the table.
-5. Click **Save** / **Save All**.
-
-### Values to set for this build
-
-Open `.env` and make sure these lines exist and match (other lines in the official example can stay unless Immich docs say otherwise):
-
-| Variable | Set to | Why |
-|---|---|---|
-| `UPLOAD_LOCATION` | `/mnt/user/photos/immich-library` | Photo library on IronWolf |
-| `DB_DATA_LOCATION` | `/mnt/user/appdata/immich/postgres` | Postgres on GM7000 / `cache` |
-| `IMMICH_VERSION` | `release` | Track Immich stable releases |
-| `DB_PASSWORD` | a long random password you create | Database password — store in your password manager |
-| `DB_USERNAME` | `postgres` | Default Immich example |
-| `DB_DATABASE_NAME` | `immich` | Default Immich example |
-| `TZ` | your timezone, e.g. `Asia/Manila` | Only if the example `.env` includes `TZ=` |
-
-Example (replace the password):
-
-```dotenv
-UPLOAD_LOCATION=/mnt/user/photos/immich-library
-DB_DATA_LOCATION=/mnt/user/appdata/immich/postgres
-IMMICH_VERSION=release
-DB_PASSWORD=ReplaceWithYourLongRandomPassword
-DB_USERNAME=postgres
-DB_DATABASE_NAME=immich
-TZ=Asia/Manila
-```
-
-Notes:
-
-- Prefer only `A-Za-z0-9` in `DB_PASSWORD` if the Immich example warns about special characters.
-- Do not put spaces around `=`.
-- If the official compose uses a model-cache volume, map that host path to `/mnt/user/appdata/immich/model-cache` (edit `docker-compose.yml` volume line if needed — see Immich docs for the current volume name).
-
-Verify after saving:
-
-```bash
-grep -E 'UPLOAD_LOCATION|DB_DATA_LOCATION|DB_PASSWORD|IMMICH_VERSION' /mnt/user/appdata/compose-projects/immich/.env
-```
+Optional: **Docker** → open the **`immich`** stack → **.ENV** tab → confirm the same values → **Save All**.
 
 ---
 
-## Step 5 — Add the stack in Compose Manager Plus
+## Step 5 — Start Immich
 
-So the WebGUI manages this folder:
+1. **Docker** → Compose → **`immich`** (only one).
+2. Stack menu → **Compose Up**.
+3. Wait for the first image pull (several minutes).
 
-1. Open the **Docker** tab.
-2. Scroll to the **Compose** section (Compose Manager Plus).
-3. Click **Add New Stack** / **Add Stack**.
-4. Fill:
-
-| Field | Value |
-|---|---|
-| Stack name | `immich` |
-| Description | `Immich photo stack` (optional) |
-| Advanced → Indirect Path (or External / Project path) | `/mnt/user/appdata/compose-projects/immich` |
-
-5. Click **Create** / **OK**.
-6. If the editor opens:
-   - **Compose** tab should already show `docker-compose.yml` contents (from the folder).
-   - **.ENV** tab should show your `.env` (confirm Step 4 values).
-   - **Settings** tab (optional): WebUI URL = `http://[IP]:2283` or `http://brian-server:2283`
-7. **Save All** if you changed anything.
-
-Path must be the **folder**, not the `docker-compose.yml` file itself.
-
-**Add the stack only once.** If you already see `immich` in the Compose list, do **not** click Add Stack again — open/edit that existing stack and set its Indirect Path instead.
-
-### If you see two stacks (`immich` and `immich-001`)
-
-That is **not** two Immich installs by design — Compose Manager Plus created a second entry (often after Add Stack was clicked twice, or one stack used the default USB project folder and another used your Indirect Path).
-
-**Keep only the stack whose project path is:**
-
-`/mnt/user/appdata/compose-projects/immich`
-
-That is where you ran `wget` and edited `.env` in Steps 3–4.
-
-**How to tell which is which:**
-
-1. Open each stack → **Settings** (or Advanced / path fields).
-2. Check **Indirect Path** / project directory.
-3. Or in Terminal:
-
-```bash
-ls -la /mnt/user/appdata/compose-projects/immich
-ls -la /boot/config/plugins/compose.manager/projects/
-```
-
-- Files you downloaded (`docker-compose.yml`, `.env`) should be under `/mnt/user/appdata/compose-projects/immich`.
-- A leftover empty/default stack often lives under `/boot/config/plugins/compose.manager/projects/immich` or `immich-001`.
-
-**What to do:**
-
-1. Do **not** start both.
-2. Start only the stack pointed at `/mnt/user/appdata/compose-projects/immich`.
-3. On the duplicate: stack menu → **Compose Down** (if it was ever started) → **Delete** / remove the stack.
-4. You should have exactly **one** Immich stack left.
-
----
-
-## Step 6 — Start Immich
-
-### From Compose Manager Plus (preferred)
-
-1. **Docker** → Compose section → the **one** Immich stack that uses `/mnt/user/appdata/compose-projects/immich`.
-2. Open the stack menu (icon / right-click / context menu).
-3. Choose **Compose Up** (or **Update** then Up if offered).
-4. Wait for pull + start to finish (can take several minutes the first time).
-
-### From terminal (same result)
+Or:
 
 ```bash
 cd /mnt/user/appdata/compose-projects/immich
@@ -262,102 +121,42 @@ docker compose ps
 docker compose logs --tail=200
 ```
 
-### Open Immich
-
-In a browser on your LAN:
-
-`http://brian-server:2283`
-
-or `http://YOUR-RESERVED-IP:2283`
-
-Create the **first administrator account** immediately.
+Open `http://brian-server:2283` (or `http://YOUR-IP:2283`) and create the admin account.
 
 ---
 
-## Step 7 — Library placement
+## Step 6 — After it works
 
-- Uploads go to IronWolf: `/mnt/user/photos/immich-library`
-- Postgres stays on GM7000: `/mnt/user/appdata/immich/postgres`
+**Library:** uploads on IronWolf (`/mnt/user/photos/immich-library`); Postgres on GM7000. Do not hand-edit files inside the Immich library.
 
-Do not manually edit files inside the managed Immich library. Use Immich upload/import or supported external-library features.
-
----
-
-## Step 8 — Intel hardware transcoding (optional, after Immich works)
-
-1. Confirm GPU device on the host:
+**Quick Sync (optional):**
 
 ```bash
 ls -l /dev/dri
+nano /mnt/user/appdata/compose-projects/immich/docker-compose.yml
 ```
 
-2. Edit compose so `immich-server` can use Quick Sync.
-
-**Either** keep `hwaccel.transcoding.yml` next to `docker-compose.yml` and, in `docker-compose.yml` under `immich-server`, uncomment the `extends` block and set service to `quicksync` (official Immich method),
-
-**Or** (simpler on Unraid if multi-file compose is awkward) edit `docker-compose.yml` under `immich-server` and add:
+Under `immich-server`, either enable official `extends` → `quicksync` with `hwaccel.transcoding.yml`, or add:
 
 ```yaml
 devices:
   - /dev/dri:/dev/dri
 ```
 
-How to edit YAML:
+Then Compose Down → Compose Up. Enable Intel/QSV in Immich Admin.  
+Docs: https://docs.immich.app/features/hardware-transcoding
 
-- Terminal: `nano /mnt/user/appdata/compose-projects/immich/docker-compose.yml`
-- Or Compose Manager Plus → **immich** → **Compose** tab → edit → **Save All**
+**Mobile:** install Immich app → server `http://YOUR-IP:2283` → enable backup on Wi‑Fi. Remote access: chapter `09` (Tailscale). Do not port-forward `2283`.
 
-3. Redeploy: Compose Manager Plus → **Compose Down**, then **Compose Up** (or `docker compose up -d` in that folder).
-4. In Immich Admin UI, enable the Intel / Quick Sync option your version offers.
-
-Official detail: https://docs.immich.app/features/hardware-transcoding
-
----
-
-## Step 9 — Machine learning
-
-Use CPU (or OpenVINO if your Immich release supports it) for face/search. First large import can take a long time. Run it when the server can stay on; watch CPU/NVMe temps.
-
----
-
-## Step 10 — Mobile apps
-
-1. Install the official Immich app: https://docs.immich.app/overview/quick-start
-2. Server URL on LAN: `http://YOUR-RESERVED-IP:2283` (or `http://brian-server:2283` if DNS works on the phone)
-3. Log in with the admin (or a user) account.
-4. Enable backup for camera folders; keep phone on Wi‑Fi + power for the first sync.
-5. Confirm files appear in Immich before deleting phone / Google Photos copies.
-
-Remote later: chapter `09` (Tailscale). Do not port-forward `2283`.
-
----
-
-## Step 11 — Backup notes
-
-Back up both:
-
-1. Media: `/mnt/user/photos/immich-library`
-2. Database dump (albums, faces, users live here)
-
-Before upgrades, in Terminal:
+**Backup before upgrades** (both media + DB):
 
 ```bash
 cd /mnt/user/appdata/compose-projects/immich
 docker compose exec -T database pg_dumpall --clean --if-exists --username=postgres | gzip > /mnt/user/database-backups-staging/immich-$(date +%F).sql.gz
 ```
 
-If that fails, check the database **service name** in your `docker-compose.yml` (may not be `database`) and adjust the command.
+(Adjust service name if your compose file does not call it `database`.)
 
----
-
-## Step 12 — Update procedure
-
-1. Read https://github.com/immich-app/immich/releases
-2. Dump the DB (Step 11) and note appdata backup.
-3. Re-download official files into the project folder (Step 3), then re-apply your `.env` path/password values (do not lose `DB_PASSWORD`).
-4. Compose Manager Plus → **Compose Up** / Update, or `docker compose pull && docker compose up -d`
-5. Test upload, search, playback, mobile sync.
-
-Never downgrade Immich casually after a DB migration.
+**Update:** read Immich release notes → dump DB → re-download official files into the same folder → re-apply `.env` paths/password → Compose Up. Never downgrade casually after a DB migration.
 
 **Next:** chapter `07` Home Assistant.
