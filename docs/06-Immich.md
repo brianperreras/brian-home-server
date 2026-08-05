@@ -62,9 +62,17 @@ ls -la
 
 (Use `curl -L -o …` instead of `wget -O …` if needed.)
 
-You need these three files in that folder. Do not commit the real `.env` to Git.
+After `ls -la`, you should see these files in `/mnt/user/appdata/compose-projects/immich/`:
 
-**After this step:** open **Docker** → Compose section. You should see a stack named **`immich`** (Compose Manager Plus picks up the folder).  
+```text
+docker-compose.yml
+.env
+hwaccel.transcoding.yml
+```
+
+If any file is missing, re-run the matching `wget` (or `curl`) line. Do not commit the real `.env` to Git.
+
+**After the files are present:** open **Docker** → Compose section. You should see a stack named **`immich`** (Compose Manager Plus picks up the folder).  
 **Do not click Add Stack** — that creates a duplicate like `immich-001`.
 
 If no stack appears: refresh the Docker page. Still missing → confirm **Settings → Compose → Projects Folder** is `/mnt/user/appdata/compose-projects`, then refresh again.
