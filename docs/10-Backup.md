@@ -1,6 +1,6 @@
 # 10 - Weekly Backup Plan
 
-Do this **after** apps and SMB/cron (`15`) are in place.
+Do this **after** apps and SMB/cron (`15`) are in place. Steps match **Unraid 7.3.2**.
 
 ## Recovery objective
 
@@ -14,7 +14,7 @@ You accept about one week of risk on new data. The **Seagate Exos 6 TB** mounts 
 - Jellyfin appdata (and media if not duplicated elsewhere).
 - Docker appdata for critical applications.
 - Compose files and secret configuration through an encrypted/private backup.
-- Unraid flash configuration backup.
+- Unraid boot-device configuration backup (**Main → Boot Device → Boot Device Backup**).
 
 ## Recommended tool
 
@@ -36,29 +36,78 @@ Schedule starts
   -> disk becomes idle and spins down
 ```
 
-## Unassigned Devices
+## Unassigned Devices (Exos)
 
-Mount the Exos backup disk at:
+1. Confirm **Unassigned Devices** is installed (**Apps** / **Plugins**).
+2. Attach the Exos. Do **not** add it under **Main → Array Devices**.
+3. On **Main → Unassigned Devices**, configure/mount with:
 
-`/mnt/disks/weekly_backup`
+| Field | Value |
+|---|---|
+| Device | Seagate Exos 6 TB (match serial) |
+| Mount point / Mount name | `weekly_backup` → `/mnt/disks/weekly_backup` |
+| File system | **xfs** (if formatting new) |
+| Auto mount | **No** |
+| Share (SMB) | **No** |
+| Destructive mode | leave off unless you intentionally need format/wipe |
 
-Do not configure automatic mount at boot unless you intentionally want the disk always mounted.
+4. Open **Settings → Unassigned Devices** and keep boot auto-mount **off**.
+5. After the backup script finishes, unmount from **Main → Unassigned Devices**.
 
-## Install scripts
+## Install scripts and `backup.env`
 
-Copy scripts from this repository to a persistent location, for example:
+1. Open the Unraid terminal (**>_**).
+2. Copy scripts from this repository:
 
 ```bash
 mkdir -p /boot/config/custom/backup
-cp scripts/*.sh /boot/config/custom/backup/
-chmod 700 /boot/config/custom/backup/*.sh
+cp /path/to/Brian-HomeServer/scripts/*.sh /boot/config/custom/backup/
+cp /path/to/Brian-HomeServer/scripts/backup.env.example /boot/config/custom/backup/backup.env
 ```
 
-Edit variables in `backup.env.example`, save the real file as `backup.env`, and keep it out of Git.
+3. Edit `/boot/config/custom/backup/backup.env` and fill:
 
-## Schedule
+| Variable | Example value |
+|---|---|
+| `BACKUP_MOUNT` | `/mnt/disks/weekly_backup` |
+| `SNAPSHOT_ROOT` | `/mnt/disks/weekly_backup/snapshots` |
+| `SOURCE_PHOTOS` | `/mnt/user/photos` |
+| `SOURCE_DOCUMENTS` | `/mnt/user/documents` |
+| `SOURCE_MEDIA` | `/mnt/user/media` (optional; leave empty to skip) |
+| `SOURCE_APPDATA` | `/mnt/user/appdata` |
+| `STAGING` | `/mnt/user/database-backups-staging` |
+| `RETENTION_WEEKS` | `8` |
 
-Use the User Scripts plugin to run `weekly-backup.sh` every Sunday at a quiet time. Do not schedule it at exactly the same time as appdata backup, SMART extended tests, mover, or major media scans.
+4. Keep `backup.env` out of Git.
+
+On Unraid **7.3.x**, boot-device files are not executable. Always run with:
+
+```bash
+bash /boot/config/custom/backup/weekly-backup.sh
+```
+
+## Schedule with User Scripts
+
+1. Open **Settings → User Scripts**.
+2. **Add New Script** (or edit the one from chapter `15`) and fill:
+
+| Field | Value |
+|---|---|
+| Script name | `weekly-backup` |
+| Schedule | **Custom** |
+| Cron | `0 3 * * 0` (Sunday 03:00) |
+
+3. Script body:
+
+```bash
+#!/bin/bash
+bash /boot/config/custom/backup/weekly-backup.sh
+```
+
+4. Click **Apply**.
+5. Optionally add separate scripts for pre-backup DB dumps and post-backup checks.
+
+Do not schedule at the same time as Appdata Backup, SMART extended tests, mover, or major media scans.
 
 ## Deletion protection
 
@@ -72,7 +121,7 @@ Every run must produce:
 - Start/end timestamps.
 - Amount transferred.
 - Backup destination free space.
-- Failure notification.
+- Failure notification (**Settings → Notifications** should already be configured from chapter `03`).
 
 Monthly, restore several random files. Quarterly, restore an Immich database dump into a temporary environment.
 

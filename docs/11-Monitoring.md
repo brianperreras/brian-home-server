@@ -1,24 +1,33 @@
 # 11 - Monitoring and Alerts
 
-Start with Unraid's built-in dashboard and notifications. Add a large monitoring stack only when it solves a real need.
+Start with Unraid's built-in dashboard and notifications (**Unraid 7.3.2**). Add a large monitoring stack only when it solves a real need.
 
 ## Minimum monitoring
 
-- CPU temperature and load.
-- RAM usage.
-- GM7000 temperature and SMART/NVMe health.
-- IronWolf SMART attributes and temperature.
-- Docker container health/restarts.
-- Share free space.
-- Backup success/failure.
+Use **Dashboard** for live tiles, then wire alerts under **Settings → Notifications**.
 
-## Recommended alerts
+- CPU temperature and load (**Dashboard**)
+- RAM usage (**Dashboard**)
+- GM7000 temperature and SMART/NVMe health (**Main** → click the pool disk)
+- IronWolf SMART attributes and temperature (**Main** → **Disk 1**)
+- Docker container health/restarts (**Docker** tab)
+- Share free space (**Shares** / **Dashboard**)
+- Backup success/failure (User Scripts log + notification agents)
+
+## Configure alerts
+
+1. Open **Settings → Notifications**.
+2. Enable notification agents you use (browser, email, Discord, Telegram, etc.).
+3. Send a test notification.
+4. Tune thresholds under **Settings → Disk Settings** and per-disk SMART views on **Main**.
+
+## Recommended alert policy
 
 - HDD above 48 C warning; 52 C critical as an initial policy.
 - NVMe sustained above 75 C warning.
 - SMART pending/reallocated/uncorrectable sectors greater than zero.
 - Filesystem read-only or I/O errors.
-- Docker image usage above 75%.
+- Docker image usage above 75% (**Settings → Docker** / notifications).
 - Primary data share above 80% capacity.
 - Backup older than eight days.
 

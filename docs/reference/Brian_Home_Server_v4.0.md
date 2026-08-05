@@ -32,7 +32,7 @@ v4.0
 
 ## Operating System
 
-- **Chosen: Unraid OS**
+- **Chosen: Unraid OS 7.3.2** (paid / registered)
 - Not used for this build: Ubuntu Server 24.04 LTS (kept only as a historical alternative from earlier planning)
 
 ## Services
@@ -46,6 +46,7 @@ v4.0
 | MariaDB | Only if an app needs it | Later (`08`) |
 | Jellyfin | Media on IronWolf; config on GM7000 | After HA (`14`) |
 | SMB | Unraid user shares | After apps (`15`) |
+| Local / remote access | LAN URLs + Tailscale | (`09`) |
 | Git | Handbook on Mac; optional Gitea later | (`15`) |
 | Cron / schedules | User Scripts plugin | (`15`) then backup (`10`) |
 

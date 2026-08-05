@@ -2,6 +2,8 @@
 
 Follow the chapters **in number order**. Do not skip ahead to Immich or Jellyfin until storage and Docker are done.
 
+This build uses **Unraid OS 7.3.2** (paid). UI click paths in the chapters match that WebGUI (for example **Settings → Identification**, **Shares → Add Share**, **Main → Boot Device**).
+
 ## Why this order
 
 | Step | Chapter | What you do | Why first |
@@ -19,6 +21,8 @@ Follow the chapters **in number order**. Do not skip ahead to Immich or Jellyfin
 
 **Storage before Docker:** Unraid must know where `appdata` and data shares live before Docker starts.  
 **Docker before Immich/Jellyfin/HA:** those services are containers; enabling Docker is only the engine, not the apps.
+
+**Access from other computers:** after Unraid is on the LAN, see chapter `09` for local URLs (web UI, SMB, apps) and remote access via Tailscale. You can use local access as soon as chapter `03` is done; remote Tailscale can wait until the server is stable.
 
 ## Before assembly
 

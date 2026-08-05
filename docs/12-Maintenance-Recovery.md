@@ -2,19 +2,19 @@
 
 ## Weekly
 
-- Confirm backup job succeeded.
-- Review Unraid notifications.
-- Check free space.
+- Confirm backup job succeeded (**Settings → User Scripts** history / logs).
+- Review Unraid notifications (**Settings → Notifications** / bell icon).
+- Check free space (**Dashboard** / **Shares**).
 - Verify Immich mobile uploads are current.
 - Spot-check Jellyfin playback if media was added.
 
 ## Monthly
 
-- Run IronWolf extended SMART test.
-- Run backup-disk SMART test during its active window.
+- Run IronWolf extended SMART test (**Main → Disk 1**).
+- Run backup-disk SMART test during its active window (**Main → Unassigned Devices**).
 - Install selected application updates after reading release notes.
-- Export/verify Unraid flash backup.
-- Review Docker container logs for repeated errors.
+- Export/verify Unraid boot-device backup (**Main → Boot Device → Boot Device Backup**).
+- Review Docker container logs for repeated errors (**Docker** tab).
 
 ## Quarterly
 
@@ -42,12 +42,12 @@
 
 There is no parity rebuild in this design.
 
-## Unraid USB failure
+## Unraid USB / boot-device failure
 
-1. Prepare a replacement USB with current Unraid.
-2. Restore the flash configuration backup.
-3. Transfer/replace the license using the official process.
-4. Confirm disk assignments by serial number before starting the array.
+1. Prepare a replacement USB with current Unraid (7.3.2 or current stable).
+2. Restore the boot-device configuration backup ZIP via the USB Creator **Use custom** option (or copy the backed-up `config` folder for a manual restore).
+3. Transfer/replace the license using the official process when prompted about an invalid/missing registration key.
+4. On **Main**, confirm disk assignments by serial number before starting the array.
 
 ## GM7000 failure
 
