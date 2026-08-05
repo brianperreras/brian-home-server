@@ -1,13 +1,12 @@
-# Home Assistant Container
+# Home Assistant Compose Project
 
-Unraid Container install for this build (not Home Assistant OS).
+Follow **`docs/07-Home-Assistant.md`** for Unraid click paths.
 
-1. Create `/mnt/user/appdata/homeassistant/config`.
-2. Copy `compose.yaml` to `/mnt/user/appdata/compose-projects/homeassistant/`.
-3. Run `docker compose pull && docker compose up -d`.
-4. Open `http://SERVER-IP:8123`.
+Server paths:
 
-Official references:
+| Path | What |
+|---|---|
+| `/mnt/user/appdata/compose-projects/homeassistant/compose.yaml` | Compose file |
+| `/mnt/user/appdata/homeassistant/config` | HA config |
 
-- https://www.home-assistant.io/installation/alternative/
-- Full steps: `docs/07-Home-Assistant.md`
+Copy `compose.yaml` from this folder to the server project path, or paste it via `nano` / Compose Manager Plus.

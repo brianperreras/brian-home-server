@@ -86,6 +86,16 @@ mkdir -p /mnt/user/appdata/compose-projects
 
 Manage stacks from **Docker** (Compose Manager Plus section). Support: https://forums.unraid.net/topic/197334-plugin-compose-manager-plus/
 
+### How you will edit compose / `.env` files later
+
+| Method | How |
+|---|---|
+| Unraid Terminal | Top-right **>_** → `nano /path/to/file` → **Ctrl+O** save, **Ctrl+X** exit |
+| Compose Manager Plus | **Docker** → Compose stack → editor → **Compose** / **.ENV** tabs → **Save All** |
+| Built-in File Manager | Top-right file manager icon → browse to the path |
+
+App chapters (`06`, `07`, `14`) give the exact paths and values.
+
 ### Already had old Compose Manager?
 
 1. **Apps** → **Compose Manager Plus** → **(Re)Install**.

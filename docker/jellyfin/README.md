@@ -1,11 +1,15 @@
 # Jellyfin Compose Project
 
-Template aligned to this Unraid layout:
+Follow **`docs/14-Jellyfin.md`** for Unraid click paths.
+
+Server paths:
+
+| Path | What |
+|---|---|
+| `/mnt/user/appdata/compose-projects/jellyfin/compose.yaml` | Compose file |
+| `/mnt/user/appdata/jellyfin/config` | Config |
+| `/mnt/user/appdata/jellyfin/cache` | Cache |
+| `/mnt/user/media` | Media libraries (IronWolf) |
 
 - Config/cache on GM7000 under `/mnt/user/appdata/jellyfin`
 - Media on IronWolf under `/mnt/user/media`
-- Intel Quick Sync via `/dev/dri`
-
-Official docs: https://jellyfin.org/docs/general/installation/container/
-
-Copy `compose.yaml` to `/mnt/user/appdata/compose-projects/jellyfin/` on the server, then follow `docs/14-Jellyfin.md`.
