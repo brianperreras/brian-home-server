@@ -5,18 +5,20 @@ Do this **after** Jellyfin (`14`). Shares already exist from Storage (`04`); thi
 ## Step 1 — Enable SMB
 
 1. Open **Settings → SMB**.
-2. Fill:
+2. Switch to **Advanced View** if available.
+3. If **Enable SMB** is greyed out, **Main → Stop** the array, change SMB, **Apply**, then **Start** the array again.
+4. Fill:
 
 | Field | Value |
 |---|---|
-| Enable SMB | **Yes** |
+| Enable SMB | **Yes** (Workgroup) |
 | Hide “dot” files | optional (**No** is fine) |
 | Enhanced macOS interoperability | **Yes** (recommended for Mac clients) |
 | Enable NetBIOS | optional; often **No** on modern LANs |
 | Enable WSD | **Yes** (helps Windows discovery) if shown |
 | Workgroup | `WORKGROUP` (or your home workgroup name) |
 
-3. Click **Apply**.
+5. Click **Apply**.
 
 4. Optional check — **Settings → Identification**:
 
@@ -71,14 +73,15 @@ Do not use `root` for day-to-day SMB. Root is for the WebGUI / SSH only.
 
 For each share, open **Shares → [share name]** and set **SMB Security Settings** (and confirm **Share Settings → Enable Copy-on-write** is still **Auto**).
 
-### Field meanings
+### Field meanings (7.3.2)
 
-| Field | Options / recommended |
-|---|---|
-| Export | **No** / **Yes** / **Yes (Time Machine)** — use **Yes** for normal shares; TM only on a dedicated backup share |
-| Time Machine volume size limit | blank for normal shares; set MB cap only when Export is **Yes (Time Machine)** |
-| Case-sensitive names | **Auto** |
-| Security | **Private** (best), **Secure** (guest read), or **Public** (avoid) |
+| Field | Options / recommended | If missing |
+|---|---|---|
+| Export | **No** / **Yes** / **Yes (Time Machine)** | Confirm **Settings → SMB → Enable SMB** is Yes |
+| Time Machine volume size limit | blank for normal shares | Only relevant when Export is **Yes (Time Machine)** |
+| Case-sensitive names | **Auto** | Switch share page to **Advanced View** |
+| Security | **Private** (best), **Secure**, avoid **Public** | Always on the share SMB section |
+| Enable Copy-on-write (Share Settings) | Skip on this xfs build | Hidden unless Btrfs |
 
 ### Private data shares
 

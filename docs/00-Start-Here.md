@@ -4,6 +4,8 @@ Follow the chapters **in number order**. Do not skip ahead to Immich or Jellyfin
 
 This build uses **Unraid OS 7.3.2** (paid). UI click paths in the chapters match that WebGUI (for example **Settings → Identification**, **Shares → Add Share**, **Main → Boot Device**).
 
+**If a setting from the docs is missing:** use **Advanced View** (top-right on the page), stop Docker before editing **Settings → Docker** paths, and remember **Enable Copy-on-write** does not appear on **xfs** shares. Details are at the top of chapter `03`.
+
 ## Why this order
 
 | Step | Chapter | What you do | Why first |

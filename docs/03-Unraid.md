@@ -2,6 +2,21 @@
 
 These steps target **Unraid OS 7.3.2** (paid / registered key). Menu labels match the 7.3.x WebGUI. Unraid boots from a USB flash drive and loads the OS into RAM. The USB holds the license identity and persistent configuration. Use a high-quality 4–32 GB flash drive with a unique GUID.
 
+## Unraid 7.3.2 WebGUI tips (read this first)
+
+Many fields in this handbook are **hidden until you change view mode or stop a service**. If you do not see a setting named in the docs, check this table:
+
+| If you cannot find… | Do this in 7.3.2 |
+|---|---|
+| Extra Docker path / size / data-root options | **Settings → Docker** → set **Enable Docker** = **No** → **Apply**, then look again. Path fields unlock only while Docker is stopped. Also toggle **Basic View / Advanced View** (top-right of the page). |
+| Extra share fields (allocation, split level, include disks, some SMB options) | **Shares → [share]** → switch to **Advanced View** (top-right). Allocation / split / include only appear when **Primary storage** or **Secondary storage** is **Array**. |
+| **Enable Copy-on-write** | Only appears for **Btrfs** (and usually only when **adding** a new share). This build uses **xfs** on `cache` and Disk 1, so **that field will not show** — that is normal. Skip it. |
+| Time Machine size / macOS SMB options | **Settings → SMB** → **Enhanced macOS interoperability** = **Yes**. On the share, **Export** must be **Yes** or **Yes (Time Machine)**; use **Advanced View** on the share page. |
+| Greyed-out Network / SMB Enable | Some network service toggles need the **array stopped** (**Main → Stop**), then change, **Apply**, then **Start** again. |
+| What a field means | Click the **Help** (?) icon top-right to show inline help for every field on the page. |
+
+**Basic View vs Advanced View:** almost every Settings / Shares / Docker page has a switch near the top-right. Start in **Advanced View** when following this handbook.
+
 ## 1. Create the USB on macOS
 
 1. Download the Unraid USB Flash Creator:

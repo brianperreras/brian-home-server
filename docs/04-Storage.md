@@ -69,7 +69,8 @@ That is intentional for this design. Protection comes from the **weekly Exos bac
 ## Step 3 — Global Share Settings
 
 1. Open **Settings → Global Share Settings**.
-2. Fill:
+2. Switch to **Advanced View** (top-right) if the page has that toggle.
+3. Fill:
 
 | Field | Value |
 |---|---|
@@ -78,7 +79,7 @@ That is intentional for this design. Protection comes from the **weekly Exos bac
 | Included disk(s) (global) | leave default / all (unless you have a reason to restrict) |
 | Excluded disk(s) (global) | blank |
 
-3. Click **Apply**.
+4. Click **Apply**.
 
 Exclusive access keeps `appdata` / `system` on the SSD pool without FUSE overhead when Primary is the pool and Secondary is None.
 
@@ -86,41 +87,60 @@ Exclusive access keeps `appdata` / `system` on the SSD pool without FUSE overhea
 
 1. Open **Shares**.
 2. Click **Add Share**.
-3. Fill the fields for each share using the templates below.
-4. Click **Add Share**.
-5. Repeat until every share in the lists exists.
-6. Leave shares empty. Apps fill them later.
+3. On the Add Share / share edit page, switch to **Advanced View** (top-right).
+4. Fill the fields for each share using the templates below.
+5. Click **Add Share** (or **Apply** when editing).
+6. Repeat until every share in the lists exists.
+7. Leave shares empty. Apps fill them later.
+
+### Unraid 7.3.2 — which share fields you will actually see
+
+| Field | When it appears |
+|---|---|
+| Share name, Comments, Minimum free space | Always |
+| Primary storage / Secondary storage | Always |
+| Enable Copy-on-write | **Only if the target filesystem is Btrfs**, and usually only while **adding** a new share. With **xfs** on `cache` and Disk 1 (this build), **you will not see this field** — skip it |
+| Allocation method, Split level, Included / Excluded disk(s) | Only when Primary or Secondary is **Array** |
+| Mover action | Only when Secondary is **not** None |
+| SMB Security Settings (Export, Security, …) | Bottom of the share page. Use **Advanced View**. Some Time Machine fields appear only when Export is **Yes (Time Machine)** and/or macOS SMB options are enabled under **Settings → SMB** |
+
+Toggle **Help** (?) top-right if a label is unclear.
 
 ### How to read the share forms
 
-After **Add Share** (or when editing an existing share on **Shares → [name]**), fill both **Share Settings** and **SMB Security Settings**.
+Fill **Share Settings**, then scroll to **SMB Security Settings**.
 
-#### Share Settings
+#### Share Settings (7.3.2)
 
-| Field | What to do |
+| Field | What to do on this build |
 |---|---|
 | Share name | Exact name below (lowercase, no spaces) |
-| Comments | Short description (optional but recommended) |
-| Minimum free space | Floor so a nearly full disk is not chosen for a huge write. Examples: `20G` for appdata, `50G`–`100G` for large media/photo shares. Leave blank only if you accept Unraid’s default. |
-| Primary storage | Where new files are written first (`cache` or **Array**) |
-| Secondary storage | Overflow / mover target. Use **None** for this build |
-| Enable Copy-on-write | **Auto** (Unraid default; do not force Yes/No unless you have a specific Btrfs reason) |
-| Allocation method | Only appears when Primary or Secondary is **Array**. Use **High-water** |
-| Split level | Only for Array shares. Use **Automatically split any directory as required** (or blank / Automatic) on a single-disk array |
-| Included disk(s) | For Array shares: **disk1** (or All — only disk1 exists) |
+| Comments | Short description |
+| Minimum free space | e.g. `20G` / `50G` / `100G` as listed per share |
+| Primary storage | `cache` (pool shares) or **Array** (data shares) |
+| Secondary storage | **None** |
+| Enable Copy-on-write | **Skip** on xfs (field hidden). If you ever use Btrfs and see it: leave **Auto** |
+| Allocation method | Array shares only → **High-water** |
+| Split level | Array shares only → Automatically split any directory as required |
+| Included disk(s) | Array shares → **disk1** |
 | Excluded disk(s) | blank |
-| Mover action | Hidden / irrelevant when Secondary = **None** |
 
-#### SMB Security Settings
+#### SMB Security Settings (7.3.2)
 
-| Field | What to do |
+| Field | What to do on this build |
 |---|---|
-| Export | **No** = hidden from network. **Yes** = normal SMB share. **Yes (Time Machine)** = only for a dedicated Time Machine share (not used for Phase 1 data shares below) |
-| Time Machine volume size limit | Leave **blank** unless Export is **Yes (Time Machine)**. If you add TM later, set a max size in MB (example `1048576` = 1 TB reported cap) |
-| Case-sensitive names | **Auto** (recommended for mixed Mac/Windows clients) |
-| Security | **Private** = only listed users (best for personal data). **Secure** = guests read-only; users can have write. **Public** = no password (avoid; modern Windows often blocks it) |
+| Export | **No** for appdata/system/…; **Yes** for photos/documents/media/… |
+| Time Machine volume size limit | Leave blank (not using TM on these shares) |
+| Case-sensitive names | **Auto** (Advanced View; if missing, leave default) |
+| Security | **Private** (even when Export = No). Avoid **Public** |
 
-With only Disk 1 in the array, allocation method and split level barely matter, but set them so the form is complete.
+**Security modes:**
+
+| Security | Meaning |
+|---|---|
+| **Private** | Only users you grant access |
+| **Secure** | Guests read-only; named users can write |
+| **Public** | No login — avoid |
 
 ### Pool shares (Primary = `cache`, Secondary = None)
 
@@ -290,25 +310,17 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 
 | Share | Min free | Primary | CoW | Export | Case-sensitive | Security | TM size limit |
 |---|---|---|---|---|---|---|---|
-| `appdata` | `20G` | `cache` | Auto | **No** | Auto | — | blank |
-| `system` | `10G` | `cache` | Auto | **No** | Auto | — | blank |
-| `domains` | `50G` | `cache` | Auto | **No** | Auto | — | blank |
-| `database-backups-staging` | `10G` | `cache` | Auto | **No** | Auto | — | blank |
-| `photos` | `50G` | Array | Auto | **Yes** | Auto | **Private** | blank |
-| `documents` | `20G` | Array | Auto | **Yes** | Auto | **Private** | blank |
-| `media` | `100G` | Array | Auto | **Yes** | Auto | **Private** | blank |
-| `backups-incoming` | `50G` | Array | Auto | **Yes** | Auto | **Private** | blank |
-| `public` | `10G` | Array | Auto | **Yes** | Auto | **Secure** | blank |
+| `appdata` | `20G` | `cache` | N/A (xfs) | **No** | Auto | **Private** | blank |
+| `system` | `10G` | `cache` | N/A (xfs) | **No** | Auto | **Private** | blank |
+| `domains` | `50G` | `cache` | N/A (xfs) | **No** | Auto | **Private** | blank |
+| `database-backups-staging` | `10G` | `cache` | N/A (xfs) | **No** | Auto | **Private** | blank |
+| `photos` | `50G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
+| `documents` | `20G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
+| `media` | `100G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
+| `backups-incoming` | `50G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
+| `public` | `10G` | Array | N/A (xfs) | **Yes** | Auto | **Secure** | blank |
 
 Named SMB users (who gets Read/Write) are configured in chapter `15`. Click **Apply** after each share.
-
-**Security modes (Unraid):**
-
-| Security | Meaning |
-|---|---|
-| **Private** | Only users you grant access; best default for personal data |
-| **Secure** | Guests can read; named users can write if granted |
-| **Public** | No login; avoid on this build |
 
 Do **not** set Export to **Yes (Time Machine)** on the shares above. If you want Mac Time Machine later, create a separate share (for example `timemachine`) with Export = **Yes (Time Machine)** and a Time Machine volume size limit.
 
