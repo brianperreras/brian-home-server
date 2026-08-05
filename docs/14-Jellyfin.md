@@ -1,21 +1,27 @@
 # 14 - Jellyfin on Unraid
 
-Official container docs: [Jellyfin container installation](https://jellyfin.org/docs/general/installation/container/)
+Do this **after** Home Assistant (`07`).
 
-Deploy Jellyfin after Immich and Home Assistant are stable. Media libraries live on the IronWolf; config and transcode cache live on the GM7000.
+Official docs: https://jellyfin.org/docs/general/installation/container/
 
-## Architecture for this server
+## Before you start
+
+- Docker is enabled
+- Shares `appdata` and `media` exist
+- Immich and Home Assistant are already running (or at least Docker is healthy)
+
+## Layout
 
 ```text
-Clients (browser / apps)
-        |
-   Jellyfin (:8096)
-    /           \
- config/cache    media libraries
- GM7000 SSD      IronWolf (/mnt/user/media)
+Clients
+   |
+Jellyfin (:8096)
+  /           \
+config/cache   media
+GM7000         IronWolf (/mnt/user/media)
 ```
 
-## 1. Create directories and share
+## Step 1 — Create directories
 
 ```bash
 mkdir -p /mnt/user/appdata/jellyfin/config
@@ -26,33 +32,30 @@ mkdir -p /mnt/user/media/music
 mkdir -p /mnt/user/appdata/compose-projects/jellyfin
 ```
 
-Confirm the `media` share primary storage is the IronWolf array disk ([`04-Storage.md`](04-Storage.md)).
+`media` should stay on the IronWolf (array), not the SSD cache.
 
-## 2. Compose file
+## Step 2 — Compose file
 
-Create `/mnt/user/appdata/compose-projects/jellyfin/compose.yaml` using the template in `docker/jellyfin/compose.yaml`, or start from the official example and apply these host paths:
+Create `/mnt/user/appdata/compose-projects/jellyfin/compose.yaml` from `docker/jellyfin/compose.yaml` in this repo.
 
-| Container path | Host path | Notes |
-|---|---|---|
-| `/config` | `/mnt/user/appdata/jellyfin/config` | GM7000 |
-| `/cache` | `/mnt/user/appdata/jellyfin/cache` | GM7000 |
-| `/media` | `/mnt/user/media` | IronWolf; prefer `:ro` |
+Paths used:
 
-Pass Intel Quick Sync:
+| Container | Host |
+|---|---|
+| `/config` | `/mnt/user/appdata/jellyfin/config` |
+| `/cache` | `/mnt/user/appdata/jellyfin/cache` |
+| `/media` | `/mnt/user/media` (read-only preferred) |
+
+Quick Sync:
 
 ```yaml
 devices:
   - /dev/dri:/dev/dri
 ```
 
-Published ports (preferred starting point):
+Ports: `8096/tcp` (UI), optional `7359/udp` (discovery). Prefer published ports before host networking.
 
-- `8096/tcp` web UI
-- `7359/udp` optional client discovery
-
-Use host networking only if LAN discovery fails with bridge/published ports.
-
-## 3. Start
+## Step 3 — Start
 
 ```bash
 cd /mnt/user/appdata/compose-projects/jellyfin
@@ -61,40 +64,21 @@ docker compose up -d
 docker compose logs --tail=200
 ```
 
-Open:
+Open `http://SERVER-IP:8096` and finish the wizard. Point libraries at `/media/movies`, `/media/tv`, `/media/music`.
 
-`http://SERVER-IP:8096`
+## Step 4 — Hardware acceleration
 
-Complete the setup wizard. Create libraries pointing at `/media/movies`, `/media/tv`, and `/media/music` inside the container.
+In Jellyfin Dashboard → Playback, enable Intel Quick Sync / VAAPI as offered by your version. Test a high-bitrate file.
 
-## 4. Hardware acceleration
+Keep SQLite unless you have a strong reason to add MariaDB.
 
-In Jellyfin Dashboard → Playback:
+## Step 5 — Remote access
 
-1. Enable hardware acceleration.
-2. Choose Intel Quick Sync / VAAPI according to the installed Jellyfin version.
-3. Test playback of a high-bitrate file while watching CPU/`intel_gpu_top` if available.
+Prefer Tailscale. Do not expose `8096` publicly without TLS and auth review.
 
-Confirm `/dev/dri` exists on the host first ([`05-Docker.md`](05-Docker.md)).
+## Step 6 — Backup and updates
 
-## 5. Database note
-
-Keep Jellyfin on its default SQLite database unless you have a concrete reason to externalize MariaDB. If you later move to MariaDB, store it under `/mnt/user/appdata/jellyfin/mariadb` on the GM7000 ([`08-Databases.md`](08-Databases.md)).
-
-## 6. Remote access and security
-
-- Prefer Tailscale over public port forwarding.
-- Create separate Jellyfin users for household members.
-- Do not expose `8096` to the internet without a reverse proxy, TLS, and authentication review.
-
-## 7. Backup and updates
-
-Back up:
-
-- `/mnt/user/appdata/jellyfin`
-- Media libraries on `/mnt/user/media` as part of the weekly Exos job if those files are not already duplicated elsewhere
-
-Update separately from Immich and Home Assistant:
+Back up `/mnt/user/appdata/jellyfin` and media as needed.
 
 ```bash
 cd /mnt/user/appdata/compose-projects/jellyfin
@@ -102,4 +86,6 @@ docker compose pull
 docker compose up -d
 ```
 
-Read Jellyfin release notes before upgrading across major versions.
+Update Jellyfin separately from Immich and Home Assistant.
+
+**Next:** chapter `15` SMB / Git / cron.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 - 2026-08-05
+
+- Clarified linear setup order: Storage (disks/shares) before Docker, Docker before apps.
+- Removed Immich/Jellyfin setup details from the Storage chapter; each chapter now ends with an explicit Next step.
+
 ## 1.1.0 - 2026-08-05
 
 - Locked the handbook to Unraid OS and aligned docs with the v4.0 hardware plan (B760M DS3H DDR4 GEN5, GM7000 1 TB, Exos backup).

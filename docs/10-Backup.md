@@ -1,8 +1,10 @@
 # 10 - Weekly Backup Plan
 
+Do this **after** apps and SMB/cron (`15`) are in place.
+
 ## Recovery objective
 
-You accept the possible loss of up to approximately one week of new or changed data. The **Seagate Exos 6 TB** backup disk runs only once or twice per week and is otherwise unmounted/spun down via Unassigned Devices.
+You accept about one week of risk on new data. The **Seagate Exos 6 TB** mounts only for backup, then unmounts and spins down.
 
 ## What must be backed up
 
@@ -76,4 +78,6 @@ Monthly, restore several random files. Quarterly, restore an Immich database dum
 
 ## Additional off-site copy
 
-Both internal disks remain in the same case. Fire, theft, surge, filesystem compromise, or operator error can affect both. For irreplaceable photos, keep at least one additional off-site copy: an external drive stored elsewhere or encrypted cloud/object storage.
+Both internal disks remain in the same case. For irreplaceable photos, keep at least one off-site copy as well.
+
+**Done with Phase 1 setup.** Later reference chapters: `08` Databases, `09` Network, `11` Monitoring, `12` Maintenance, `13` Future GPU.

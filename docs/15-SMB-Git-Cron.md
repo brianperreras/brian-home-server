@@ -1,67 +1,48 @@
 # 15 - SMB, Git, and Cron on Unraid
 
-## SMB (file shares)
+Do this **after** Jellyfin (`14`). Shares already exist from Storage (`04`); this chapter only adds users and schedules.
 
-Unraid provides SMB through user shares. Create named users; do not use `root` for day-to-day file access.
+## Step 1 — SMB users
 
-### Users
+1. Unraid → Users → add a personal account (for example `brian`).
+2. Store the password in your password manager.
+3. Set share access per share (`Read/Write`, `Read-only`, or `None`).
+4. Do not use `root` for day-to-day SMB.
 
-1. `Users` → add a personal account (for example `brian`).
-2. Set a strong password stored in your password manager.
-3. Assign share access per share (`Read/Write`, `Read-only`, or `None`).
+Suggested access:
 
-### Share recommendations for this build
+| Share | Access idea |
+|---|---|
+| `photos` | Admin only; Immich manages the library |
+| `documents` | Household as needed |
+| `media` | Admin write; optional read-only for others |
+| `backups-incoming` | Trusted PCs can write |
+| `public` | Optional; guest write off |
+| `appdata` | Prefer not exported over SMB |
 
-| Share | Suggested export | Access |
-|---|---|---|
-| `photos` | Private/Secure | Read/write for admin only; Immich owns the library workflow |
-| `documents` | Private | Household users as needed |
-| `media` | Private/Secure | Read/write for admin; read-only for media clients if useful |
-| `backups-incoming` | Private | Write from trusted PCs |
-| `public` | Optional | Guest write disabled |
-| `appdata` | Prefer not exported | Keep Docker config off SMB |
+Connect from macOS: `smb://brian-server` or the reserved IP.
 
-Connect from macOS Finder via `smb://brian-server` or the reserved IP.
+## Step 2 — Git
 
-More detail: [Unraid shares docs](https://docs.unraid.net/unraid-os/using-unraid-to/manage-storage/shares/)
+Keep this handbook on your Mac and push to GitHub. The server does not need to host Git for Phase 1.
 
-## Git
+Optional later: Gitea container on the GM7000 if you want self-hosted repos.
 
-### This documentation repository
+## Step 3 — Cron via User Scripts
 
-Keep the Brian-HomeServer handbook on your Mac (or another workstation) and push to GitHub. The Unraid server does not need to host the handbook for day-to-day operations.
+Use the User Scripts plugin (not a normal Linux user crontab).
 
-### Optional Git hosting later
+Suggested jobs (create after backup scripts exist):
 
-If you want self-hosted Git (for example Gitea):
+| Job | When |
+|---|---|
+| Pre-backup DB dumps | Just before weekly backup |
+| Weekly backup script | Sunday quiet hours |
+| Post-backup check | Right after weekly backup |
 
-- Deploy as a separate Docker stack on the GM7000.
-- Store repositories under `/mnt/user/appdata/gitea` or a dedicated IronWolf share if repos are large.
-- Back up the Gitea data directory and database dumps with the weekly Exos job.
-- Do not expose Git hosting publicly without authentication and TLS review.
+Avoid overlapping SMART extended tests, big Immich imports, and Jellyfin library scans.
 
-Until then, GitHub + local clones are enough.
-
-## Cron and scheduled jobs
-
-Unraid does not use a traditional user crontab for most home-lab tasks. Prefer the **User Scripts** plugin.
-
-### Schedules to create
-
-| Job | Suggested timing | Script / action |
-|---|---|---|
-| Weekly backup | Sunday quiet hours | `scripts/weekly-backup.sh` after mounting Exos ([`10-Backup.md`](10-Backup.md)) |
-| Pre-backup DB dumps | Immediately before weekly backup | `scripts/pre-backup-db-dumps.sh` |
-| Post-backup check | Immediately after weekly backup | `scripts/post-backup-check.sh` |
-| Appdata Backup plugin | Separate from weekly Exos job | Flash + appdata convenience backup |
-
-Avoid overlapping:
-
-- Extended SMART tests
-- Mover (should rarely matter with exclusive SSD shares)
-- Large Immich imports or Jellyfin library scans
-
-### Installing backup scripts
+Install scripts when ready for chapter `10`:
 
 ```bash
 mkdir -p /boot/config/custom/backup
@@ -69,10 +50,6 @@ cp /path/to/Brian-HomeServer/scripts/*.sh /boot/config/custom/backup/
 chmod 700 /boot/config/custom/backup/*.sh
 ```
 
-Copy `scripts/backup.env.example` to `backup.env` next to the scripts, edit paths, and keep `backup.env` out of Git.
+Copy `scripts/backup.env.example` to `backup.env` beside the scripts and keep `backup.env` out of Git.
 
-## Related chapters
-
-- Storage and share layout: [`04-Storage.md`](04-Storage.md)
-- Network/security: [`09-Network-Security.md`](09-Network-Security.md)
-- Weekly backup workflow: [`10-Backup.md`](10-Backup.md)
+**Next:** chapter `10` Weekly backup.

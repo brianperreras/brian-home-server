@@ -158,3 +158,5 @@ Save settings, reboot, then verify:
 - iGPU remains enabled.
 
 After Unraid boots, run a memory test and monitor system logs for machine-check or IOMMU errors.
+
+**Next:** chapter `03` Unraid.

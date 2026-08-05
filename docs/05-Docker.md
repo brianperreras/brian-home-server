@@ -1,96 +1,71 @@
 # 05 - Docker on Unraid
 
-Docker is built into Unraid; you do not install Docker Engine separately.
+Do this chapter **after** storage (`04`) and **before** Immich / Home Assistant / Jellyfin.
 
-## 1. Enable Docker
+Goal: turn Docker on and install Compose support. Do **not** deploy apps in this chapter.
+
+## Step 1 — Confirm storage is ready
+
+Before enabling Docker:
+
+- Array is started.
+- SSD pool (`fast` / `cache`) is online.
+- Share `appdata` exists on the SSD.
+
+If those are missing, finish chapter `04` first.
+
+## Step 2 — Enable Docker
 
 In Unraid:
 
 `Settings -> Docker -> Enable Docker: Yes`
 
-Store Docker data on the GM7000 pool.
+Settings to use:
 
-Recommended approach:
+- Default appdata path: `/mnt/user/appdata`
+- Store Docker data on the GM7000 pool
+- Image file size about 30-40 GB if Unraid uses an image file (or directory mode if you prefer and it is available)
 
-- Docker data root: `directory` mode if supported and desired, or a Docker image file.
-- If using an image file, start around 30-40 GB and monitor usage. A growing image usually indicates incorrect container path mappings, not a need for a huge image.
-- Default appdata: `/mnt/user/appdata`.
+Apply and wait until Docker shows as running.
 
-Confirm the array/pool is started before enabling Docker so paths resolve onto the GM7000.
+## Step 3 — Install Compose Manager
 
-## 2. Preferred deployment method for this build
+From Community Applications, install **Compose Manager** (or another maintained Compose plugin).
 
-Use the **Compose Manager** plugin (or another currently maintained Compose method) for Immich, Home Assistant, and Jellyfin. Keep official upstream compose files where projects provide them.
+Create this folder for later projects:
 
-Suggested server location:
+```bash
+mkdir -p /mnt/user/appdata/compose-projects
+```
 
-`/mnt/user/appdata/compose-projects/<project>`
+You will put each app under:
 
-Repository templates/notes are in `docker/`.
+- `/mnt/user/appdata/compose-projects/immich`
+- `/mnt/user/appdata/compose-projects/homeassistant`
+- `/mnt/user/appdata/compose-projects/jellyfin`
 
-Phase 1 bring-up order:
-
-1. Storage shares and Docker enabled ([`04-Storage.md`](04-Storage.md)).
-2. Immich ([`06-Immich.md`](06-Immich.md)).
-3. Home Assistant ([`07-Home-Assistant.md`](07-Home-Assistant.md)).
-4. Jellyfin ([`14-Jellyfin.md`](14-Jellyfin.md)).
-5. SMB users and schedules ([`15-SMB-Git-Cron.md`](15-SMB-Git-Cron.md)).
-6. Weekly backup ([`10-Backup.md`](10-Backup.md)).
-
-## 3. Path-mapping rule
-
-Every container path that writes significant data must map to a host path. Do not let large files accumulate inside the writable container layer.
-
-Example:
-
-| Container path | Host path |
-|---|---|
-| `/config` | `/mnt/user/appdata/application-name` |
-| `/photos` | `/mnt/user/photos` |
-| `/media` | `/mnt/user/media` |
-
-## 4. Networking
-
-Use the default bridge network for most apps. Create a custom bridge network for related stacks such as Immich when the official compose defines one.
-
-Avoid assigning every container a unique LAN IP unless there is a clear reason. It increases complexity and can conflict with router settings.
-
-Home Assistant uses host networking in the provided template for discovery. Jellyfin can use published ports or host networking; prefer published ports first unless LAN discovery requires host mode.
-
-## 5. Updates
-
-- Back up appdata before major updates.
-- Read release notes for Immich, Home Assistant, and Jellyfin.
-- Do not use floating `latest` tags for critical services unless the project explicitly expects it and you have backups.
-- Update one stack at a time.
-- Verify logs and functionality after every change.
-
-## 6. Resource limits
-
-Do not impose CPU/RAM limits initially unless a container misbehaves. Monitor normal usage first. For the i5-14400 and 32 GB RAM, Phase 1 workloads should have ample headroom.
-
-## 7. Intel iGPU access
-
-For containers using Quick Sync (Immich, Jellyfin), pass:
-
-`/dev/dri`
-
-Verify on Unraid:
+## Step 4 — Verify Intel iGPU device (for later apps)
 
 ```bash
 ls -l /dev/dri
 ```
 
-Expected devices commonly include `card0` and `renderD128`. Exact numbering can differ.
+You should usually see `card0` and `renderD128` (names can vary). Immich and Jellyfin will use this later for Quick Sync.
 
-## 8. Back up Docker correctly
+## Rules (remember for later chapters)
 
-Back up:
+1. Map large data to host shares. Do not fill the container filesystem.
+2. Prefer bridge networking and published ports unless an app needs host mode.
+3. Update one app stack at a time after you have backups.
+4. Back up `/mnt/user/appdata`, compose files, `.env` files, and DB dumps — not the Docker image itself.
 
-- `/mnt/user/appdata`
-- Compose files
-- `.env` files through a secure non-public backup process
-- Database dumps
-- Unraid flash configuration
+## Done checklist
 
-A copy of the Docker image is usually not important; containers can be recreated. Persistent appdata and databases are important.
+- [ ] Docker enabled
+- [ ] Appdata on GM7000
+- [ ] Compose Manager installed
+- [ ] `/mnt/user/appdata/compose-projects` exists
+- [ ] `/dev/dri` visible
+- [ ] No Immich / HA / Jellyfin containers yet
+
+**Next:** chapter `06` Immich.

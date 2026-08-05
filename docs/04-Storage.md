@@ -1,110 +1,104 @@
 # 04 - Storage Layout
 
-## Intended devices
+Do this chapter **before** Docker and before any app (Immich, Home Assistant, Jellyfin).
+
+Goal: assign disks, create empty shares, start the array. Do **not** install apps here.
+
+## Devices
 
 | Device | Role | Availability |
 |---|---|---|
-| Acer Predator GM7000 1 TB | SSD pool for appdata, system, databases, metadata, cache | 24/7 |
-| Seagate IronWolf 6 TB | Primary data disk (array disk 1, no parity) | 24/7 |
-| Seagate Exos 6 TB | Independent weekly backup target via Unassigned Devices | Once or twice weekly |
+| Acer Predator GM7000 1 TB | SSD pool (`fast` or `cache`) for appdata and databases | 24/7 |
+| Seagate IronWolf 6 TB | Array disk 1 (no parity) for photos, documents, media | 24/7 |
+| Seagate Exos 6 TB | Unassigned Devices backup disk (add when ready) | Weekly only |
 
-There is no parity disk by design. You accept up to approximately one week of new-data loss in exchange for an independent backup copy.
+No parity disk. You accept about one week of risk on new data in exchange for a separate backup copy.
 
-## Important Unraid behavior
+## Step 1 — Create the SSD pool
 
-A normal Unraid user share can span array disks and pools. For this design, keep application data explicitly on the SSD pool and bulk data on the IronWolf. Set share primary storage deliberately so mover never relocates databases or Immich originals incorrectly.
+1. In Unraid Main, add the GM7000 as a pool named `fast` or `cache`.
+2. Use a simple filesystem for a single drive (XFS is fine).
+3. Start the array when disks are assigned (after Step 2 as well).
 
-## 1. Create the SSD pool
+## Step 2 — Assign the IronWolf
 
-Name the pool `fast` or `cache`.
+1. Assign IronWolf as **Disk 1**.
+2. Leave **Parity** empty.
+3. Start the array and format if Unraid asks.
+4. Prefer XFS on the IronWolf unless you have a specific reason otherwise.
 
-Recommended filesystem:
+## Step 3 — Create shares (folders only)
 
-- Single-drive pool: XFS is simple, or Btrfs/ZFS if you deliberately want their features.
-- Do not choose a filesystem only because it is fashionable. A single drive is not redundant under any filesystem.
+Create these shares now. Leave them empty. Apps will use them later.
 
-Suggested shares on SSD:
+### On the SSD pool (primary = pool, secondary = none)
 
-| Share | Primary storage | Secondary storage | Notes |
-|---|---|---|---|
-| appdata | fast | none | Docker persistent configuration |
-| system | fast | none | Docker image and system data |
-| domains | fast | none | Future VM disks |
-| database-backups-staging | fast | IronWolf optional | Temporary DB dumps before weekly backup |
+| Share | Purpose |
+|---|---|
+| `appdata` | Docker configs and databases |
+| `system` | Docker system data |
+| `domains` | Future VMs (optional) |
+| `database-backups-staging` | Temporary DB dumps before weekly backup |
 
-Set `appdata`, `system`, and `domains` to exclusive access when supported and when they reside only on the pool.
+If Unraid offers exclusive/pool-only access for `appdata` and `system`, enable it so they stay on the SSD.
 
-## 2. Configure the IronWolf array disk
+### On the IronWolf (primary = array / Disk 1)
 
-Assign the IronWolf as data disk 1. Leave parity unassigned. Start the array and format the disk using XFS unless you have a specific reason to use another filesystem.
+| Share | Purpose |
+|---|---|
+| `photos` | Immich library later |
+| `documents` | Personal files |
+| `media` | Jellyfin libraries later |
+| `backups-incoming` | PC backups |
+| `public` | Optional transfer folder |
 
-Suggested shares:
+For `photos` and `media`, do **not** set cache so large files land on the SSD.
 
-| Share | Purpose | Primary storage | Used by |
-|---|---|---|---|
-| photos | Immich originals/library | IronWolf | Immich |
-| documents | Personal documents | IronWolf | SMB |
-| media | Movies/music/video | IronWolf | Jellyfin |
-| backups-incoming | Backup files from computers | IronWolf | SMB |
-| public | Optional shared transfer area | IronWolf | SMB |
+You should now see paths like:
 
-For `photos` and `media`, set primary storage to the array/IronWolf and do **not** enable a cache preference that would leave large libraries on the SSD.
+- `/mnt/user/appdata`
+- `/mnt/user/photos`
+- `/mnt/user/media`
 
-## 3. Immich path split
+## Step 4 — Exos backup disk (can wait)
 
-Recommended:
+When the Exos arrives:
 
-- Originals/uploads: `/mnt/user/photos/immich-library` on IronWolf.
-- PostgreSQL database: `/mnt/user/appdata/immich/postgres` on GM7000.
-- Immich model cache and application data: `/mnt/user/appdata/immich/...` on GM7000.
+1. Install the Unassigned Devices plugin if not already installed.
+2. Attach the Exos; do **not** add it to the array.
+3. Format/mount only when needed for backup.
+4. Suggested mount point: `/mnt/disks/weekly_backup`
+5. Prefer **not** auto-mounting at boot.
 
-Do not place PostgreSQL database files on an SMB/NFS share. The official Immich instructions explicitly state that network shares are unsupported for the database location.
+Full weekly backup steps are in chapter `10` after apps exist.
 
-## 4. Jellyfin path split
+## Step 5 — Share security (basic)
 
-Recommended:
+- Set private shares to Secure or Private.
+- Do not use `root` for SMB day-to-day access.
+- Named SMB users can wait until chapter `15`.
 
-- Config: `/mnt/user/appdata/jellyfin/config` on GM7000.
-- Transcode cache: `/mnt/user/appdata/jellyfin/cache` on GM7000.
-- Media libraries: `/mnt/user/media/...` on IronWolf (map read-only into the container when practical).
+## Step 6 — SMART schedule
 
-## 5. Backup disk handling (Exos)
+IronWolf:
 
-Use the Unassigned Devices plugin so the Exos is not part of the array and is not constantly mounted.
+- Short test weekly.
+- Extended test monthly.
+- Temperature warning around 45-48 C; critical around 50-55 C.
 
-Suggested mount point:
+Exos (when in use):
 
-`/mnt/disks/weekly_backup`
+- Short test around weekly backup.
+- Extended test monthly during a maintenance window.
 
-Workflow:
+Watch reallocated, pending, and uncorrectable sectors. UDMA CRC errors often mean a cable issue.
 
-1. Mount the backup filesystem immediately before the job.
-2. Run versioned/incremental backups.
-3. Verify success and write logs.
-4. Unmount cleanly.
-5. Allow the drive to spin down.
+## Done checklist
 
-Unmounting is stronger isolation than merely spinning down. It reduces accidental writes, though a physically connected disk is still not protection against every type of malware or electrical event.
+- [ ] GM7000 pool online
+- [ ] IronWolf is Disk 1, parity empty
+- [ ] Array started
+- [ ] `appdata`, `photos`, `media`, and other shares exist
+- [ ] No apps installed yet
 
-## 6. Share security
-
-- Set private shares to `Secure` or `Private`.
-- Create named users; do not use root for SMB access.
-- Give write access only where required.
-- Disable guest write access.
-- See [`15-SMB-Git-Cron.md`](15-SMB-Git-Cron.md) for Unraid SMB user setup.
-
-## 7. SMART schedule
-
-Primary IronWolf:
-
-- Short test: weekly.
-- Extended test: monthly.
-- Temperature alerts: warning around 45-48 C, critical around 50-55 C according to your comfort and drive environment.
-
-Exos backup drive:
-
-- Short test before or after a weekly backup.
-- Extended test monthly, during a planned window.
-
-Track reallocated sectors, pending sectors, uncorrectable sectors, command timeouts, and UDMA CRC errors. CRC errors often indicate cabling rather than disk media.
+**Next:** chapter `05` Docker (enable the engine only).

@@ -70,3 +70,5 @@ The GM7000 is a high-performance NVMe and should use the motherboard M.2 heatsin
 ## Cleaning interval
 
 Inspect filters and fan blades monthly for the first three months. After learning the dust rate in the room, set a practical cleaning interval, usually every two or three months.
+
+**Next:** chapter `02` BIOS.

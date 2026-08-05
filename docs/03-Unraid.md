@@ -55,7 +55,7 @@ Install the [Community Applications](https://unraid.net/community/apps) plugin u
 
 Avoid installing many plugins during initial setup. Add one at a time and record why it is needed.
 
-After plugins and Docker are ready, follow the service bring-up order in [`05-Docker.md`](05-Docker.md).
+Do not enable Docker or create app stacks in this chapter yet.
 
 ## 5. Notifications
 
@@ -78,8 +78,10 @@ Use stable releases. Before upgrading:
 4. Confirm critical containers support the target release.
 5. Upgrade during a maintenance window.
 
-Do not update Unraid, Immich, Home Assistant, Jellyfin, and every container simultaneously. Change one layer, test, then continue.
+Do not update Unraid and every container at the same time. Change one layer, test, then continue.
 
 ## 7. USB backup
 
 From the Unraid web UI, create a flash backup after initial configuration and after meaningful changes. Store the backup on your Mac and on the weekly backup disk. Do not store the only copy on the server itself.
+
+**Next:** chapter `04` Storage (disks and shares before Docker).

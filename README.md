@@ -19,32 +19,59 @@ A practical build and operations handbook for a 24/7 **Unraid** home server.
 | Exhaust fans | 1 x rear + 2 x top Arctic P12 Pro PST (planned) |
 | Host OS | **Unraid OS** |
 
-## Phase 1 services
+## Structure
 
-- Immich
-- Home Assistant
-- Jellyfin
-- Docker workloads (including per-app PostgreSQL / MariaDB when required)
-- SMB file shares
-- Git (documentation repo on Mac; optional Gitea later)
-- Cron / User Scripts schedules
-- Tailscale remote access
-- Automated weekly backup to the Exos HDD
+Not everything runs in Docker. Only the app stacks do. SMB, Git, and cron stay on Unraid itself.
 
-## Planning snapshot
+```
+Unraid (host OS on USB → RAM)
+├── Storage
+│   ├── GM7000 (SSD pool) → Docker, appdata, DBs, cache
+│   ├── IronWolf 6TB → photos, media, documents (primary data)
+│   └── Exos 6TB → weekly backup (spins down)
+│
+├── Docker (enabled in ch. 05)
+│   ├── Immich (+ Postgres)     ← container
+│   ├── Home Assistant          ← container
+│   └── Jellyfin                ← container
+│
+└── Host / Unraid built-ins (ch. 15)
+    ├── SMB          → Unraid user shares (not Docker)
+    ├── Git          → handbook on your Mac; optional Gitea later
+    └── Cron         → User Scripts plugin (not Linux crontab / not Docker)
+```
 
-High-level hardware, services, and future plans: [Brian Home Server v4.0](docs/reference/Brian_Home_Server_v4.0.md).
+| Service | Where it runs |
+|---|---|
+| Immich | Docker Compose |
+| Home Assistant | Docker |
+| Jellyfin | Docker |
+| Postgres / MariaDB | Docker (with the apps that need them) |
+| SMB | Unraid native shares |
+| Git | Mac + GitHub for Phase 1 (Gitea container only if you add it later) |
+| Cron / schedules | Unraid **User Scripts** plugin |
+| Tailscale | Remote access (see network chapter) |
+| Weekly backup | Scripts + Exos HDD |
 
-## Start here
+## Start here (one chapter at a time)
 
-1. Read [Pre-build checklist](docs/00-Start-Here.md).
-2. Assemble the server using [Hardware and airflow](docs/01-Hardware-and-Airflow.md).
-3. Configure firmware using [BIOS configuration](docs/02-BIOS.md).
-4. Install Unraid using [Unraid installation](docs/03-Unraid.md).
-5. Configure storage using [Storage layout](docs/04-Storage.md).
-6. Enable Docker using [Docker on Unraid](docs/05-Docker.md).
-7. Deploy [Immich](docs/06-Immich.md), [Home Assistant](docs/07-Home-Assistant.md), then [Jellyfin](docs/14-Jellyfin.md).
-8. Configure [SMB / Git / cron](docs/15-SMB-Git-Cron.md) and [weekly backups](docs/10-Backup.md).
+Follow this order. Do not skip Storage or Docker.
+
+1. [00 Start Here](docs/00-Start-Here.md) — checklist and why this order
+2. [01 Hardware](docs/01-Hardware-and-Airflow.md)
+3. [02 BIOS](docs/02-BIOS.md)
+4. [03 Unraid](docs/03-Unraid.md)
+5. [04 Storage](docs/04-Storage.md) — disks and empty shares only
+6. [05 Docker](docs/05-Docker.md) — enable Docker only
+7. [06 Immich](docs/06-Immich.md)
+8. [07 Home Assistant](docs/07-Home-Assistant.md)
+9. [14 Jellyfin](docs/14-Jellyfin.md)
+10. [15 SMB / Git / cron](docs/15-SMB-Git-Cron.md)
+11. [10 Weekly backup](docs/10-Backup.md)
+
+**Storage comes before Docker. Docker comes before Immich / HA / Jellyfin.**
+
+Planning snapshot: [Brian Home Server v4.0](docs/reference/Brian_Home_Server_v4.0.md).
 
 ## Important design decisions
 

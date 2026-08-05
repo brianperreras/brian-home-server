@@ -37,17 +37,17 @@ v4.0
 
 ## Services
 
-| Service | Host / placement | Guide |
+| Service | Host / placement | Guide order |
 |---|---|---|
-| Docker | Unraid built-in, data on GM7000 | `docs/05-Docker.md` |
-| Immich | Compose on Unraid; library on IronWolf; DB on GM7000 | `docs/06-Immich.md` |
-| Home Assistant | Container on Unraid | `docs/07-Home-Assistant.md` |
-| PostgreSQL | Per-app containers on GM7000 (Immich) | `docs/08-Databases.md` |
-| MariaDB | Only when an app requires it; on GM7000 | `docs/08-Databases.md` |
-| Jellyfin | Container; media on IronWolf; config/cache on GM7000 | `docs/14-Jellyfin.md` |
-| SMB | Unraid user shares | `docs/15-SMB-Git-Cron.md` |
-| Git | Handbook on Mac; optional Gitea later | `docs/15-SMB-Git-Cron.md` |
-| Cron / schedules | Unraid User Scripts plugin | `docs/15-SMB-Git-Cron.md` |
+| Docker | Unraid built-in, data on GM7000 | After storage (`05`) |
+| Immich | Compose; library on IronWolf; DB on GM7000 | After Docker (`06`) |
+| Home Assistant | Container on Unraid | After Immich (`07`) |
+| PostgreSQL | Per-app on GM7000 (Immich) | With Immich |
+| MariaDB | Only if an app needs it | Later (`08`) |
+| Jellyfin | Media on IronWolf; config on GM7000 | After HA (`14`) |
+| SMB | Unraid user shares | After apps (`15`) |
+| Git | Handbook on Mac; optional Gitea later | (`15`) |
+| Cron / schedules | User Scripts plugin | (`15`) then backup (`10`) |
 
 ## Future
 
