@@ -67,18 +67,27 @@ Do not use `root` for day-to-day SMB. Root is for the WebGUI / SSH only.
 | `photos` | **None** or **Read-only** |
 | everything else | **None** unless needed |
 
-## Step 3 — Per-share SMB export
+## Step 3 — Per-share SMB Security Settings
 
-For each share, open **Shares → [share name] → SMB Security Settings** and fill:
+For each share, open **Shares → [share name]** and set **SMB Security Settings** (and confirm **Share Settings → Enable Copy-on-write** is still **Auto**).
+
+### Field meanings
+
+| Field | Options / recommended |
+|---|---|
+| Export | **No** / **Yes** / **Yes (Time Machine)** — use **Yes** for normal shares; TM only on a dedicated backup share |
+| Time Machine volume size limit | blank for normal shares; set MB cap only when Export is **Yes (Time Machine)** |
+| Case-sensitive names | **Auto** |
+| Security | **Private** (best), **Secure** (guest read), or **Public** (avoid) |
 
 ### Private data shares
 
-| Share | Export | Security | Case-sensitive | Guest / anonymous |
+| Share | Export | Time Machine volume size limit | Case-sensitive names | Security |
 |---|---|---|---|---|
-| `photos` | **Yes** | **Private** | Auto / default | No guest |
-| `documents` | **Yes** | **Private** | Auto / default | No guest |
-| `media` | **Yes** | **Private** | Auto / default | No guest |
-| `backups-incoming` | **Yes** | **Private** | Auto / default | No guest |
+| `photos` | **Yes** | blank | **Auto** | **Private** |
+| `documents` | **Yes** | blank | **Auto** | **Private** |
+| `media` | **Yes** | blank | **Auto** | **Private** |
+| `backups-incoming` | **Yes** | blank | **Auto** | **Private** |
 
 User read/write checkboxes on the share page should match Step 2. Click **Apply**.
 
@@ -88,17 +97,33 @@ User read/write checkboxes on the share page should match Step 2. Click **Apply*
 |---|---|
 | Share | `public` |
 | Export | **Yes** |
-| Security | **Secure** (guests read-only if offered) or **Private** |
+| Time Machine volume size limit | blank |
+| Case-sensitive names | **Auto** |
+| Security | **Secure** (preferred) or **Private** — not **Public** |
 | Guest write | **No** |
 
 ### Do not export over SMB
 
-| Share | Export |
+| Share | Export | Time Machine volume size limit | Case-sensitive names | Security |
+|---|---|---|---|---|
+| `appdata` | **No** | blank | **Auto** | leave default |
+| `system` | **No** | blank | **Auto** | leave default |
+| `domains` | **No** | blank | **Auto** | leave default |
+| `database-backups-staging` | **No** | blank | **Auto** | leave default |
+
+### Optional later: Time Machine share
+
+Only if you want Mac Time Machine on Unraid (separate from Phase 1 shares):
+
+| Field | Value |
 |---|---|
-| `appdata` | **No** |
-| `system` | **No** |
-| `domains` | **No** |
-| `database-backups-staging` | **No** |
+| Share name | e.g. `timemachine` |
+| Enable Copy-on-write | **Auto** |
+| Export | **Yes (Time Machine)** |
+| Time Machine volume size limit | e.g. `1048576` (1 TB in MB) — pick a cap that fits the IronWolf |
+| Case-sensitive names | **Auto** |
+| Security | **Private** |
+| User access | only the Mac owner’s SMB user = **Read/Write** |
 
 ## Step 4 — Connect from another computer (local)
 

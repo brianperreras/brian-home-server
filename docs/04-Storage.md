@@ -16,6 +16,26 @@ This build uses the SSD pool named **`cache`** (Unraid default). Primary storage
 
 No parity disk. You accept about one week of risk on new data in exchange for a separate backup copy.
 
+### Expected Unraid warnings (do not panic)
+
+With parity left empty, Unraid will show banners like:
+
+| Message | Meaning |
+|---|---|
+| **STARTED, ARRAY UNPROTECTED** | Array is running, but there is no parity disk to rebuild from if Disk 1 fails |
+| **SOME OR ALL FILES UNPROTECTED** (on shares) | Those share files live on the array (and/or a single-device pool) without parity protection |
+
+That is intentional for this design. Protection comes from the **weekly Exos backup** (chapter `10`), not from parity.
+
+**What you should do:**
+
+1. Keep using the server — you do not need to “fix” these warnings by adding parity unless you change the design.
+2. Do **not** assign the Exos as parity (it is the backup disk).
+3. Finish apps, then set up weekly backups (`15` → `10`).
+4. Optionally keep a second copy of irreplaceable photos off-site (chapter `09` / `10`).
+
+**If you later want the warnings gone:** add a second large HDD as **Parity**, leave the Exos as Unassigned Devices backup. That is optional and not required for Phase 1.
+
 ## Step 1 — Create the SSD pool
 
 1. Open the **Main** tab.
@@ -71,7 +91,11 @@ Exclusive access keeps `appdata` / `system` on the SSD pool without FUSE overhea
 5. Repeat until every share in the lists exists.
 6. Leave shares empty. Apps fill them later.
 
-### How to read the Add Share form
+### How to read the share forms
+
+After **Add Share** (or when editing an existing share on **Shares → [name]**), fill both **Share Settings** and **SMB Security Settings**.
+
+#### Share Settings
 
 | Field | What to do |
 |---|---|
@@ -80,11 +104,21 @@ Exclusive access keeps `appdata` / `system` on the SSD pool without FUSE overhea
 | Minimum free space | Floor so a nearly full disk is not chosen for a huge write. Examples: `20G` for appdata, `50G`–`100G` for large media/photo shares. Leave blank only if you accept Unraid’s default. |
 | Primary storage | Where new files are written first (`cache` or **Array**) |
 | Secondary storage | Overflow / mover target. Use **None** for this build |
+| Enable Copy-on-write | **Auto** (Unraid default; do not force Yes/No unless you have a specific Btrfs reason) |
 | Allocation method | Only appears when Primary or Secondary is **Array**. Use **High-water** |
 | Split level | Only for Array shares. Use **Automatically split any directory as required** (or blank / Automatic) on a single-disk array |
 | Included disk(s) | For Array shares: **disk1** (or All — only disk1 exists) |
 | Excluded disk(s) | blank |
 | Mover action | Hidden / irrelevant when Secondary = **None** |
+
+#### SMB Security Settings
+
+| Field | What to do |
+|---|---|
+| Export | **No** = hidden from network. **Yes** = normal SMB share. **Yes (Time Machine)** = only for a dedicated Time Machine share (not used for Phase 1 data shares below) |
+| Time Machine volume size limit | Leave **blank** unless Export is **Yes (Time Machine)**. If you add TM later, set a max size in MB (example `1048576` = 1 TB reported cap) |
+| Case-sensitive names | **Auto** (recommended for mixed Mac/Windows clients) |
+| Security | **Private** = only listed users (best for personal data). **Secure** = guests read-only; users can have write. **Public** = no password (avoid; modern Windows often blocks it) |
 
 With only Disk 1 in the array, allocation method and split level barely matter, but set them so the form is complete.
 
@@ -94,44 +128,64 @@ Create each of these. After creation, open the share and confirm **Exclusive acc
 
 #### `appdata`
 
-| Field | Value |
-|---|---|
-| Share name | `appdata` |
-| Comments | Docker configs and databases |
-| Minimum free space | `20G` |
-| Primary storage | `cache` |
-| Secondary storage | **None** |
-| Allocation / Split / Include | not used (pool-only) |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `appdata` |
+| Share Settings | Comments | Docker configs and databases |
+| Share Settings | Minimum free space | `20G` |
+| Share Settings | Primary storage | `cache` |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Allocation / Split / Include | not used (pool-only) |
+| SMB Security Settings | Export | **No** |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | leave default (not exported) |
 
 #### `system`
 
-| Field | Value |
-|---|---|
-| Share name | `system` |
-| Comments | Docker system data |
-| Minimum free space | `10G` |
-| Primary storage | `cache` |
-| Secondary storage | **None** |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `system` |
+| Share Settings | Comments | Docker system data |
+| Share Settings | Minimum free space | `10G` |
+| Share Settings | Primary storage | `cache` |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| SMB Security Settings | Export | **No** |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | leave default (not exported) |
 
 #### `domains` (optional)
 
-| Field | Value |
-|---|---|
-| Share name | `domains` |
-| Comments | Future VMs |
-| Minimum free space | `50G` |
-| Primary storage | `cache` |
-| Secondary storage | **None** |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `domains` |
+| Share Settings | Comments | Future VMs |
+| Share Settings | Minimum free space | `50G` |
+| Share Settings | Primary storage | `cache` |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| SMB Security Settings | Export | **No** |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | leave default (not exported) |
 
 #### `database-backups-staging`
 
-| Field | Value |
-|---|---|
-| Share name | `database-backups-staging` |
-| Comments | Temporary DB dumps before weekly backup |
-| Minimum free space | `10G` |
-| Primary storage | `cache` |
-| Secondary storage | **None** |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `database-backups-staging` |
+| Share Settings | Comments | Temporary DB dumps before weekly backup |
+| Share Settings | Minimum free space | `10G` |
+| Share Settings | Primary storage | `cache` |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| SMB Security Settings | Export | **No** |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | leave default (not exported) |
 
 ### Array shares (Primary = Array, Secondary = None)
 
@@ -139,105 +193,124 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 
 #### `photos`
 
-| Field | Value |
-|---|---|
-| Share name | `photos` |
-| Comments | Immich photo library |
-| Minimum free space | `50G` |
-| Primary storage | **Array** |
-| Secondary storage | **None** |
-| Allocation method | **High-water** |
-| Split level | Automatically split any directory as required |
-| Included disk(s) | **disk1** |
-| Excluded disk(s) | blank |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `photos` |
+| Share Settings | Comments | Immich photo library |
+| Share Settings | Minimum free space | `50G` |
+| Share Settings | Primary storage | **Array** |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Allocation method | **High-water** |
+| Share Settings | Split level | Automatically split any directory as required |
+| Share Settings | Included disk(s) | **disk1** |
+| Share Settings | Excluded disk(s) | blank |
+| SMB Security Settings | Export | **Yes** (or **No** until chapter `15`) |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | **Private** |
 
 #### `documents`
 
-| Field | Value |
-|---|---|
-| Share name | `documents` |
-| Comments | Personal documents |
-| Minimum free space | `20G` |
-| Primary storage | **Array** |
-| Secondary storage | **None** |
-| Allocation method | **High-water** |
-| Split level | Automatically split any directory as required |
-| Included disk(s) | **disk1** |
-| Excluded disk(s) | blank |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `documents` |
+| Share Settings | Comments | Personal documents |
+| Share Settings | Minimum free space | `20G` |
+| Share Settings | Primary storage | **Array** |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Allocation method | **High-water** |
+| Share Settings | Split level | Automatically split any directory as required |
+| Share Settings | Included disk(s) | **disk1** |
+| Share Settings | Excluded disk(s) | blank |
+| SMB Security Settings | Export | **Yes** (or **No** until chapter `15`) |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | **Private** |
 
 #### `media`
 
-| Field | Value |
-|---|---|
-| Share name | `media` |
-| Comments | Jellyfin media libraries |
-| Minimum free space | `100G` |
-| Primary storage | **Array** |
-| Secondary storage | **None** |
-| Allocation method | **High-water** |
-| Split level | Automatically split any directory as required |
-| Included disk(s) | **disk1** |
-| Excluded disk(s) | blank |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `media` |
+| Share Settings | Comments | Jellyfin media libraries |
+| Share Settings | Minimum free space | `100G` |
+| Share Settings | Primary storage | **Array** |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Allocation method | **High-water** |
+| Share Settings | Split level | Automatically split any directory as required |
+| Share Settings | Included disk(s) | **disk1** |
+| Share Settings | Excluded disk(s) | blank |
+| SMB Security Settings | Export | **Yes** (or **No** until chapter `15`) |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | **Private** |
 
 #### `backups-incoming`
 
-| Field | Value |
-|---|---|
-| Share name | `backups-incoming` |
-| Comments | Incoming backups from PCs |
-| Minimum free space | `50G` |
-| Primary storage | **Array** |
-| Secondary storage | **None** |
-| Allocation method | **High-water** |
-| Split level | Automatically split any directory as required |
-| Included disk(s) | **disk1** |
-| Excluded disk(s) | blank |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `backups-incoming` |
+| Share Settings | Comments | Incoming backups from PCs |
+| Share Settings | Minimum free space | `50G` |
+| Share Settings | Primary storage | **Array** |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Allocation method | **High-water** |
+| Share Settings | Split level | Automatically split any directory as required |
+| Share Settings | Included disk(s) | **disk1** |
+| Share Settings | Excluded disk(s) | blank |
+| SMB Security Settings | Export | **Yes** (or **No** until chapter `15`) |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | **Private** |
 
 #### `public` (optional)
 
-| Field | Value |
-|---|---|
-| Share name | `public` |
-| Comments | Temporary transfer folder |
-| Minimum free space | `10G` |
-| Primary storage | **Array** |
-| Secondary storage | **None** |
-| Allocation method | **High-water** |
-| Split level | Automatically split any directory as required |
-| Included disk(s) | **disk1** |
-| Excluded disk(s) | blank |
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `public` |
+| Share Settings | Comments | Temporary transfer folder |
+| Share Settings | Minimum free space | `10G` |
+| Share Settings | Primary storage | **Array** |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Allocation method | **High-water** |
+| Share Settings | Split level | Automatically split any directory as required |
+| Share Settings | Included disk(s) | **disk1** |
+| Share Settings | Excluded disk(s) | blank |
+| SMB Security Settings | Export | **Yes** |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | **Secure** (preferred) or **Private** — avoid **Public** |
 
 ### Quick reference
 
-| Share | Comments | Min free | Primary | Secondary |
-|---|---|---|---|---|
-| `appdata` | Docker configs and databases | `20G` | `cache` | None |
-| `system` | Docker system data | `10G` | `cache` | None |
-| `domains` | Future VMs | `50G` | `cache` | None |
-| `database-backups-staging` | Temp DB dumps | `10G` | `cache` | None |
-| `photos` | Immich library | `50G` | Array | None |
-| `documents` | Personal documents | `20G` | Array | None |
-| `media` | Jellyfin libraries | `100G` | Array | None |
-| `backups-incoming` | PC backups | `50G` | Array | None |
-| `public` | Transfer folder | `10G` | Array | None |
+| Share | Min free | Primary | CoW | Export | Case-sensitive | Security | TM size limit |
+|---|---|---|---|---|---|---|---|
+| `appdata` | `20G` | `cache` | Auto | **No** | Auto | — | blank |
+| `system` | `10G` | `cache` | Auto | **No** | Auto | — | blank |
+| `domains` | `50G` | `cache` | Auto | **No** | Auto | — | blank |
+| `database-backups-staging` | `10G` | `cache` | Auto | **No** | Auto | — | blank |
+| `photos` | `50G` | Array | Auto | **Yes** | Auto | **Private** | blank |
+| `documents` | `20G` | Array | Auto | **Yes** | Auto | **Private** | blank |
+| `media` | `100G` | Array | Auto | **Yes** | Auto | **Private** | blank |
+| `backups-incoming` | `50G` | Array | Auto | **Yes** | Auto | **Private** | blank |
+| `public` | `10G` | Array | Auto | **Yes** | Auto | **Secure** | blank |
 
-### SMB on each share (basic for now)
+Named SMB users (who gets Read/Write) are configured in chapter `15`. Click **Apply** after each share.
 
-After creating a share, open it from **Shares** and set **SMB Security Settings**:
+**Security modes (Unraid):**
 
-| Share | Export | Security |
-|---|---|---|
-| `appdata` | **No** | — |
-| `system` | **No** | — |
-| `domains` | **No** | — |
-| `database-backups-staging` | **No** | — |
-| `photos` | **Yes** (or No until chapter `15`) | **Private** |
-| `documents` | **Yes** (or No until chapter `15`) | **Private** |
-| `media` | **Yes** (or No until chapter `15`) | **Private** |
-| `backups-incoming` | **Yes** (or No until chapter `15`) | **Private** |
-| `public` | **Yes** (optional) | **Secure** or **Private** |
+| Security | Meaning |
+|---|---|
+| **Private** | Only users you grant access; best default for personal data |
+| **Secure** | Guests can read; named users can write if granted |
+| **Public** | No login; avoid on this build |
 
-Named SMB users are configured in chapter `15`. Click **Apply** after each share.
+Do **not** set Export to **Yes (Time Machine)** on the shares above. If you want Mac Time Machine later, create a separate share (for example `timemachine`) with Export = **Yes (Time Machine)** and a Time Machine volume size limit.
 
 You should now see paths like:
 
