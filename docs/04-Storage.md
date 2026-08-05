@@ -4,13 +4,13 @@ Do this chapter **before** Docker and before any app (Immich, Home Assistant, Je
 
 Goal: assign disks, create empty shares, start the array. Do **not** install apps here.
 
-Assume the SSD pool is named **`fast`**. If you kept the default name **`cache`**, use that everywhere below instead of `fast`.
+This build uses the SSD pool named **`cache`** (Unraid default). Primary storage for appdata/system shares is **`cache`**, not Array.
 
 ## Devices
 
 | Device | Role | Availability |
 |---|---|---|
-| Acer Predator GM7000 1 TB | SSD pool (`fast`) for appdata and databases | 24/7 |
+| Acer Predator GM7000 1 TB | SSD pool (`cache`) for appdata and databases | 24/7 |
 | Seagate IronWolf 6 TB | Array disk 1 (no parity) for photos, documents, media | 24/7 |
 | Seagate Exos 6 TB | Unassigned Devices backup disk (add when ready) | Weekly only |
 
@@ -24,7 +24,7 @@ No parity disk. You accept about one week of risk on new data in exchange for a 
 
 | Field | Value |
 |---|---|
-| Pool name | `fast` |
+| Pool name | `cache` |
 | Slots / device | Acer Predator GM7000 (match by serial) |
 | File system | **xfs** (simple single-drive pool) |
 | Partition format | GPT / Unraid default |
@@ -78,7 +78,7 @@ Exclusive access keeps `appdata` / `system` on the SSD pool without FUSE overhea
 | Share name | Exact name below (lowercase, no spaces) |
 | Comments | Short description (optional but recommended) |
 | Minimum free space | Floor so a nearly full disk is not chosen for a huge write. Examples: `20G` for appdata, `50G`–`100G` for large media/photo shares. Leave blank only if you accept Unraid’s default. |
-| Primary storage | Where new files are written first (`fast` or **Array**) |
+| Primary storage | Where new files are written first (`cache` or **Array**) |
 | Secondary storage | Overflow / mover target. Use **None** for this build |
 | Allocation method | Only appears when Primary or Secondary is **Array**. Use **High-water** |
 | Split level | Only for Array shares. Use **Automatically split any directory as required** (or blank / Automatic) on a single-disk array |
@@ -88,7 +88,7 @@ Exclusive access keeps `appdata` / `system` on the SSD pool without FUSE overhea
 
 With only Disk 1 in the array, allocation method and split level barely matter, but set them so the form is complete.
 
-### Pool shares (Primary = `fast`, Secondary = None)
+### Pool shares (Primary = `cache`, Secondary = None)
 
 Create each of these. After creation, open the share and confirm **Exclusive access** shows **Yes** (needs Step 3).
 
@@ -99,7 +99,7 @@ Create each of these. After creation, open the share and confirm **Exclusive acc
 | Share name | `appdata` |
 | Comments | Docker configs and databases |
 | Minimum free space | `20G` |
-| Primary storage | `fast` |
+| Primary storage | `cache` |
 | Secondary storage | **None** |
 | Allocation / Split / Include | not used (pool-only) |
 
@@ -110,7 +110,7 @@ Create each of these. After creation, open the share and confirm **Exclusive acc
 | Share name | `system` |
 | Comments | Docker system data |
 | Minimum free space | `10G` |
-| Primary storage | `fast` |
+| Primary storage | `cache` |
 | Secondary storage | **None** |
 
 #### `domains` (optional)
@@ -120,7 +120,7 @@ Create each of these. After creation, open the share and confirm **Exclusive acc
 | Share name | `domains` |
 | Comments | Future VMs |
 | Minimum free space | `50G` |
-| Primary storage | `fast` |
+| Primary storage | `cache` |
 | Secondary storage | **None** |
 
 #### `database-backups-staging`
@@ -130,12 +130,12 @@ Create each of these. After creation, open the share and confirm **Exclusive acc
 | Share name | `database-backups-staging` |
 | Comments | Temporary DB dumps before weekly backup |
 | Minimum free space | `10G` |
-| Primary storage | `fast` |
+| Primary storage | `cache` |
 | Secondary storage | **None** |
 
 ### Array shares (Primary = Array, Secondary = None)
 
-Do **not** set Primary to `fast` for these. Large libraries stay on the IronWolf.
+Do **not** set Primary to `cache` for these. Large libraries stay on the IronWolf.
 
 #### `photos`
 
@@ -211,10 +211,10 @@ Do **not** set Primary to `fast` for these. Large libraries stay on the IronWolf
 
 | Share | Comments | Min free | Primary | Secondary |
 |---|---|---|---|---|
-| `appdata` | Docker configs and databases | `20G` | `fast` | None |
-| `system` | Docker system data | `10G` | `fast` | None |
-| `domains` | Future VMs | `50G` | `fast` | None |
-| `database-backups-staging` | Temp DB dumps | `10G` | `fast` | None |
+| `appdata` | Docker configs and databases | `20G` | `cache` | None |
+| `system` | Docker system data | `10G` | `cache` | None |
+| `domains` | Future VMs | `50G` | `cache` | None |
+| `database-backups-staging` | Temp DB dumps | `10G` | `cache` | None |
 | `photos` | Immich library | `50G` | Array | None |
 | `documents` | Personal documents | `20G` | Array | None |
 | `media` | Jellyfin libraries | `100G` | Array | None |
@@ -289,7 +289,7 @@ Watch reallocated, pending, and uncorrectable sectors. UDMA CRC errors often mea
 
 ## Done checklist
 
-- [ ] GM7000 pool `fast` online on **Main**
+- [ ] GM7000 pool `cache` online on **Main**
 - [ ] IronWolf is Disk 1, parity empty
 - [ ] Array started
 - [ ] All shares created with the field values above

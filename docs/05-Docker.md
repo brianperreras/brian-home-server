@@ -9,8 +9,8 @@ Goal: turn Docker on and install Compose support. Do **not** deploy apps in this
 Before enabling Docker, verify on the WebGUI:
 
 1. **Main** → array is **Started**.
-2. **Main** → SSD pool `fast` is online.
-3. **Shares** → `appdata` exists with **Primary storage** = `fast`, **Secondary storage** = **None**.
+2. **Main** → SSD pool `cache` is online.
+3. **Shares** → `appdata` exists with **Primary storage** = `cache`, **Secondary storage** = **None**.
 
 If those are missing, finish chapter `04` first.
 
@@ -23,16 +23,16 @@ If those are missing, finish chapter `04` first.
 | Field | Value |
 |---|---|
 | Enable Docker | **Yes** |
-| Docker data-root / Docker vDisk location | On pool `fast` (path Unraid shows under the pool, often something like `/mnt/fast/system/docker/docker.img` or directory mode under the pool) |
+| Docker data-root / Docker vDisk location | On pool `cache` (path Unraid shows under the pool, often something like `/mnt/cache/system/docker/docker.img` or directory mode under the pool) |
 | Docker vDisk size | `40G` (30–40 GB is fine to start) |
-| Docker directory (if using directory mode instead of image) | On `fast` / under `system` — optional alternative to the vDisk file |
+| Docker directory (if using directory mode instead of image) | On `cache` / under `system` — optional alternative to the vDisk file |
 | Default appdata storage location | `/mnt/user/appdata` |
 | Docker LOG rotation | **Yes** (recommended) |
 | max file size / max files (if shown) | e.g. `50m` and `1` (or Unraid defaults) |
 | Host access to custom networks | leave default unless you know you need it |
 | Preserve user defined networks | **Yes** (useful later) |
 
-Exact field labels vary slightly by Unraid build. The important values: Docker **on**, image/data on **`fast`**, appdata default **`/mnt/user/appdata`**.
+Exact field labels vary slightly by Unraid build. The important values: Docker **on**, image/data on **`cache`**, appdata default **`/mnt/user/appdata`**.
 
 4. Click **Apply**.
 5. Wait until Docker status shows as running.
@@ -80,7 +80,7 @@ You should usually see `card0` and `renderD128` (names can vary). Immich and Jel
 ## Done checklist
 
 - [ ] **Settings → Docker** filled as above and enabled
-- [ ] Docker data on GM7000 / `fast`
+- [ ] Docker data on GM7000 / `cache`
 - [ ] Default appdata path `/mnt/user/appdata`
 - [ ] Compose Manager installed via **Apps**
 - [ ] `/mnt/user/appdata/compose-projects` exists
