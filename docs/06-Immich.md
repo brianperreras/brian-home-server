@@ -208,13 +208,46 @@ So the WebGUI manages this folder:
 
 Path must be the **folder**, not the `docker-compose.yml` file itself.
 
+**Add the stack only once.** If you already see `immich` in the Compose list, do **not** click Add Stack again — open/edit that existing stack and set its Indirect Path instead.
+
+### If you see two stacks (`immich` and `immich-001`)
+
+That is **not** two Immich installs by design — Compose Manager Plus created a second entry (often after Add Stack was clicked twice, or one stack used the default USB project folder and another used your Indirect Path).
+
+**Keep only the stack whose project path is:**
+
+`/mnt/user/appdata/compose-projects/immich`
+
+That is where you ran `wget` and edited `.env` in Steps 3–4.
+
+**How to tell which is which:**
+
+1. Open each stack → **Settings** (or Advanced / path fields).
+2. Check **Indirect Path** / project directory.
+3. Or in Terminal:
+
+```bash
+ls -la /mnt/user/appdata/compose-projects/immich
+ls -la /boot/config/plugins/compose.manager/projects/
+```
+
+- Files you downloaded (`docker-compose.yml`, `.env`) should be under `/mnt/user/appdata/compose-projects/immich`.
+- A leftover empty/default stack often lives under `/boot/config/plugins/compose.manager/projects/immich` or `immich-001`.
+
+**What to do:**
+
+1. Do **not** start both.
+2. Start only the stack pointed at `/mnt/user/appdata/compose-projects/immich`.
+3. On the duplicate: stack menu → **Compose Down** (if it was ever started) → **Delete** / remove the stack.
+4. You should have exactly **one** Immich stack left.
+
 ---
 
 ## Step 6 — Start Immich
 
 ### From Compose Manager Plus (preferred)
 
-1. **Docker** → Compose section → **immich**.
+1. **Docker** → Compose section → the **one** Immich stack that uses `/mnt/user/appdata/compose-projects/immich`.
 2. Open the stack menu (icon / right-click / context menu).
 3. Choose **Compose Up** (or **Update** then Up if offered).
 4. Wait for pull + start to finish (can take several minutes the first time).
