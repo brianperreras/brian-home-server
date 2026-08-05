@@ -88,9 +88,10 @@ Do **not** use AX / Wi-Fi board BIOS files unless your PCB is that model.
 | Resource | URL |
 |---|---|
 | Tailscale download | https://tailscale.com/download |
-| Tailscale docs | https://tailscale.com/kb/1017/install |
-| Unraid Tailscale plugin docs | https://tailscale.com/kb/1134/unraid |
 | Unraid Tailscale manual | https://docs.unraid.net/unraid-os/manual/security/tailscale/ |
+| Plugin setup (EDACerton) | https://edac.dev/unraid/tailscale/plugin/ |
+| Plugin support thread | https://forums.unraid.net/topic/136889-plugin-tailscale/ |
+| Tailscale Unraid integration notes | https://tailscale.com/docs/integrations/unraid |
 
 ## General note
 

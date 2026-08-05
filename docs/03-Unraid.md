@@ -64,34 +64,32 @@ If the creator tool is unavailable, use the [manual install method](https://docs
 
 7. Install / activate your **paid registration key** only after disks and NIC appear correctly on **Main** and **Dashboard**.
 
-**Local access now:** from another PC on your LAN, open `http://brian-server` or `http://YOUR-RESERVED-IP` and log in as root. Full local + remote (Tailscale) instructions are in chapter `09`.
+**Local access now:** from another PC on your LAN, open `http://brian-server` or `http://192.168.0.10` and log in as root. LAN URLs for apps are in chapter `09` Part A. Tailscale remote access is chapter `09` Part B (after apps work).
 
 Do not expose the Unraid web UI via router port forwarding.
 
 ## 3. Network configuration
 
+This build uses a fixed LAN address: **`192.168.0.10`**.
+
 1. Open **Settings → Network Settings**.
-2. Suggested fill for first setup:
+2. Fill (7.3.2; use **Advanced View** if a field is hidden):
 
 | Field | Value |
 |---|---|
 | Enable bonding | **No** (single NIC) |
 | Enable bridging | Unraid default (usually **Yes** for Docker later) |
-| IPv4 address assignment | **Automatic: DHCP** |
-| IPv4 DNS server | Router IP, or a trusted local resolver |
+| IPv4 address assignment | **Static** |
+| IPv4 address | `192.168.0.10` |
+| IPv4 netmask | match your LAN (often `255.255.255.0`) |
+| IPv4 default gateway | your router IP (often `192.168.0.1`) |
+| IPv4 DNS server | your router IP, or a trusted resolver |
 | IPv6 | **Disable** unless you intentionally use it |
 
-3. In your **router**, create a DHCP reservation:
+3. Optional but recommended: also reserve `192.168.0.10` for this server’s MAC in the router so nothing else gets that address.
+4. Click **Apply**, then confirm the address on **Dashboard** or **Settings → Network Settings**.
 
-| Field | Value |
-|---|---|
-| Device / MAC | Unraid NIC MAC from **Settings → Network Settings** or **Dashboard** |
-| Reserved IP | example `192.168.1.10` (match your LAN) |
-| Hostname (if asked) | `brian-server` |
-
-4. Click **Apply** on Unraid, then reboot or renew DHCP if the reserved address does not appear.
-
-Prefer router reservation over typing a static IP only on Unraid (avoids conflicts).
+Do not expose the Unraid web UI via router port forwarding.
 
 ## 4. Plugins to install first
 
@@ -100,24 +98,29 @@ Prefer router reservation over typing a static IP only on Unraid (avoids conflic
 3. Search and install only what you need, one at a time.
 4. Prefer the **stable** (non-BETA) listing when CA shows both.
 
-### Install these
+### Install these now
 
-| Search in Apps | Status (Unraid 7.3.x / 2026) | Why |
-|---|---|---|
-| **Compose Manager Plus** | Current replacement | Immich / Home Assistant / Jellyfin stacks. Author: mstrhakr |
-| **Appdata Backup** | Current (CA name; plugin id `appdata.backup`) | Scheduled appdata / flash backups. Prefer this over old **CA Backup** / **ca.backup2** |
-| **Unassigned Devices** | Current | Exos weekly backup disk |
-| **Tailscale** (Plugin) | Current (EDACerton / official Unraid Tailscale plugin) | Remote access without port forwards |
-| **User Scripts** | Current | Scheduled shell jobs (backup, dumps) |
+| Search in Apps | Why |
+|---|---|
+| **Compose Manager Plus** | Immich / Home Assistant / Jellyfin stacks (author mstrhakr) |
+| **Appdata Backup** | Appdata / flash backups (not old CA Backup) |
+| **Unassigned Devices** | Exos weekly backup disk |
+| **User Scripts** | Scheduled shell jobs |
+
+### Install later (not required for app install)
+
+| Search in Apps | When |
+|---|---|
+| **Tailscale** (Plugin) | After apps work on the LAN — full steps in chapter `09` |
 
 ### Do not install / skip
 
 | Name | Why |
 |---|---|
-| **Compose Manager** (dcflachs / “Docker Compose Manager”) | **Deprecated.** Use **Compose Manager Plus** instead |
-| **Dynamix File Manager** | **Built into Unraid 7** — file manager icon is already in the top-right toolbar |
-| **CA Backup** / **ca.backup2** | Older line; use **Appdata Backup** |
-| Random Immich / HA / Jellyfin one-click templates (unless you choose that path) | This handbook uses Compose stacks for Immich (official), HA, and Jellyfin |
+| **Compose Manager** (dcflachs) | Deprecated — use Compose Manager Plus |
+| **Dynamix File Manager** | Built into Unraid 7 |
+| **CA Backup** / **ca.backup2** | Use Appdata Backup |
+| Random Immich / HA / Jellyfin CA templates | This handbook uses Compose stacks |
 
 5. After each install, open **Plugins** and confirm it appears and is enabled.
 6. Record why each plugin was added.

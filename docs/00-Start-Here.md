@@ -24,7 +24,7 @@ This build uses **Unraid OS 7.3.2** (paid). UI click paths in the chapters match
 **Storage before Docker:** Unraid must know where `appdata` and data shares live before Docker starts.  
 **Docker before Immich/Jellyfin/HA:** those services are containers; enabling Docker is only the engine, not the apps.
 
-**Access from other computers:** after Unraid is on the LAN, see chapter `09` for local URLs (web UI, SMB, apps) and remote access via Tailscale. You can use local access as soon as chapter `03` is done; remote Tailscale can wait until the server is stable.
+**Access from other computers:** use LAN URLs in chapter `09` Part A while installing apps (`http://192.168.0.10`, Immich `:2283`, etc.). Tailscale remote access is chapter `09` Part B — do it after apps work on the LAN.
 
 ## Before assembly
 

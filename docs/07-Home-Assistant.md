@@ -96,26 +96,20 @@ docker compose up -d
 docker compose logs --tail=100
 ```
 
-Open `http://brian-server:8123` (or your IP) and create the admin account.
-
----
-
-## Step 4 — Networking and remote access
-
-Do not expose port 8123 publicly. Use Tailscale (chapter `09`).
+Open `http://192.168.0.10:8123` (or `http://brian-server:8123`) and create the admin account.
 
 ---
 
 ## Step 5 — Zigbee USB (optional)
 
 1. Use a USB extension cable.
-2. In Terminal, find a stable path:
+2. In Terminal:
 
 ```bash
 ls -l /dev/serial/by-id/
 ```
 
-3. Edit compose (`nano` or Compose Manager Plus **Compose** tab) and uncomment/add:
+3. Edit compose (`nano` or Compose **Compose** tab) and add your real by-id path:
 
 ```yaml
 devices:
@@ -123,31 +117,19 @@ devices:
 ```
 
 4. Avoid `/dev/ttyUSB0` when a by-id path exists.
-5. **Compose Down** then **Compose Up**.
+5. Compose Down → Compose Up.
 
 ---
 
 ## Step 6 — Tuya / Smart Life
 
-Use the official Tuya integration: https://www.home-assistant.io/integrations/tuya/
-
-Local-only control varies by device.
+Official integration: https://www.home-assistant.io/integrations/tuya/
 
 ---
 
-## Step 7 — Backup
+## Step 7 — Backup and updates (Unraid)
 
-Back up `/mnt/user/appdata/homeassistant/config`. Prefer Home Assistant’s built-in backup when available. Include that folder in the weekly Exos job later.
-
-Never commit `secrets.yaml` to Git.
-
----
-
-## Step 8 — Updates
-
-1. Read release notes: https://www.home-assistant.io/blog/categories/release-notes/
-2. Back up config.
-3. Compose Manager Plus → **Compose Up** / Update, or:
+Back up `/mnt/user/appdata/homeassistant/config`. Prefer HA’s built-in backup when available.
 
 ```bash
 cd /mnt/user/appdata/compose-projects/homeassistant
@@ -155,11 +137,8 @@ docker compose pull
 docker compose up -d
 ```
 
-4. Check logs and automations.
+Never commit `secrets.yaml` to Git.
 
-## Security
-
-- Separate users for household members.
-- MFA for admin accounts when available.
+**Remote access:** when HA works on the LAN, use chapter `09` Part B. Do not port-forward `8123`.
 
 **Next:** chapter `14` Jellyfin.

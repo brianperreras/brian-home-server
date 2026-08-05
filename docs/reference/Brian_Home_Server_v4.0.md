@@ -46,7 +46,7 @@ v4.0
 | MariaDB | Only if an app needs it | Later (`08`) |
 | Jellyfin | Media on IronWolf; config on GM7000 | After HA (`14`) |
 | SMB | Unraid user shares | After apps (`15`) |
-| Local / remote access | LAN URLs + Tailscale | (`09`) |
+| Local / remote access | LAN `192.168.0.10` + Tailscale | (`09`) |
 | Git | Handbook on Mac; optional Gitea later | (`15`) |
 | Cron / schedules | User Scripts plugin | (`15`) then backup (`10`) |
 

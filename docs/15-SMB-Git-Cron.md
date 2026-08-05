@@ -133,7 +133,7 @@ Only if you want Mac Time Machine on Unraid (separate from Phase 1 shares):
 ### macOS
 
 1. Finder → **Go → Connect to Server…** (⌘K).
-2. Server address: `smb://brian-server` (or `smb://` + reserved IP).
+2. Server address: `smb://brian-server` or `smb://192.168.0.10`.
 3. Connect As: **Registered User**.
 4. Name: `brian` (SMB user, not root).
 5. Password: from your password manager.
@@ -142,10 +142,10 @@ Only if you want Mac Time Machine on Unraid (separate from Phase 1 shares):
 ### Windows
 
 1. File Explorer → address bar or **Map network drive**.
-2. Path: `\\brian-server` or `\\YOUR-RESERVED-IP`.
+2. Path: `\\brian-server` or `\\192.168.0.10`.
 3. Sign in as `brian` (not root).
 
-Full local and remote (Tailscale) access for Unraid UI, SMB, and apps: chapter `09`.
+Full LAN access for Unraid UI / SMB / apps: chapter `09` Part A. Remote (Tailscale): chapter `09` Part B after apps work.
 
 ## Step 5 — Git
 

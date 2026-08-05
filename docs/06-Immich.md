@@ -135,11 +135,11 @@ docker compose ps
 docker compose logs --tail=200
 ```
 
-Open `http://brian-server:2283` (or `http://YOUR-IP:2283`) and create the admin account.
+Open `http://192.168.0.10:2283` (or `http://brian-server:2283`) and create the admin account.
 
 ---
 
-## Step 6 — After it works
+## Step 6 — After it works (still on LAN)
 
 **Library:** uploads on IronWolf (`/mnt/user/photos/immich-library`); Postgres on GM7000. Do not hand-edit files inside the Immich library.
 
@@ -160,9 +160,11 @@ devices:
 Then Compose Down → Compose Up. Enable Intel/QSV in Immich Admin.  
 Docs: https://docs.immich.app/features/hardware-transcoding
 
-**Mobile:** install Immich app → server `http://YOUR-IP:2283` → enable backup on Wi‑Fi. Remote access: chapter `09` (Tailscale). Do not port-forward `2283`.
+**Mobile (home Wi‑Fi):** Immich app → server URL `http://192.168.0.10:2283` → enable backup. Confirm uploads before deleting phone copies.
 
-**Backup before upgrades** (both media + DB):
+**Remote access:** not part of Immich install. When Immich works on the LAN, follow chapter `09` Part B (Tailscale). Do not port-forward `2283`.
+
+**Backup before upgrades** (media + DB):
 
 ```bash
 cd /mnt/user/appdata/compose-projects/immich
@@ -171,6 +173,6 @@ docker compose exec -T database pg_dumpall --clean --if-exists --username=postgr
 
 (Adjust service name if your compose file does not call it `database`.)
 
-**Update:** read Immich release notes → dump DB → re-download official files into the same folder → re-apply `.env` paths/password → Compose Up. Never downgrade casually after a DB migration.
+**Update:** Immich release notes → dump DB → re-download official files → re-apply `.env` → Compose Up. Never downgrade casually after a DB migration.
 
 **Next:** chapter `07` Home Assistant.

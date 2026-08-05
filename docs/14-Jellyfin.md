@@ -106,7 +106,7 @@ docker compose up -d
 docker compose logs --tail=200
 ```
 
-Open `http://brian-server:8096`. In the wizard, add libraries as `/media/movies`, `/media/tv`, `/media/music` (host files under `/mnt/user/media/...`).
+Open `http://192.168.0.10:8096` (or `http://brian-server:8096`). In the wizard, add libraries as `/media/movies`, `/media/tv`, `/media/music` (host files under `/mnt/user/media/...`).
 
 ---
 
@@ -121,13 +121,7 @@ Keep SQLite unless you have a strong reason to add MariaDB.
 
 ---
 
-## Step 6 — Remote access
-
-Prefer Tailscale (chapter `09`). Do not expose `8096` publicly without TLS and auth review.
-
----
-
-## Step 7 — Backup and updates
+## Step 6 — Backup and updates (Unraid)
 
 Back up `/mnt/user/appdata/jellyfin` and media as needed.
 
@@ -140,5 +134,7 @@ docker compose up -d
 Or Compose Manager Plus → **Compose Up** / Update.
 
 Update Jellyfin separately from Immich and Home Assistant.
+
+**Remote access:** when Jellyfin works on the LAN, use chapter `09` Part B. Do not port-forward `8096`.
 
 **Next:** chapter `15` SMB / Git / cron.
