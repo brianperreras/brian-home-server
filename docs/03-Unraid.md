@@ -82,19 +82,30 @@ Prefer router reservation over typing a static IP only on Unraid (avoids conflic
 
 1. Open the **Apps** tab.
 2. If prompted, install **Community Applications**, then return to **Apps**.
-3. Search and install only what you need, one at a time:
+3. Search and install only what you need, one at a time.
+4. Prefer the **stable** (non-BETA) listing when CA shows both.
 
-| Plugin | Why |
+### Install these
+
+| Search in Apps | Status (Unraid 7.3.x / 2026) | Why |
+|---|---|---|
+| **Compose Manager Plus** | Current replacement | Immich / Home Assistant / Jellyfin stacks. Author: mstrhakr |
+| **Appdata Backup** | Current (CA name; plugin id `appdata.backup`) | Scheduled appdata / flash backups. Prefer this over old **CA Backup** / **ca.backup2** |
+| **Unassigned Devices** | Current | Exos weekly backup disk |
+| **Tailscale** (Plugin) | Current (EDACerton / official Unraid Tailscale plugin) | Remote access without port forwards |
+| **User Scripts** | Current | Scheduled shell jobs (backup, dumps) |
+
+### Do not install / skip
+
+| Name | Why |
 |---|---|
-| **Compose Manager** (or another maintained Compose method) | Immich / Home Assistant / Jellyfin stacks |
-| **Appdata Backup** (or current maintained equivalent) | App config backups |
-| **Unassigned Devices** | Exos weekly backup disk |
-| **Dynamix File Manager** | Browse shares in the UI (if not already included) |
-| **Tailscale** (plugin or container) | Remote access without port forwards |
-| **User Scripts** | Scheduled shell jobs (backup, dumps) |
+| **Compose Manager** (dcflachs / “Docker Compose Manager”) | **Deprecated.** Use **Compose Manager Plus** instead |
+| **Dynamix File Manager** | **Built into Unraid 7** — file manager icon is already in the top-right toolbar |
+| **CA Backup** / **ca.backup2** | Older line; use **Appdata Backup** |
+| Random Immich / HA / Jellyfin one-click templates (unless you choose that path) | This handbook uses Compose stacks for Immich (official), HA, and Jellyfin |
 
-4. After each install, open **Plugins** and confirm it appears and is enabled.
-5. Record why each plugin was added.
+5. After each install, open **Plugins** and confirm it appears and is enabled.
+6. Record why each plugin was added.
 
 Avoid installing many plugins during initial setup. Do **not** enable Docker or create app stacks in this chapter yet.
 

@@ -7,6 +7,7 @@ Official docs: https://jellyfin.org/docs/general/installation/container/
 ## Before you start
 
 - Docker is enabled
+- **Compose Manager Plus** is installed (chapter `05`)
 - Shares `appdata` and `media` exist
 - Immich and Home Assistant are already running (or at least Docker is healthy)
 
@@ -57,12 +58,16 @@ Ports: `8096/tcp` (UI), optional `7359/udp` (discovery). Prefer published ports 
 
 ## Step 3 — Start
 
+From terminal:
+
 ```bash
 cd /mnt/user/appdata/compose-projects/jellyfin
 docker compose pull
 docker compose up -d
 docker compose logs --tail=200
 ```
+
+Or use **Docker → Compose Manager Plus**: add/select the `jellyfin` stack and **Compose Up**.
 
 Open `http://SERVER-IP:8096` and finish the wizard. Point libraries at `/media/movies`, `/media/tv`, `/media/music`.
 

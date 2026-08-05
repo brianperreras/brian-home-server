@@ -7,6 +7,7 @@ Official overview: https://www.home-assistant.io/installation/
 ## Before you start
 
 - Docker is enabled
+- **Compose Manager Plus** is installed (chapter `05`)
 - Share `appdata` exists on the GM7000
 - `/mnt/user/appdata/compose-projects` exists
 
@@ -38,11 +39,15 @@ The template uses host networking, config at `/mnt/user/appdata/homeassistant/co
 
 ## Step 3 — Start
 
+From terminal:
+
 ```bash
 cd /mnt/user/appdata/compose-projects/homeassistant
 docker compose pull
 docker compose up -d
 ```
+
+Or use **Docker → Compose Manager Plus**: add/select the `homeassistant` stack and **Compose Up**.
 
 Open `http://SERVER-IP:8123` and create the admin account.
 

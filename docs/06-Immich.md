@@ -13,7 +13,7 @@ Confirm these already exist on the server:
 - Array started; IronWolf is Disk 1; GM7000 pool online
 - Shares `appdata` and `photos` exist
 - Docker is enabled
-- Compose Manager is installed
+- **Compose Manager Plus** is installed (not the deprecated Compose Manager)
 - `/mnt/user/appdata/compose-projects` exists
 
 If any item is missing, finish chapters `04` and `05` first, then return here and continue step by step below.
@@ -94,11 +94,15 @@ If the official compose maps a machine-learning model cache volume, point that h
 
 ## Step 4 — Start the stack
 
+From terminal:
+
 ```bash
 cd /mnt/user/appdata/compose-projects/immich
 docker compose pull
 docker compose up -d
 ```
+
+Or use **Docker → Compose Manager Plus**: add/select the `immich` stack and **Compose Up**.
 
 Check:
 
@@ -123,7 +127,7 @@ Do not manually modify files inside the managed Immich upload library. Use Immic
 
 1. Ensure `hwaccel.transcoding.yml` is in the same directory as `docker-compose.yml` when your Compose tool supports multiple files.
 2. In `docker-compose.yml` under `immich-server`, uncomment the `extends` section and set the service to `quicksync`.
-3. **Unraid note:** If Compose Manager cannot use multiple Compose files, skip `extends` and inline devices on `immich-server`:
+3. **Unraid note:** If Compose Manager Plus cannot use multiple Compose files the way you expect, skip `extends` and inline devices on `immich-server`:
 
 ```yaml
 devices:

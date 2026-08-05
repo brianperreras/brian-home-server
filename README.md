@@ -17,7 +17,7 @@ A practical build and operations handbook for a 24/7 **Unraid** home server.
 | Case | Jonsbo D33 |
 | Intake fans | 2 x Arctic P14 Pro PST |
 | Exhaust fans | 1 x rear + 2 x top Arctic P12 Pro PST (planned) |
-| Host OS | **Unraid OS** |
+| Host OS | **Unraid OS 7.3.2** |
 
 ## Structure
 
@@ -43,9 +43,9 @@ Unraid (host OS on USB → RAM)
 
 | Service | Where it runs |
 |---|---|
-| Immich | Docker Compose |
-| Home Assistant | Docker |
-| Jellyfin | Docker |
+| Immich | Docker Compose via **Compose Manager Plus** |
+| Home Assistant | Docker Compose via **Compose Manager Plus** |
+| Jellyfin | Docker Compose via **Compose Manager Plus** |
 | Postgres / MariaDB | Docker (with the apps that need them) |
 | SMB | Unraid native shares |
 | Git | Mac + GitHub for Phase 1 (Gitea container only if you add it later) |

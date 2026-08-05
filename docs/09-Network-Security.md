@@ -131,7 +131,7 @@ Official docs:
 ### B2. Install Tailscale on Unraid
 
 1. Open **Apps**.
-2. Search for **Tailscale** (official/community plugin maintained for Unraid).
+2. Search for **Tailscale** (Plugin) — prefer the official Unraid Tailscale plugin (EDACerton), not a random third-party container unless you know why.
 3. Install, then open it from **Settings → Tailscale** (or the plugin’s menu entry).
 4. Typical first-run fields:
 

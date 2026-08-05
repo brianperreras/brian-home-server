@@ -39,7 +39,7 @@ v4.0
 
 | Service | Host / placement | Guide order |
 |---|---|---|
-| Docker | Unraid built-in, data on GM7000 | After storage (`05`) |
+| Docker | Unraid built-in + **Compose Manager Plus**, data on GM7000 | After storage (`05`) |
 | Immich | Compose; library on IronWolf; DB on GM7000 | After Docker (`06`) |
 | Home Assistant | Container on Unraid | After Immich (`07`) |
 | PostgreSQL | Per-app on GM7000 (Immich) | With Immich |

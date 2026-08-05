@@ -38,13 +38,16 @@ Exact field labels vary slightly by Unraid build. The important values: Docker *
 5. Wait until Docker status shows as running.
 6. Confirm the top navigation shows a **Docker** tab.
 
-## Step 3 — Install Compose Manager
+## Step 3 — Install Compose Manager Plus
+
+The original **Compose Manager** / **Docker Compose Manager** (dcflachs) is **deprecated**. Install **Compose Manager Plus** (mstrhakr) instead — drop-in continuation; same project folder layout.
 
 1. Open **Apps**.
-2. Search for **Compose Manager**.
-3. Install it.
-4. Confirm under **Plugins** that it is installed.
-5. Open a terminal (**>_** in the top-right, or SSH as root) and create the projects folder:
+2. Search for **Compose Manager Plus**.
+3. Install the **stable** listing (not BETA), author **mstrhakr**.
+4. If CA still shows the old **Compose Manager**, skip it (or uninstall it first — both cannot be installed together).
+5. Confirm under **Plugins** that Compose Manager Plus is installed.
+6. Open a terminal (**>_** in the top-right, or SSH as root) and create the projects folder:
 
 ```bash
 mkdir -p /mnt/user/appdata/compose-projects
@@ -58,7 +61,12 @@ You will put each app under:
 | `/mnt/user/appdata/compose-projects/homeassistant` | Home Assistant |
 | `/mnt/user/appdata/compose-projects/jellyfin` | Jellyfin |
 
-Compose stacks are managed later from the Compose Manager UI (usually under **Docker** or via the plugin’s menu entry after install).
+Compose stacks are managed from the **Docker** tab (Compose Manager Plus section) after install. Support thread: https://forums.unraid.net/topic/197334-plugin-compose-manager-plus/
+
+### Already had old Compose Manager?
+
+1. **Apps** → search **Compose Manager Plus** → **(Re)Install**.
+2. It removes the deprecated plugin and keeps existing stacks/project folders.
 
 ## Step 4 — Verify Intel iGPU device (for later apps)
 
@@ -76,13 +84,14 @@ You should usually see `card0` and `renderD128` (names can vary). Immich and Jel
 2. Prefer bridge networking and published ports unless an app needs host mode.
 3. Update one app stack at a time after you have backups.
 4. Back up `/mnt/user/appdata`, compose files, `.env` files, and DB dumps — not the Docker image itself.
+5. Prefer official Compose for Immich over unofficial CA one-click Immich templates.
 
 ## Done checklist
 
 - [ ] **Settings → Docker** filled as above and enabled
 - [ ] Docker data on GM7000 / `cache`
 - [ ] Default appdata path `/mnt/user/appdata`
-- [ ] Compose Manager installed via **Apps**
+- [ ] **Compose Manager Plus** installed via **Apps** (not deprecated Compose Manager)
 - [ ] `/mnt/user/appdata/compose-projects` exists
 - [ ] `/dev/dri` visible
 - [ ] No Immich / HA / Jellyfin containers yet

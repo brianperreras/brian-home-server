@@ -61,12 +61,27 @@ Do **not** use AX / Wi-Fi board BIOS files unless your PCB is that model.
 | Container installation | https://jellyfin.org/docs/general/installation/container/ |
 | Hardware acceleration | https://jellyfin.org/docs/general/administration/hardware-acceleration/ |
 
-## Docker
+## Docker / Compose on Unraid
 
 | Resource | URL |
 |---|---|
 | Docker Compose documentation | https://docs.docker.com/compose/ |
 | Compose file reference | https://docs.docker.com/compose/compose-file/ |
+| **Compose Manager Plus** (current) | https://forums.unraid.net/topic/197334-plugin-compose-manager-plus/ |
+| Compose Manager Plus (GitHub) | https://github.com/mstrhakr/compose_plugin |
+| Compose Manager (deprecated) | https://forums.unraid.net/topic/114415-plugin-docker-compose-manager |
+
+## Plugins used in this handbook
+
+| Plugin | Notes |
+|---|---|
+| Compose Manager Plus | Replaces deprecated Compose Manager |
+| Appdata Backup | CA name; successor to CA Backup / ca.backup2 |
+| Unassigned Devices | Exos backup disk |
+| User Scripts | Cron / scheduled jobs |
+| Tailscale (Plugin) | Remote access; see Tailscale section below |
+
+**Built into Unraid 7 (do not install old plugins):** Dynamix File Manager, GUI Search.
 
 ## Tailscale / remote access
 
@@ -74,8 +89,9 @@ Do **not** use AX / Wi-Fi board BIOS files unless your PCB is that model.
 |---|---|
 | Tailscale download | https://tailscale.com/download |
 | Tailscale docs | https://tailscale.com/kb/1017/install |
-| Unraid Tailscale plugin docs (community) | https://tailscale.com/kb/1134/unraid |
+| Unraid Tailscale plugin docs | https://tailscale.com/kb/1134/unraid |
+| Unraid Tailscale manual | https://docs.unraid.net/unraid-os/manual/security/tailscale/ |
 
 ## General note
 
-Community Applications templates and plugins are community-maintained. Read each application's support thread and use official project documentation as the final authority for application-specific deployment.
+Community Applications templates and plugins are community-maintained. Read each application's support thread and use official project documentation as the final authority for application-specific deployment. Prefer official Immich Docker Compose over unofficial CA Immich templates.
