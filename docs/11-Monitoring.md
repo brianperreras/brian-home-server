@@ -24,7 +24,7 @@ Start with Unraid's built-in dashboard and notifications. Add a large monitoring
 
 ## Uptime Kuma
 
-Uptime Kuma is useful for checking web endpoints such as Immich and Home Assistant. Store its appdata on GM7000 and include it in weekly backups.
+Uptime Kuma is useful for checking web endpoints such as Immich (`:2283`), Home Assistant (`:8123`), and Jellyfin (`:8096`). Store its appdata on GM7000 and include it in weekly backups.
 
 ## Grafana/Prometheus
 

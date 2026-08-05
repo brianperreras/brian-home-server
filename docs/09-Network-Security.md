@@ -12,8 +12,9 @@
 Use [Tailscale](https://tailscale.com/download) for initial remote access to:
 
 - Unraid web UI.
-- Immich.
-- Home Assistant.
+- Immich (`:2283`).
+- Home Assistant (`:8123`).
+- Jellyfin (`:8096`).
 - SSH, when needed.
 
 Install docs: https://tailscale.com/kb/1017/install  

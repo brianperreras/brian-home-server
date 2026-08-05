@@ -53,6 +53,14 @@ Do **not** use AX / Wi-Fi board BIOS files unless your PCB is that model.
 | Tuya integration | https://www.home-assistant.io/integrations/tuya/ |
 | Breaking changes / release notes | https://www.home-assistant.io/blog/categories/release-notes/ |
 
+## Jellyfin
+
+| Resource | URL |
+|---|---|
+| Documentation home | https://jellyfin.org/docs/ |
+| Container installation | https://jellyfin.org/docs/general/installation/container/ |
+| Hardware acceleration | https://jellyfin.org/docs/general/administration/hardware-acceleration/ |
+
 ## Docker
 
 | Resource | URL |

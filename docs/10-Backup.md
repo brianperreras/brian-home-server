@@ -2,13 +2,14 @@
 
 ## Recovery objective
 
-You accept the possible loss of up to approximately one week of new or changed data. The backup disk runs only once or twice per week and is otherwise unmounted/spun down.
+You accept the possible loss of up to approximately one week of new or changed data. The **Seagate Exos 6 TB** backup disk runs only once or twice per week and is otherwise unmounted/spun down via Unassigned Devices.
 
 ## What must be backed up
 
 - IronWolf data shares: photos, documents, media as desired.
 - Immich PostgreSQL dump.
 - Home Assistant configuration/backup.
+- Jellyfin appdata (and media if not duplicated elsewhere).
 - Docker appdata for critical applications.
 - Compose files and secret configuration through an encrypted/private backup.
 - Unraid flash configuration backup.
@@ -35,7 +36,7 @@ Schedule starts
 
 ## Unassigned Devices
 
-Mount the backup disk at:
+Mount the Exos backup disk at:
 
 `/mnt/disks/weekly_backup`
 

@@ -4,7 +4,14 @@
 
 Use a dedicated database container per application when the application's official deployment expects it. Sharing one database server can save memory but couples maintenance and failure domains.
 
-Immich should use the PostgreSQL version and extensions specified by the current official Immich compose release.
+| Application | Database | Notes |
+|---|---|---|
+| Immich | PostgreSQL (official Immich image/version) | Required; follow Immich compose |
+| Home Assistant Container | SQLite by default | No separate DB needed initially |
+| Jellyfin | SQLite by default | Prefer built-in DB unless you have a specific reason to externalize |
+| Future apps | MariaDB/MySQL only if the app requires it | Deploy per-app on GM7000 |
+
+Immich should use the PostgreSQL version and extensions specified by the current official Immich compose release. Do not substitute a generic Postgres image casually.
 
 ## Storage
 
@@ -19,19 +26,21 @@ Do not place live database files on the IronWolf or on a network share unless yo
 
 Database files should not be copied live as the only backup. Produce logical dumps:
 
-PostgreSQL example:
+PostgreSQL example (Immich compose project directory):
 
 ```bash
-pg_dump -Fc -U APPUSER APPDB > appdb-$(date +%F).dump
+docker compose exec -T database pg_dumpall --clean --if-exists --username=postgres \
+  | gzip > /mnt/user/database-backups-staging/immich-$(date +%F).sql.gz
 ```
 
 MariaDB example:
 
 ```bash
-mariadb-dump --single-transaction --routines --events APPDB | gzip > appdb-$(date +%F).sql.gz
+docker compose exec -T mariadb mariadb-dump --single-transaction --routines --events APPDB \
+  | gzip > /mnt/user/database-backups-staging/appdb-$(date +%F).sql.gz
 ```
 
-Store dumps in `/mnt/user/database-backups-staging`, then include that directory in the weekly backup.
+Store dumps in `/mnt/user/database-backups-staging`, then include that directory in the weekly Exos backup.
 
 ## Retention
 

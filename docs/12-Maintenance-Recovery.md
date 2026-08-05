@@ -6,6 +6,7 @@
 - Review Unraid notifications.
 - Check free space.
 - Verify Immich mobile uploads are current.
+- Spot-check Jellyfin playback if media was added.
 
 ## Monthly
 

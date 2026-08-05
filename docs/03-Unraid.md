@@ -46,13 +46,16 @@ Do not expose the Unraid web interface via router port forwarding. Use Tailscale
 
 Install the [Community Applications](https://unraid.net/community/apps) plugin using the current official/community instructions. Then install only the tools you need:
 
+- Compose Manager (or another maintained Compose method) for Immich / Home Assistant / Jellyfin stacks.
 - Appdata Backup or the currently maintained equivalent.
-- Unassigned Devices.
+- Unassigned Devices (required for the Exos weekly backup disk).
 - Dynamix File Manager, if not already included.
 - Tailscale plugin or container.
 - User Scripts for scheduled shell jobs.
 
 Avoid installing many plugins during initial setup. Add one at a time and record why it is needed.
+
+After plugins and Docker are ready, follow the service bring-up order in [`05-Docker.md`](05-Docker.md).
 
 ## 5. Notifications
 
@@ -75,7 +78,7 @@ Use stable releases. Before upgrading:
 4. Confirm critical containers support the target release.
 5. Upgrade during a maintenance window.
 
-Do not update Unraid, Immich, Home Assistant, and every container simultaneously. Change one layer, test, then continue.
+Do not update Unraid, Immich, Home Assistant, Jellyfin, and every container simultaneously. Change one layer, test, then continue.
 
 ## 7. USB backup
 

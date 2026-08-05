@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 - 2026-08-05
+
+- Locked the handbook to Unraid OS and aligned docs with the v4.0 hardware plan (B760M DS3H DDR4 GEN5, GM7000 1 TB, Exos backup).
+- Added Jellyfin and SMB/Git/cron guides with Unraid-specific paths and bring-up order.
+- Tightened Immich, Home Assistant, Docker, storage, and database chapters for Compose-on-Unraid setup precision.
+
+## 1.0.2 - 2026-08-05
+
+- Added planning snapshot `docs/reference/Brian_Home_Server_v4.0.md` for hardware, services, OS preference, and future plans.
+
 ## 1.0.1 - 2026-08-03
 
 - Added official download and reference URLs for Gigabyte BIOS (Rev. 1.0 and DDR4 GEN5), Unraid USB Creator, Immich compose files, Home Assistant, Tailscale, and related docs.

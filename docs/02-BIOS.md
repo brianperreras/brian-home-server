@@ -6,14 +6,14 @@ Official Gigabyte BIOS setup overview: [Intel 700-series BIOS](https://www.gigab
 
 ## 1. Update BIOS first
 
-The i5-14400 requires firmware with 14th-generation CPU support. Download the BIOS for the **exact board name and revision printed on the motherboard**. Do not flash a BIOS intended for a similar but different DS3H model.
+This build uses the **Gigabyte B760M DS3H DDR4 GEN5**. The i5-14400 requires firmware with 14th-generation CPU support. Download the BIOS for the **exact board name and revision printed on the motherboard**. Do not flash a BIOS intended for a similar but different DS3H model.
 
-### Download pages (choose your exact board)
+### Download pages
 
-| Board printed on PCB / box | BIOS + drivers support page | Product / Q-Flash Plus page |
-|---|---|---|
-| B760M DS3H DDR4 (Rev. 1.0) | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10) |
-| B760M DS3H DDR4 GEN5 | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5) |
+| Board | Role in this build | BIOS + drivers support page | Product / Q-Flash Plus page |
+|---|---|---|---|
+| B760M DS3H DDR4 GEN5 | **Selected board** | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5) |
+| B760M DS3H DDR4 (Rev. 1.0) | Do not use unless PCB says this model | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10) |
 
 On the support page:
 
@@ -22,7 +22,7 @@ On the support page:
 3. Note the listed checksum if Gigabyte publishes one.
 4. Extract the zip on another computer before copying files to USB.
 
-As of August 2026, Gigabyte listed **F24** for B760M DS3H DDR4 Rev. 1.0 and **F5** for B760M DS3H DDR4 GEN5. Always re-check the support page before flashing; do not hard-code an old zip URL.
+As of August 2026, Gigabyte listed **F5** for B760M DS3H DDR4 GEN5. Always re-check the support page before flashing; do not hard-code an old zip URL.
 
 ### Preferred method: Q-Flash inside BIOS
 
@@ -42,7 +42,7 @@ Q-Flash Plus can update without CPU/RAM/GPU when the board will not POST or norm
 3. Insert the USB into the dedicated **Q-Flash Plus** rear USB port (see the board page / manual).
 4. Press the Q-Flash Plus button and wait until the QFLED stops flashing.
 
-More detail: [Q-Flash Plus on the Rev. 1.0 board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10)
+More detail: [Q-Flash Plus on the GEN5 board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5)
 
 ## 2. Enable XMP
 

@@ -16,7 +16,28 @@ Recommended approach:
 - If using an image file, start around 30-40 GB and monitor usage. A growing image usually indicates incorrect container path mappings, not a need for a huge image.
 - Default appdata: `/mnt/user/appdata`.
 
-## 2. Path-mapping rule
+Confirm the array/pool is started before enabling Docker so paths resolve onto the GM7000.
+
+## 2. Preferred deployment method for this build
+
+Use the **Compose Manager** plugin (or another currently maintained Compose method) for Immich, Home Assistant, and Jellyfin. Keep official upstream compose files where projects provide them.
+
+Suggested server location:
+
+`/mnt/user/appdata/compose-projects/<project>`
+
+Repository templates/notes are in `docker/`.
+
+Phase 1 bring-up order:
+
+1. Storage shares and Docker enabled ([`04-Storage.md`](04-Storage.md)).
+2. Immich ([`06-Immich.md`](06-Immich.md)).
+3. Home Assistant ([`07-Home-Assistant.md`](07-Home-Assistant.md)).
+4. Jellyfin ([`14-Jellyfin.md`](14-Jellyfin.md)).
+5. SMB users and schedules ([`15-SMB-Git-Cron.md`](15-SMB-Git-Cron.md)).
+6. Weekly backup ([`10-Backup.md`](10-Backup.md)).
+
+## 3. Path-mapping rule
 
 Every container path that writes significant data must map to a host path. Do not let large files accumulate inside the writable container layer.
 
@@ -28,26 +49,18 @@ Example:
 | `/photos` | `/mnt/user/photos` |
 | `/media` | `/mnt/user/media` |
 
-## 3. Networking
+## 4. Networking
 
-Use the default bridge network for most apps. Create a custom bridge network for related stacks such as Immich, reverse proxy, and databases when needed.
+Use the default bridge network for most apps. Create a custom bridge network for related stacks such as Immich when the official compose defines one.
 
 Avoid assigning every container a unique LAN IP unless there is a clear reason. It increases complexity and can conflict with router settings.
 
-## 4. Docker Compose
-
-For services with an official Compose deployment, use the maintained Compose Manager plugin or another supported method. Keep compose files in this Git repository, but keep secrets only on the server.
-
-Suggested server location:
-
-`/mnt/user/appdata/compose-projects/<project>`
-
-Repository templates are in `docker/`.
+Home Assistant uses host networking in the provided template for discovery. Jellyfin can use published ports or host networking; prefer published ports first unless LAN discovery requires host mode.
 
 ## 5. Updates
 
 - Back up appdata before major updates.
-- Read release notes for Immich and Home Assistant.
+- Read release notes for Immich, Home Assistant, and Jellyfin.
 - Do not use floating `latest` tags for critical services unless the project explicitly expects it and you have backups.
 - Update one stack at a time.
 - Verify logs and functionality after every change.
@@ -58,7 +71,7 @@ Do not impose CPU/RAM limits initially unless a container misbehaves. Monitor no
 
 ## 7. Intel iGPU access
 
-For containers using Quick Sync, pass:
+For containers using Quick Sync (Immich, Jellyfin), pass:
 
 `/dev/dri`
 

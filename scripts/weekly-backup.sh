@@ -20,6 +20,9 @@ for name in "${required[@]}"; do
   [[ -n "${!name:-}" ]] || { echo "Missing variable: $name" >&2; exit 2; }
 done
 
+# Optional media share for Jellyfin libraries
+SOURCE_MEDIA="${SOURCE_MEDIA:-}"
+
 if ! mountpoint -q "$BACKUP_MOUNT"; then
   echo "Backup disk is not mounted at $BACKUP_MOUNT" >&2
   echo "Mount it with Unassigned Devices or a pre-script, then retry." >&2
@@ -55,6 +58,9 @@ backup_one() {
 
 backup_one "$SOURCE_PHOTOS" photos
 backup_one "$SOURCE_DOCUMENTS" documents
+if [[ -n "$SOURCE_MEDIA" ]]; then
+  backup_one "$SOURCE_MEDIA" media
+fi
 backup_one "$SOURCE_APPDATA" appdata
 backup_one "$STAGING" database-backups-staging
 

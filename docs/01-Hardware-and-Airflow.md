@@ -17,15 +17,17 @@ Primary HDD should receive direct or nearby intake airflow.
 
 ## Fan placement
 
+v4.0 planned layout:
+
 | Position | Fan | Direction | Purpose |
 |---|---|---|---|
 | Front lower | Arctic P14 Pro PST | Intake | HDD and motherboard airflow |
 | Front upper | Arctic P14 Pro PST | Intake | CPU and VRM airflow |
 | Rear | Arctic P12 Pro PST | Exhaust | Removes CPU heat |
 | Top rear | Arctic P12 Pro PST | Exhaust | Removes rising heat |
-| Top front | Optional P12 | Exhaust at low RPM, or leave empty initially | Add only if measurements justify it |
+| Top front | Arctic P12 Pro PST | Exhaust at low RPM | Second top exhaust from the v4.0 plan |
 
-Start with two front intakes, one rear exhaust, and one top-rear exhaust. Too many top exhaust fans can pull fresh air out before it reaches the CPU and HDD. Add the second top exhaust only when temperature measurements show a benefit.
+**Commissioning tip:** Bring the system up with two front intakes, one rear exhaust, and one top-rear exhaust first. Measure IronWolf and CPU temperatures under Immich import / Jellyfin transcode load. Add the second top exhaust only if measurements show a clear benefit. Two aggressive top exhausts can pull fresh intake air out before it reaches the CPU and HDD.
 
 ## Peerless Assassin orientation
 

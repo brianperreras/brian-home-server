@@ -1,21 +1,25 @@
 # 00 - Start Here
 
-This chapter is the build-day checklist. Do not configure services until the hardware is stable.
+This chapter is the build-day checklist for the **Unraid** build. Do not configure services until the hardware is stable.
+
+Planning snapshot: [Brian_Home_Server_v4.0.md](reference/Brian_Home_Server_v4.0.md)
 
 ## Before assembly
 
 Confirm that you have:
 
 - Intel Core i5-14400, **non-F**, so Intel UHD graphics and Quick Sync are available.
-- Gigabyte B760M DS3H DDR4 family motherboard.
-- Two matched 16 GB DDR4-3200 modules.
+- Gigabyte **B760M DS3H DDR4 GEN5** motherboard.
+- Two matched 16 GB DDR4-3200 modules (32 GB total).
 - Peerless Assassin 120 SE with LGA1700 mounting hardware.
-- Acer Predator GM7000 NVMe.
-- Seagate IronWolf 6 TB SATA drive.
+- Acer Predator GM7000 **1 TB** NVMe.
+- Seagate IronWolf 6 TB SATA drive (primary).
+- Seagate Exos 6 TB SATA drive when ready (weekly backup; not required on day one).
 - Seasonic SGX-650 and all original modular cables.
 - Jonsbo D33 and required fan screws.
-- Two Arctic P14 Pro PST intake fans and the selected P12 exhaust fans.
-- A high-quality 8-32 GB USB drive with a unique GUID for Unraid.
+- Two Arctic P14 Pro PST intake fans.
+- Arctic P12 Pro PST exhaust fans: rear plus planned dual top.
+- A high-quality 8-32 GB USB drive with a unique GUID for **Unraid**.
 - Ethernet cable connected to the router or switch.
 
 ## Do not do these
@@ -23,8 +27,9 @@ Confirm that you have:
 - Do not mix modular PSU cables from another PSU, even if the connectors fit.
 - Do not enable motherboard RAID or Intel RST.
 - Do not format the IronWolf from another OS after placing data on it.
-- Do not expose Unraid, Immich, or Home Assistant directly to the internet during initial setup.
-- Do not configure the backup disk as parity; your plan is a separately mounted weekly backup.
+- Do not expose Unraid, Immich, Home Assistant, or Jellyfin directly to the internet during initial setup.
+- Do not configure the Exos backup disk as parity; it is a separately mounted weekly backup target.
+- Do not install Ubuntu or another OS onto the GM7000 for this build; Unraid boots from USB.
 
 ## Recommended build order
 
@@ -34,10 +39,11 @@ Confirm that you have:
 4. Install the front intake fans.
 5. Install the motherboard.
 6. Install the CPU cooler and connect both cooler fans.
-7. Install the IronWolf and route SATA power/data.
+7. Install the IronWolf and route SATA power/data (label cables `PRIMARY` / `BACKUP`).
 8. Connect front-panel, USB, audio, and fan headers.
 9. Perform a cable inspection before applying power.
-10. Enter BIOS and complete the settings in [`02-BIOS.md`](02-BIOS.md). Download the correct firmware from the Gigabyte support links in that chapter (or [`99-Sources.md`](99-Sources.md)).
+10. Enter BIOS and complete the settings in [`02-BIOS.md`](02-BIOS.md). Use the **GEN5** Gigabyte support page (or [`99-Sources.md`](99-Sources.md)).
+11. Install Unraid from [`03-Unraid.md`](03-Unraid.md).
 
 ## First-boot success criteria
 
