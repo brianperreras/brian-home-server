@@ -65,18 +65,22 @@ cp /path/to/Brian-HomeServer/scripts/*.sh /boot/config/custom/backup/
 cp /path/to/Brian-HomeServer/scripts/backup.env.example /boot/config/custom/backup/backup.env
 ```
 
-3. Edit `/boot/config/custom/backup/backup.env` and fill:
+3. Edit `/boot/config/custom/backup/backup.env` (`nano` that file) and use this copyable config:
 
-| Variable | Example value |
-|---|---|
-| `BACKUP_MOUNT` | `/mnt/disks/weekly_backup` |
-| `SNAPSHOT_ROOT` | `/mnt/disks/weekly_backup/snapshots` |
-| `SOURCE_PHOTOS` | `/mnt/user/photos` |
-| `SOURCE_DOCUMENTS` | `/mnt/user/documents` |
-| `SOURCE_MEDIA` | `/mnt/user/media` (optional; leave empty to skip) |
-| `SOURCE_APPDATA` | `/mnt/user/appdata` |
-| `STAGING` | `/mnt/user/database-backups-staging` |
-| `RETENTION_WEEKS` | `8` |
+```bash
+# Copy to backup.env outside Git and edit.
+# BACKUP_MOUNT is the Unassigned Devices mount for the Seagate Exos 6 TB.
+BACKUP_MOUNT=/mnt/disks/weekly_backup
+SNAPSHOT_ROOT=/mnt/disks/weekly_backup/snapshots
+SOURCE_PHOTOS=/mnt/user/photos
+SOURCE_DOCUMENTS=/mnt/user/documents
+SOURCE_MEDIA=/mnt/user/media
+SOURCE_APPDATA=/mnt/user/appdata
+STAGING=/mnt/user/database-backups-staging
+RETENTION_WEEKS=8
+```
+
+To skip media backup, set `SOURCE_MEDIA=` (empty).
 
 4. Keep `backup.env` out of Git.
 
@@ -89,23 +93,18 @@ bash /boot/config/custom/backup/weekly-backup.sh
 ## Schedule with User Scripts
 
 1. Open **Settings → User Scripts**.
-2. **Add New Script** (or edit the one from chapter `15`) and fill:
-
-| Field | Value |
-|---|---|
-| Script name | `weekly-backup` |
-| Schedule | **Custom** |
-| Cron | `0 3 * * 0` (Sunday 03:00) |
-
-3. Script body:
+2. **Add New Script** (or edit the one from chapter `15`).
+3. Name: `weekly-backup`
+4. Schedule: Custom cron `0 3 * * 0` (Sunday 03:00), or a built-in weekly option.
+5. Script body (copy/paste):
 
 ```bash
 #!/bin/bash
 bash /boot/config/custom/backup/weekly-backup.sh
 ```
 
-4. Click **Apply**.
-5. Optionally add separate scripts for pre-backup DB dumps and post-backup checks.
+6. Click **Apply**.
+7. Optionally add separate scripts for pre-backup DB dumps and post-backup checks.
 
 Do not schedule at the same time as Appdata Backup, SMART extended tests, mover, or major media scans.
 

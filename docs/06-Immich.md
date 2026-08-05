@@ -82,26 +82,32 @@ cd /mnt/user/appdata/compose-projects/immich
 nano .env
 ```
 
-Set these values (other official example lines can stay):
+Replace the relevant lines so your `.env` includes at least this block (copy/paste, then change the password). Leave any other official Immich example lines that are not listed here unless Immich docs say to change them.
 
-| Variable | Value |
-|---|---|
-| `UPLOAD_LOCATION` | `/mnt/user/photos/immich-library` |
-| `DB_DATA_LOCATION` | `/mnt/user/appdata/immich/postgres` |
-| `IMMICH_VERSION` | `release` |
-| `DB_PASSWORD` | long random password (password manager; prefer `A-Za-z0-9` only) |
-| `DB_USERNAME` | `postgres` |
-| `DB_DATABASE_NAME` | `immich` |
-| `TZ` | e.g. `Asia/Manila` (if present in the file) |
+```dotenv
+UPLOAD_LOCATION=/mnt/user/photos/immich-library
+DB_DATA_LOCATION=/mnt/user/appdata/immich/postgres
+IMMICH_VERSION=release
+DB_PASSWORD=ReplaceWithYourLongRandomPassword
+DB_USERNAME=postgres
+DB_DATABASE_NAME=immich
+TZ=Asia/Manila
+```
+
+Notes:
+
+- Change `DB_PASSWORD` to your own password (prefer `A-Za-z0-9` only; save it in your password manager).
+- Change `TZ` to your timezone if different.
+- No spaces around `=`.
 
 Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**.
 
 ```bash
 chmod 600 .env
-grep -E 'UPLOAD_LOCATION|DB_DATA_LOCATION|DB_PASSWORD|IMMICH_VERSION' .env
+grep -E 'UPLOAD_LOCATION|DB_DATA_LOCATION|DB_PASSWORD|IMMICH_VERSION|TZ' .env
 ```
 
-Optional: **Docker** → open the **`immich`** stack → **.ENV** tab → confirm the same values → **Save All**.
+Optional: **Docker** → open the **`immich`** stack → **.ENV** tab → paste the same block → **Save All**.
 
 ---
 
