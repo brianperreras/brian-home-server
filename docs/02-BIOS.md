@@ -10,19 +10,18 @@ This build uses the **Gigabyte B760M DS3H DDR4 GEN5**. The i5-14400 requires fir
 
 ### Download pages
 
-| Board | Role in this build | BIOS + drivers support page | Product / Q-Flash Plus page |
-|---|---|---|---|
-| B760M DS3H DDR4 GEN5 | **Selected board** | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5) |
-| B760M DS3H DDR4 (Rev. 1.0) | Do not use unless PCB says this model | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10) |
+| Board | BIOS + drivers support page | Product / Q-Flash Plus page |
+|---|---|---|
+| B760M DS3H DDR4 GEN5 | [Support / BIOS](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5/support) | [Board page](https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5) |
 
 On the support page:
 
 1. Open the **BIOS** tab.
-2. Download the newest stable BIOS zip for your exact model (not AX Wi-Fi variants unless that is what you own).
+2. Download the newest stable BIOS zip for your exact model.
 3. Note the listed checksum if Gigabyte publishes one.
 4. Extract the zip on another computer before copying files to USB.
 
-As of August 2026, Gigabyte listed **F5** for B760M DS3H DDR4 GEN5. Always re-check the support page before flashing; do not hard-code an old zip URL.
+As of August 2026, this build runs **F6a** on the B760M DS3H DDR4 GEN5. Always re-check the support page before flashing; do not hard-code an old zip URL.
 
 ### Preferred method: Q-Flash inside BIOS
 
@@ -127,23 +126,113 @@ Use Intel-default or motherboard `Normal` power behavior. Avoid unlimited power 
 
 If the board exposes `Enhanced Multi-Core Performance`, use Disabled or an Intel-default option. Confirm full-load temperatures after setup.
 
-## 10. Fan configuration with Smart Fan 6
+## 10. Fan configuration with Smart Fan 6 (BIOS F6a)
 
-Set each connected case fan header to PWM mode.
+The B760M DS3H DDR4 GEN5 uses **Smart Fan 6**. In F6a this lives under:
 
-Suggested starting curve:
+`Advanced Mode → Smart Fan 6 Settings`
 
-| Sensor temperature | Front P14 | Rear/top P12 |
-|---:|---:|---:|
-| 35 C | 30% | 25% |
-| 50 C | 40% | 35% |
-| 65 C | 60% | 55% |
-| 75 C | 80% | 75% |
-| 85 C | 100% | 100% |
+If you are in Easy Mode (the simplified first screen), press **F2** to switch to Advanced Mode first.
 
-Use a motherboard/system sensor for case fans when possible. CPU temperature can spike briefly, causing annoying fan surges. Add fan smoothing or interval delay if Smart Fan 6 provides it.
+---
 
-Do not enable Fan Stop for the front HDD intake fan. Maintain slow airflow over the primary HDD at all times.
+### Step 1 — Enter Smart Fan 6
+
+1. Boot into BIOS (press **Delete** at POST).
+2. Press **F2** for Advanced Mode if not already there.
+3. Navigate to **Smart Fan 6 Settings** (top menu bar → last tab, or use search with **Ctrl+F** and type `fan`).
+
+---
+
+### Step 2 — Set each header to PWM mode
+
+For every fan header you have connected:
+
+| Header label | Your fan | Mode to set |
+|---|---|---|
+| `CPU_FAN` | Peerless Assassin (CPU cooler) | **PWM** |
+| `SYS_FAN1` | Arctic P12 Pro PST (rear exhaust ×1) | **PWM** |
+| `SYS_FAN2` | Arctic P12 Pro PST (top exhaust ×2, daisy-chained via PST) | **PWM** |
+| `SYS_FAN3` | Arctic P14 Pro PST (front intake ×2, daisy-chained via PST) | **PWM** |
+
+Click the header name → change **Fan Speed Control** from `Voltage` or `Auto` to **PWM**.
+
+---
+
+### Step 3 — Set the temperature source
+
+For **case fans** (SYS_FAN headers), change the temperature source from `CPU` to **`System`** (the motherboard sensor). CPU temp spikes briefly under load and causes unnecessary fan surges on a server that mostly idles.
+
+- Click the header → **Temperature Source** → `System`
+
+Leave the **CPU_FAN** header on `CPU` temperature.
+
+---
+
+### Step 4 — Set the fan curve
+
+Click each header → select **Customize** mode → edit the curve points.
+
+**Exhaust fans — SYS_FAN1 (rear P12) and SYS_FAN2 (top P12 ×2), System temp sensor:**
+
+| System temp | Fan speed |
+|---:|---:|
+| 30 °C | 25% |
+| 40 °C | 30% |
+| 50 °C | 40% |
+| 60 °C | 55% |
+| 70 °C | 75% |
+| 80 °C | 100% |
+
+**Intake fans — SYS_FAN3 (front P14 ×2), System temp sensor:**
+
+| System temp | Fan speed |
+|---:|---:|
+| 30 °C | 20% |
+| 40 °C | 25% |
+| 50 °C | 35% |
+| 60 °C | 50% |
+| 70 °C | 70% |
+| 80 °C | 100% |
+
+Intakes run slightly slower than exhausts to maintain gentle negative-to-neutral pressure — dust accumulates on filters rather than inside the case.
+
+**CPU cooler — Peerless Assassin (CPU_FAN, CPU temp sensor):**
+
+| CPU temp | Fan speed |
+|---:|---:|
+| 40 °C | 30% |
+| 55 °C | 40% |
+| 65 °C | 55% |
+| 75 °C | 75% |
+| 85 °C | 100% |
+
+These are conservative starting values for a 24/7 server in a ~30–32 °C room. Adjust upward if temps run hot, downward if the server is in a cooler space.
+
+---
+
+### Step 5 — Enable fan smoothing / interval
+
+In F6a, each header has a **Fan Control Use Temperature Input** interval or **Tolerance** setting. Set it to **2–3 °C** tolerance so small temperature fluctuations do not cause constant speed changes.
+
+---
+
+### Step 6 — Fan Stop
+
+**Do not enable Fan Stop** for any SYS_FAN header connected to intake fans. The IronWolf HDD needs slow continuous airflow even at idle. Fan Stop is acceptable only for the CPU cooler if desired.
+
+---
+
+### Step 7 — Save and verify
+
+1. Press **F10** → Save & Exit.
+2. After boot, re-enter BIOS → Smart Fan 6 Settings and confirm each header shows the curve and mode you set (F6a sometimes resets headers to Auto on first save — re-apply if needed).
+3. Under **PC Health Status** (same Advanced Mode tab area), confirm fan RPMs are reported for all connected headers at idle.
+
+Expected idle RPMs for this build in a ~30 °C room:
+- CPU cooler: ~400–600 RPM
+- P14 intakes: ~350–500 RPM
+- P12 exhausts: ~300–450 RPM
 
 ## 11. Final verification
 
@@ -162,7 +251,7 @@ After Unraid boots, run a memory test and monitor system logs for machine-check 
 ## Verify your setup
 
 1. **CPU identified correctly** — check the POST screen or BIOS System Information page.
-   Expected result: `Intel Core i5-14400` (or `i5-14400F` if you own that variant) displayed at detected speed.
+   Expected result: `Intel Core i5-14400` displayed at detected speed.
 
 2. **RAM at 3200 MHz with XMP active** — BIOS → Tweaker → Memory frequency.
    Expected result: `3200 MHz` shown, total `32768 MB` (32 GB).

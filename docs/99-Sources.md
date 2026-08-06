@@ -21,15 +21,10 @@ These are the preferred references. Check them before major changes because menu
 
 ## Gigabyte motherboard / BIOS
 
-Verify the exact model and revision printed on the motherboard before downloading.
-
 | Board | Support (BIOS downloads) | Product page |
 |---|---|---|
-| B760M DS3H DDR4 Rev. 1.0 | https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10/support | https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-rev-10 |
 | B760M DS3H DDR4 GEN5 | https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5/support | https://www.gigabyte.com/Motherboard/B760M-DS3H-DDR4-GEN5 |
 | Intel 700-series BIOS guide | https://www.gigabyte.com/WebPage/928/intel700-bios.html | |
-
-Do **not** use AX / Wi-Fi board BIOS files unless your PCB is that model.
 
 ## Immich
 
