@@ -85,6 +85,29 @@ Exclusive access keeps `appdata` / `system` on the SSD pool without FUSE overhea
 
 ## Step 4 — Create shares (folders only)
 
+You can use the WebGUI (below) **or** create/update all handbook shares in one shot from the Unraid terminal.
+
+### Optional — terminal (all shares at once)
+
+Array must be **started**. Copy `scripts/create-shares.sh` from this repo onto the server (or paste it), then:
+
+```bash
+# Preview
+DRY_RUN=1 bash create-shares.sh
+
+# Create missing shares (skips existing .cfg files)
+bash create-shares.sh
+
+# Or overwrite existing share settings (backs up .cfg first; does not delete data)
+FORCE=1 bash create-shares.sh
+```
+
+Then **Main → Stop Array → Start Array** and confirm on the **Shares** tab (especially `photos`: Primary=`cache`, Secondary=**Array**, Mover=`cache→array`).
+
+The script writes `/boot/config/shares/*.cfg` and creates the Primary directories. It does **not** set named SMB users (chapter `15`).
+
+### WebGUI (one share at a time)
+
 1. Open **Shares**.
 2. Click **Add Share**.
 3. On the Add Share / share edit page, switch to **Advanced View** (top-right).
