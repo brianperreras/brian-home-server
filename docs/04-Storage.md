@@ -374,22 +374,32 @@ Full weekly backup steps are in chapter `10` after apps exist.
 
 ## Step 6 — SMART / disk settings
 
+Unraid **7.3.2** has no field named **Tunable (enable SMART)**. SMART polling is always on unless you set the poll interval to `0`.
+
 1. Open **Settings → Disk Settings**.
-2. Suggested starting values (adjust after you see real temps):
+2. Suggested starting values (exact labels; adjust after you see real temps):
 
-| Field | Suggested value |
+| Field (exact label) | Suggested value |
 |---|---|
-| Default spin down delay | your preference (array HDD can spin down if idle policy allows) |
-| Tunable (enable SMART) | enabled / default |
-| Warning disk temperature threshold | `45`–`48` °C |
-| Critical disk temperature threshold | `50`–`55` °C |
+| Default spin down delay | your preference (set **Never** before an extended SMART test) |
+| Tunable (poll_attributes) | leave default **1800** (seconds). Do **not** set `0` — that disables SMART polling |
+| Default warning disk temperature threshold | `48` °C (HDDs) |
+| Default critical disk temperature threshold | `52` °C (HDDs) |
+| Default warning SSD temperature threshold | leave default (SATA SSDs; your GM7000 is NVMe) |
+| Default critical SSD temperature threshold | leave default |
+| Default SMART notification value | leave default (**Raw**) |
+| Default SMART notification tolerance level | leave default |
+| Default SMART controller type | **Automatic** |
+| Default SMART attribute notifications | leave defaults checked (`5`, `187`, `197`, `198`, `199`) |
 
-3. On **Main**, click **Disk 1** (IronWolf) for SMART self-tests:
+3. Optional per-disk overrides: **Main → Disk 1** (IronWolf) → **Settings** → **SMART Settings**. Blank thresholds inherit the globals above. For the GM7000 pool disk, the same page shows **NVME temperature** fields — leave blank or set warning ~`75` °C.
+
+4. Self-tests are **manual** (Unraid has no built-in weekly/monthly SMART schedule). Open **Main → Disk 1 → Self-Test**:
 
 | Disk | Short test | Extended test |
 |---|---|---|
-| IronWolf | Weekly | Monthly |
-| Exos (when used) | Around weekly backup | Monthly in a maintenance window |
+| IronWolf | Weekly (click **SMART short self-test → Start**) | Monthly (spin-down **Never** while it runs) |
+| Exos (when used) | Around weekly backup from the Unassigned Devices disk page → **Self-Test** | Monthly in a maintenance window |
 
 Watch reallocated, pending, and uncorrectable sectors. UDMA CRC errors often mean a cable issue.
 

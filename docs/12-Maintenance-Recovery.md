@@ -10,8 +10,8 @@
 
 ## Monthly
 
-- Run IronWolf extended SMART test (**Main → Disk 1**).
-- Run backup-disk SMART test during its active window: click the **Exos** disk row in the **Unassigned Devices** section of **Main** to open its detail page, then run or schedule a SMART test.
+- Run IronWolf extended SMART test (**Main → Disk 1 → Self-Test**). Set spin-down to **Never** while it runs.
+- Run backup-disk SMART test during its active window: click the **Exos** disk row in the **Unassigned Devices** section of **Main**, then open **Self-Test** and start a short/extended test (no native schedule).
 - Install selected application updates after reading release notes.
 - Export/verify Unraid boot-device backup (**Main → Boot Device → Boot Device Backup**).
 - Review Docker container logs for repeated errors (**Docker** tab).

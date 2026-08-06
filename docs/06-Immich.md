@@ -119,6 +119,48 @@ Optional: **Docker** → open the **`immich`** stack → **.ENV** tab → paste 
 
 ---
 
+## Step 4b — Compose Manager Plus stack Settings / WebUI
+
+Open **Docker** → Compose → **`immich`** → editor tabs.
+
+### Settings tab
+
+| Field | Value |
+|---|---|
+| Name | `immich` (leave as-is if already set) |
+| Description | optional, e.g. `Photo library` |
+| Icon URL | optional — Immich logo URL, or leave blank |
+| **WebUI URL** | `http://[IP]:[PORT:2283]` |
+| Default profile | leave blank / default |
+| External paths | leave blank unless you use that feature |
+
+`[IP]` and `[PORT:2283]` are Compose Manager Plus / Unraid placeholders — they resolve to this server’s LAN IP and Immich’s published port **2283**.
+
+Plain URLs also work if you prefer:
+
+- `http://192.168.0.10:2283`
+- `http://brian-server:2283`
+
+Save (**Save All** / Ctrl+S). After the stack is up, the stack menu **WebUI** action opens Immich.
+
+### WebUI Labels tab (optional, per container)
+
+For the **`immich-server`** service only:
+
+| Label | Value |
+|---|---|
+| Icon | optional logo URL |
+| WebUI | `http://[IP]:[PORT:2283]` |
+| Shell | `sh` or `bash` |
+
+Leave Redis / Postgres / ML without a WebUI.
+
+### Autostart
+
+On the Docker Compose row for **`immich`**, turn **Autostart** **On** so the stack starts with the array.
+
+---
+
 ## Step 5 — Start Immich
 
 1. **Docker** → Compose → **`immich`** (only one).

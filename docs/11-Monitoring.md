@@ -19,12 +19,12 @@ Use **Dashboard** for live tiles, then wire alerts under **Settings → Notifica
 1. Open **Settings → Notifications**.
 2. Enable notification agents you use (browser, email, Discord, Telegram, etc.).
 3. Send a test notification.
-4. Tune thresholds under **Settings → Disk Settings** and per-disk SMART views on **Main**.
+4. Tune thresholds under **Settings → Disk Settings** (use **Default warning/critical disk temperature threshold** and **Tunable (poll_attributes)** — there is no “enable SMART” toggle) and per-disk **SMART Settings** on **Main → [disk]**.
 
 ## Recommended alert policy
 
-- HDD above 48 C warning; 52 C critical as an initial policy.
-- NVMe sustained above 75 C warning.
+- HDD above 48 C warning; 52 C critical as an initial policy (**Settings → Disk Settings**).
+- NVMe sustained above 75 C warning (per-disk NVMe threshold on **Main → cache**, or watch Dashboard).
 - SMART pending/reallocated/uncorrectable sectors greater than zero.
 - Filesystem read-only or I/O errors.
 - Monitor Docker disk usage manually via **Settings → Docker** (check vDisk usage when Docker is stopped) or add a custom User Scripts alert. Unraid 7.3.2 has no native notification for Docker image disk utilization percentage.
