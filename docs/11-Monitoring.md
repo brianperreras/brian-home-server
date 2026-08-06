@@ -27,7 +27,7 @@ Use **Dashboard** for live tiles, then wire alerts under **Settings → Notifica
 - NVMe sustained above 75 C warning.
 - SMART pending/reallocated/uncorrectable sectors greater than zero.
 - Filesystem read-only or I/O errors.
-- Docker image usage above 75% (**Settings → Docker** / notifications).
+- Monitor Docker disk usage manually via **Settings → Docker** (check vDisk usage when Docker is stopped) or add a custom User Scripts alert. Unraid 7.3.2 has no native notification for Docker image disk utilization percentage.
 - Primary data share above 80% capacity.
 - Backup older than eight days.
 
@@ -38,3 +38,17 @@ Uptime Kuma is useful for checking web endpoints such as Immich (`:2283`), Home 
 ## Grafana/Prometheus
 
 Optional for Phase 2. Do not add them before core services and backups are stable.
+
+## Verify your setup
+
+1. **Dashboard loads without errors** — open a browser on a LAN machine.
+   Expected result: `http://192.168.0.10` → Dashboard tab shows CPU, RAM, and network tiles with live data; no red error banners.
+
+2. **Disk temperatures visible** — Main tab → click each disk row.
+   Expected result: IronWolf and GM7000 show a current temperature in °C; Exos shows a temperature when mounted.
+
+3. **Docker container status visible** — Docker tab.
+   Expected result: Immich (4 containers), Jellyfin, and Home Assistant all show green / running status.
+
+4. **At least one User Script visible** — Settings → User Scripts.
+   Expected result: the `weekly-backup` script (and any others added in chapter `15`) appears in the list with a schedule shown.

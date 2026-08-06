@@ -137,4 +137,41 @@ Update Jellyfin separately from Immich and Home Assistant.
 
 **Remote access:** when Jellyfin works on the LAN, use chapter `09` Part B. Do not port-forward `8096`.
 
+## Verify your setup
+
+1. **Container running** — run from the compose directory:
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/jellyfin && docker compose ps
+   ```
+
+   Expected result: `jellyfin` shows `running` / `Up`.
+
+2. **Web UI loads** — open a browser on a LAN machine.
+   Expected result: `http://192.168.0.10:8096` shows the Jellyfin setup wizard or dashboard.
+
+3. **Media directories mounted inside the container** — run:
+
+   ```bash
+   docker exec jellyfin ls /media
+   ```
+
+   Expected result: `movies`, `tv`, and `music` directories appear.
+
+4. **Quick Sync devices visible in container** — run:
+
+   ```bash
+   docker exec jellyfin ls /dev/dri
+   ```
+
+   Expected result: `card0` and `renderD128` appear (confirms `/dev/dri` passthrough from compose file).
+
+5. **No fatal errors in recent logs** — run:
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/jellyfin && docker compose logs --tail=50
+   ```
+
+   Expected result: no lines with `fatal` or repeated `ERROR` that block startup.
+
 **Next:** chapter `15` SMB / Git / cron.

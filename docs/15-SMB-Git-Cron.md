@@ -6,7 +6,7 @@ Do this **after** Jellyfin (`14`). Shares already exist from Storage (`04`); thi
 
 1. Open **Settings → SMB**.
 2. Switch to **Advanced View** if available.
-3. If **Enable SMB** is greyed out, **Main → Stop** the array, change SMB, **Apply**, then **Start** the array again.
+3. Enable **SMB** and click **Apply**. Array stop is not required in Unraid 7.3.2.
 4. Fill:
 
 | Field | Value |
@@ -20,7 +20,7 @@ Do this **after** Jellyfin (`14`). Shares already exist from Storage (`04`); thi
 
 5. Click **Apply**.
 
-4. Optional check — **Settings → Identification**:
+6. Optional check — **Settings → Identification**:
 
 | Field | Value |
 |---|---|
@@ -33,7 +33,7 @@ This is what macOS shows in Finder / `smb://brian-server`.
 Do not use `root` for day-to-day SMB. Root is for the WebGUI / SSH only.
 
 1. Open **Users**.
-2. Under **Shares Access**, click **Add User**.
+2. On the **Users** page, click **Add User**.
 3. Fill:
 
 | Field | Value (example) |
@@ -151,7 +151,7 @@ Full LAN access for Unraid UI / SMB / apps: chapter `09` Part A. Remote (Tailsca
 
 Keep this handbook on your Mac and push to GitHub. The server does not need to host Git for Phase 1.
 
-Optional later: Gitea container on the GM7000 if you want self-hosted repos.
+Optional later: a self-hosted Git container on the GM7000 if you want self-hosted repos. **Forgejo** (https://forgejo.org) is the actively maintained community fork and is preferred over Gitea for new deployments; Gitea remains functional but has diverged in governance since 2022.
 
 ## Step 6 — Cron via User Scripts
 
@@ -214,5 +214,19 @@ cp /path/to/Brian-HomeServer/scripts/*.sh /boot/config/custom/backup/
 Do **not** rely on `chmod +x` on `/boot` under Unraid 7.3.x — always run with `bash /path/to/script.sh`.
 
 Copy `scripts/backup.env.example` to `backup.env` beside the scripts and keep `backup.env` out of Git.
+
+## Verify your setup
+
+1. **SMB share accessible from Mac** — open Finder → Go → Connect to Server (Cmd+K), enter `smb://192.168.0.10`, log in as `brian`.
+   Expected result: a share picker appears listing `photos`, `documents`, `media`, and other exported shares; mounting one opens in Finder without an auth error.
+
+2. **Mounted share shows correct contents** — browse the mounted share in Finder.
+   Expected result: share contents match what is on the server; write test (create and delete a test file) succeeds for shares granted Read/Write.
+
+3. **User Scripts plugin shows at least one script** — Settings → User Scripts.
+   Expected result: `weekly-backup` (and any other scripts added) appears in the list with a cron schedule visible.
+
+4. **Cron schedule saved and next run time shown** — Settings → User Scripts → click the script name.
+   Expected result: schedule field shows `0 3 * * 0` (or your chosen schedule) and Unraid displays the next scheduled run time.
 
 **Next:** chapter `10` Weekly backup.

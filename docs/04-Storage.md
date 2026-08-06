@@ -39,7 +39,7 @@ That is intentional for this design. Protection comes from the **weekly Exos bac
 ## Step 1 — Create the SSD pool
 
 1. Open the **Main** tab.
-2. Under **Pool Devices**, click **Add Pool** (or fill the empty pool slot).
+2. Under the **POOLS** section on **Main**, click **Add Pool** (or fill the empty pool slot).
 3. Fill:
 
 | Field | Value |
@@ -53,7 +53,7 @@ That is intentional for this design. Protection comes from the **weekly Exos bac
 
 ## Step 2 — Assign the IronWolf
 
-1. Still on **Main → Array Devices**.
+1. Still on **Main** in the **ARRAY DEVICES** section.
 2. Fill:
 
 | Slot | Value |
@@ -144,7 +144,7 @@ Fill **Share Settings**, then scroll to **SMB Security Settings**.
 
 ### Pool shares (Primary = `cache`, Secondary = None)
 
-Create each of these. After creation, open the share and confirm **Exclusive access** shows **Yes** (needs Step 3).
+Create each of these. After creation, open the share and confirm **Primary storage: [your pool]** and **Secondary storage: None** are shown correctly.
 
 #### `appdata`
 
@@ -378,7 +378,46 @@ Watch reallocated, pending, and uncorrectable sectors. UDMA CRC errors often mea
 - [ ] IronWolf is Disk 1, parity empty
 - [ ] Array started
 - [ ] All shares created with the field values above
-- [ ] Pool shares show exclusive access where expected
+- [ ] Pool shares show Primary storage: cache and Secondary storage: None
 - [ ] No apps installed yet
+
+## Verify your setup
+
+1. **NVMe pool `cache` online** — Main tab → POOLS section.
+   Expected result: pool named `cache` shows the GM7000 device with status `Started` or `Online`.
+
+2. **IronWolf assigned as Disk 1, parity empty** — Main tab → ARRAY DEVICES.
+   Expected result: Disk 1 shows the Seagate IronWolf 6 TB (match serial); Parity slot is empty.
+
+3. **Array started successfully** — Main tab → Array status.
+   Expected result: Array status shows `Started` (with the expected `ARRAY UNPROTECTED` banner — that is normal for this no-parity design).
+
+4. **Share `appdata` exists on NVMe pool** — Shares tab → appdata.
+   Expected result: Primary storage = `cache`, Secondary storage = `None`.
+
+5. **Share `photos` exists on IronWolf** — Shares tab → photos.
+   Expected result: Primary storage = `Array`, Included disk = `disk1`, Secondary storage = `None`.
+
+6. **Shares `documents` and `media` exist** — Shares tab.
+   Expected result: both appear with Primary = `Array`, disk1, Secondary = `None`.
+
+7. **Share `database-backups-staging` exists on NVMe pool** — Shares tab.
+   Expected result: Primary storage = `cache`, Secondary storage = `None`.
+
+8. **NVMe free space visible** — open the Unraid terminal (>_) and run:
+
+   ```bash
+   df -h /mnt/user/appdata
+   ```
+
+   Expected result: filesystem shows ~1 TB available from the GM7000 (no IronWolf path).
+
+9. **IronWolf free space visible** — open the Unraid terminal (>_) and run:
+
+   ```bash
+   df -h /mnt/user/photos
+   ```
+
+   Expected result: filesystem shows ~6 TB available from the IronWolf (Disk 1).
 
 **Next:** chapter `05` Docker (enable the engine only).

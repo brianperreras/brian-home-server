@@ -11,7 +11,7 @@
 ## Monthly
 
 - Run IronWolf extended SMART test (**Main → Disk 1**).
-- Run backup-disk SMART test during its active window (**Main → Unassigned Devices**).
+- Run backup-disk SMART test during its active window: click the **Exos** disk row in the **Unassigned Devices** section of **Main** to open its detail page, then run or schedule a SMART test.
 - Install selected application updates after reading release notes.
 - Export/verify Unraid boot-device backup (**Main → Boot Device → Boot Device Backup**).
 - Review Docker container logs for repeated errors (**Docker** tab).
@@ -45,7 +45,7 @@ There is no parity rebuild in this design.
 ## Unraid USB / boot-device failure
 
 1. Prepare a replacement USB with current Unraid (7.3.2 or current stable).
-2. Restore the boot-device configuration backup ZIP via the USB Creator **Use custom** option (or copy the backed-up `config` folder for a manual restore).
+2. Restore the boot-device configuration backup ZIP via the USB Creator — look for a **Restore from backup** or **Use existing configuration** option (the exact label varies by USB Creator version) — or copy the backed-up `config` folder manually.
 3. Transfer/replace the license using the official process when prompted about an invalid/missing registration key.
 4. On **Main**, confirm disk assignments by serial number before starting the array.
 
@@ -66,3 +66,22 @@ After every major change, update this repository and `CHANGELOG.md`. Record:
 - Container versions.
 - Network address changes.
 - Backup retention policy.
+
+## Verify your setup
+
+1. **Boot device backup exists and is recent** — Main → Boot Device → Boot Device Backup.
+   Expected result: the download shows today's date (or the date of your last config change).
+
+2. **IronWolf SMART results visible** — Main → Disk 1 → SMART.
+   Expected result: SMART status shows `PASSED`; reallocated, pending, and uncorrectable sector counts are all `0`.
+
+3. **GM7000 NVMe health visible** — Main → cache pool → click the NVMe device row.
+   Expected result: NVMe health attributes are accessible; no critical warnings shown.
+
+4. **Docker update process understood** — run a pull for one stack (no restart required just to verify):
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/immich && docker compose pull
+   ```
+
+   Expected result: pull completes without error; output shows `Image is up to date` or lists pulled layers. Use `docker compose up -d` to apply when ready.

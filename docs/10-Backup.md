@@ -128,4 +128,51 @@ Monthly, restore several random files. Quarterly, restore an Immich database dum
 
 Both internal disks remain in the same case. For irreplaceable photos, keep at least one off-site copy as well.
 
+## Verify your setup
+
+1. **Exos mounts cleanly via Unassigned Devices** — Main tab → Unassigned Devices section → click Mount.
+   Expected result: Exos appears as mounted at `/mnt/disks/weekly_backup` with no filesystem errors.
+
+2. **Dry-run rsync shows files that would transfer** — run:
+
+   ```bash
+   rsync -n -aHAX /mnt/user/photos/ /mnt/disks/weekly_backup/test/
+   ```
+
+   Expected result: output lists files that would be copied; no `Permission denied` or `No such file` errors.
+
+3. **Backup script is executable** — run:
+
+   ```bash
+   ls -la /boot/config/custom/backup/weekly-backup.sh
+   ```
+
+   Expected result: file exists (execute bit does not matter on `/boot` under Unraid 7.3.x; just confirm it is present).
+
+4. **backup.env exists and contains required variables** — run:
+
+   ```bash
+   grep -E 'BACKUP_MOUNT|SNAPSHOT_ROOT|SOURCE_PHOTOS' /boot/config/custom/backup/backup.env
+   ```
+
+   Expected result: all three variable names appear with non-empty values.
+
+5. **Pre-backup DB dump creates a staging file** — run:
+
+   ```bash
+   bash /boot/config/custom/backup/pre-backup-db-dumps.sh
+   ls -lh /mnt/user/database-backups-staging/
+   ```
+
+   Expected result: at least one `.sql.gz` file appears with a size greater than 0 bytes.
+
+6. **Main backup script creates a snapshot directory** — run:
+
+   ```bash
+   bash /boot/config/custom/backup/weekly-backup.sh
+   ls /mnt/disks/weekly_backup/snapshots/
+   ```
+
+   Expected result: a dated snapshot directory exists containing subdirectories for `photos`, `documents`, and/or `appdata`.
+
 **Done with Phase 1 setup.** Later reference chapters: `08` Databases, `09` Network, `11` Monitoring, `12` Maintenance, `13` Future GPU.

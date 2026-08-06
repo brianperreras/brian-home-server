@@ -55,3 +55,37 @@ Adjust to available storage and recovery requirements.
 ## Restore testing
 
 A backup is not proven until restored. Quarterly, restore a dump into a temporary container/database and verify application-level data.
+
+## Verify your setup
+
+1. **DB staging directory exists on NVMe** — run:
+
+   ```bash
+   ls /mnt/user/database-backups-staging
+   ```
+
+   Expected result: directory exists (may be empty before first dump).
+
+2. **pg_dump accessible from Immich container** — run:
+
+   ```bash
+   docker exec immich-postgres pg_dump --version
+   ```
+
+   Expected result: `pg_dump (PostgreSQL) 16.x` (or current Immich-bundled version); no "command not found".
+
+3. **Create a test dump and confirm file is written** — run:
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/immich && \
+   docker compose exec -T database pg_dumpall --clean --if-exists --username=postgres \
+     | gzip > /mnt/user/database-backups-staging/immich-verify-$(date +%F).sql.gz
+   ```
+
+   Then confirm:
+
+   ```bash
+   ls -lh /mnt/user/database-backups-staging/immich-verify-*.sql.gz
+   ```
+
+   Expected result: file exists, size is greater than 0 bytes.

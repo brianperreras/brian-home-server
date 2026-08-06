@@ -141,4 +141,33 @@ Never commit `secrets.yaml` to Git.
 
 **Remote access:** when HA works on the LAN, use chapter `09` Part B. Do not port-forward `8123`.
 
+## Verify your setup
+
+1. **Container running** — run from the compose directory:
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/homeassistant && docker compose ps
+   ```
+
+   Expected result: `homeassistant` shows `running` / `Up`.
+
+2. **Web UI loads** — open a browser on a LAN machine.
+   Expected result: `http://192.168.0.10:8123` shows the Home Assistant onboarding wizard or login page.
+
+3. **Config directory exists on NVMe** — run:
+
+   ```bash
+   ls /mnt/user/appdata/homeassistant/config
+   ```
+
+   Expected result: directory exists and contains HA config files (e.g. `configuration.yaml`) after first startup.
+
+4. **No fatal errors in recent logs** — run:
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/homeassistant && docker compose logs --tail=50
+   ```
+
+   Expected result: no lines with `ERROR` or `fatal` that block startup; normal integration warnings are acceptable.
+
 **Next:** chapter `14` Jellyfin.

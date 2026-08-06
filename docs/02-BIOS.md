@@ -159,4 +159,30 @@ Save settings, reboot, then verify:
 
 After Unraid boots, run a memory test and monitor system logs for machine-check or IOMMU errors.
 
+## Verify your setup
+
+1. **CPU identified correctly** — check the POST screen or BIOS System Information page.
+   Expected result: `Intel Core i5-14400` (or `i5-14400F` if you own that variant) displayed at detected speed.
+
+2. **RAM at 3200 MHz with XMP active** — BIOS → Tweaker → Memory frequency.
+   Expected result: `3200 MHz` shown, total `32768 MB` (32 GB).
+
+3. **NVMe GM7000 visible in BIOS** — BIOS → Storage / M.2 device list.
+   Expected result: Acer Predator GM7000 (or its model string) appears with correct capacity (~1 TB).
+
+4. **AHCI mode confirmed, RST/VMD disabled** — BIOS → Peripherals / Storage → SATA Mode.
+   Expected result: `AHCI` selected; no Intel RST or VMD entries shown as enabled.
+
+5. **Boot order: USB first** — BIOS → Boot → Boot Option #1.
+   Expected result: Unraid USB flash drive listed as the first UEFI boot entry.
+
+6. **No POST errors on cold boot** — power cycle the system from off and watch the POST.
+   Expected result: system reaches boot menu or Unraid console without error beeps or on-screen error codes.
+
+7. **Virtualization enabled** — BIOS → CPU features.
+   Expected result: Intel Virtualization Technology (VT-x) and VT-d both show `Enabled`.
+
+8. **iGPU active** — BIOS → Chipset / Integrated Graphics.
+   Expected result: Internal Graphics set to `Enabled` or `Auto`.
+
 **Next:** chapter `03` Unraid.

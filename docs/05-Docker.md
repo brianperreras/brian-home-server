@@ -40,8 +40,7 @@ If those are missing, finish chapter `04` first.
 | Field (7.3.2 label) | Value | Notes |
 |---|---|---|
 | Enable Docker | **Yes** (after paths are set) | Must be **No** first to edit paths |
-| Docker data-root | **xfs vDisk** (or **btrfs vDisk**) | Prefer a **vDisk** image on `cache`. Directory mode is optional; not required for Phase 1 |
-| Docker vDisk location | `/mnt/user/system/docker/docker.img` | Default is fine if `system` is on `cache`. Avoid putting this on the IronWolf array |
+| Docker vDisk location | `/mnt/user/system/docker/docker.img` | Path to the `.img` file. Default is fine if `system` is on `cache`. Avoid putting this on the IronWolf array |
 | Docker vDisk size | `40G` | 30–40 GB is enough to start; increase later if the Docker image fills |
 | Docker directory | *(hidden unless data-root = directory)* | Skip if using vDisk |
 | Docker storage driver | leave default | Only matters for some directory/ZFS setups |
@@ -72,7 +71,7 @@ The original **Compose Manager** / **Docker Compose Manager** (dcflachs) is **de
 3. Install the **stable** listing (not BETA), author **mstrhakr**.
 4. Skip the old **Compose Manager** if it still appears in CA.
 5. Confirm under **Plugins** that Compose Manager Plus is installed.
-6. Open **Settings → Compose** (Compose Manager Plus settings) and set:
+6. Open **Settings → Compose Manager Plus** (may appear as **Settings → Compose Manager** depending on plugin version) and set:
 
 | Field | Value |
 |---|---|
@@ -132,5 +131,47 @@ You should usually see `card0` and `renderD128` (names can vary). Immich and Jel
 - [ ] `/mnt/user/appdata/compose-projects` exists
 - [ ] `/dev/dri` visible
 - [ ] No Immich / HA / Jellyfin containers yet
+
+## Verify your setup
+
+1. **Docker enabled and daemon responding** — open the Unraid terminal (>_) and run:
+
+   ```bash
+   docker info
+   ```
+
+   Expected result: output includes `Server Version:` and `Storage Driver:` with no connection error.
+
+2. **Docker vDisk mounted on NVMe** — run:
+
+   ```bash
+   df -h | grep docker
+   ```
+
+   Expected result: a line referencing `/var/lib/docker` or `/mnt/user/system/docker/docker.img` shows space from the cache (NVMe) device.
+
+3. **Compose Manager Plus active** — run:
+
+   ```bash
+   docker compose version
+   ```
+
+   Expected result: `Docker Compose version v2.x.x` (no error).
+
+4. **Projects folder exists** — run:
+
+   ```bash
+   ls /mnt/user/appdata/compose-projects
+   ```
+
+   Expected result: directory is accessible (empty output is fine at this stage; subdirectories are added per app).
+
+5. **iGPU devices present for Quick Sync** — run:
+
+   ```bash
+   ls -l /dev/dri
+   ```
+
+   Expected result: at least `card0` and `renderD128` listed.
 
 **Next:** chapter `06` Immich.

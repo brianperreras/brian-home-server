@@ -187,6 +187,28 @@ http://100.x.y.z:8123
 http://100.x.y.z:8096
 ```
 
+## Verify your setup
+
+1. **Immich reachable on LAN** — open a browser on a LAN machine.
+   Expected result: `http://192.168.0.10:2283` loads the Immich login page.
+
+2. **Home Assistant reachable on LAN** — open a browser on a LAN machine.
+   Expected result: `http://192.168.0.10:8123` loads the HA login or onboarding page.
+
+3. **Jellyfin reachable on LAN** — open a browser on a LAN machine.
+   Expected result: `http://192.168.0.10:8096` loads the Jellyfin setup wizard or dashboard.
+
+4. **Tailscale connected and server shows Tailscale IP** — run in the Unraid terminal:
+
+   ```bash
+   tailscale status
+   ```
+
+   Expected result: `brian-server` appears as a connected node with a `100.x.x.x` address; status is `active`.
+
+5. **No WAN port forwards to services** — check your router's port forwarding / NAT rules page (UI check).
+   Expected result: no rules forward ports 2283, 8123, 8096, 80, 443, or 22 from the internet to `192.168.0.10`.
+
 ## Related
 
 - Network IP: `03`

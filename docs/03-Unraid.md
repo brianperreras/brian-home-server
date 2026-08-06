@@ -94,7 +94,7 @@ Do not expose the Unraid web UI via router port forwarding.
 ## 4. Plugins to install first
 
 1. Open the **Apps** tab.
-2. If prompted, install **Community Applications**, then return to **Apps**.
+2. The **Apps** tab is built into Unraid 7.3.2 — no separate install is needed.
 3. Search and install only what you need, one at a time.
 4. Prefer the **stable** (non-BETA) listing when CA shows both.
 
@@ -130,12 +130,7 @@ Avoid installing many plugins during initial setup. Do **not** enable Docker or 
 ## 5. Notifications
 
 1. Open **Settings → Notifications**.
-2. Under **Notification Settings**, set at least:
-
-| Field | Value |
-|---|---|
-| Display notifications in header / browser | **Yes** (recommended) |
-| Severity / categories | enable System, Disk SMART, Docker, and Array alerts |
+2. Under **Settings → Notifications**, enable notification categories (System, Disk SMART, Docker, Array).
 
 3. Under **Notification Agents**, configure one agent you will actually use (email, Discord, Telegram, etc.), then send a **Test**.
 4. Ensure alerts cover at least:
@@ -149,7 +144,7 @@ Avoid installing many plugins during initial setup. Do **not** enable Docker or 
 
 ## 6. Updates
 
-1. Open **Tools → Update OS** (or the update banner when shown).
+1. Look for the update banner on the **Dashboard**, or check the **Main** tab for an update prompt.
 2. Stay on **stable** releases.
 3. Before upgrading:
 
@@ -168,11 +163,43 @@ In Unraid **7.3.0 and later**, the WebGUI labels the USB as **Boot Device** (old
 1. Open the **Main** tab.
 2. Select the **Boot Device**.
 3. Open the **Boot Device** settings / detail view.
-4. Click **Boot Device Backup**.
+4. Click **Flash Backup** or **Boot Device Backup** (the button label varies by 7.3.2 minor version — both perform the same operation).
 5. Download the ZIP to your Mac (and later also copy a ZIP to the weekly backup disk).
 
 Create a boot-device backup after initial configuration and after meaningful changes. Do not keep the only copy on the server itself.
 
 **Note (7.3.x):** files on the boot device can no longer get execute permission. When you run custom scripts from `/boot/...`, invoke them with an interpreter, for example `bash /boot/config/custom/backup/weekly-backup.sh`.
+
+## Verify your setup
+
+1. **WebGUI loads** — open a browser on a LAN machine.
+   Expected result: `http://192.168.0.10` shows the Unraid login page; log in as `root` succeeds.
+
+2. **Hostname set correctly** — Settings → Identification.
+   Expected result: Server name shows `brian-server`.
+
+3. **Static IP confirmed** — Settings → Network Settings.
+   Expected result: IPv4 address shows `192.168.0.10`, assignment method `Static`.
+
+4. **Array not yet started** — Main tab.
+   Expected result: Array status shows `Stopped` (correct at this stage; disks are assigned in chapter `04`).
+
+5. **Compose Manager Plus installed** — Plugins tab.
+   Expected result: `Compose Manager Plus` appears in the list with status Enabled.
+
+6. **User Scripts installed** — Plugins tab.
+   Expected result: `User Scripts` appears in the list with status Enabled.
+
+7. **Unassigned Devices installed** — Plugins tab.
+   Expected result: `Unassigned Devices` appears in the list with status Enabled.
+
+8. **Notifications configured** — Settings → Notifications → send a test.
+   Expected result: test notification arrives on your configured agent (email, Discord, etc.) without error.
+
+9. **Boot device backup downloaded** — Main → Boot Device → Boot Device Backup.
+   Expected result: a ZIP file downloads to your Mac; file name includes a date and `brian-server`.
+
+10. **Tailscale (placeholder)** — do not install yet; apps must work on LAN first (chapter `09`).
+    Expected result: Tailscale is absent from the Plugins list at this stage.
 
 **Next:** chapter `04` Storage (disks and shares before Docker).

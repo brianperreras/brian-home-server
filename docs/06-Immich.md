@@ -175,4 +175,57 @@ docker compose exec -T database pg_dumpall --clean --if-exists --username=postgr
 
 **Update:** Immich release notes → dump DB → re-download official files → re-apply `.env` → Compose Up. Never downgrade casually after a DB migration.
 
+## Verify your setup
+
+1. **All 4 Immich containers running** — run from the compose directory:
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/immich && docker compose ps
+   ```
+
+   Expected result: `immich-server`, `immich-machine-learning`, `immich-redis`, and `immich-postgres` (or `database`) all show `running` / `Up`.
+
+2. **No fatal errors in recent logs** — run:
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/immich && docker compose logs --tail=50
+   ```
+
+   Expected result: no lines containing `fatal`, `panic`, or `connection refused` that repeat continuously.
+
+3. **Web UI loads** — open a browser on a LAN machine.
+   Expected result: `http://192.168.0.10:2283` shows the Immich login page or the new-account onboarding screen.
+
+4. **Postgres data directory on NVMe** — run:
+
+   ```bash
+   ls /mnt/user/appdata/immich/postgres
+   ```
+
+   Expected result: directory exists and contains PostgreSQL data files (e.g. `PG_VERSION`, `base/`).
+
+5. **Upload directory on IronWolf** — run:
+
+   ```bash
+   ls /mnt/user/photos/immich-library
+   ```
+
+   Expected result: directory exists (may be empty until first upload).
+
+6. **Postgres responds and immich DB exists** — run:
+
+   ```bash
+   cd /mnt/user/appdata/compose-projects/immich && docker compose exec database psql -U postgres -c "\l"
+   ```
+
+   Expected result: output lists `immich` in the database table.
+
+7. **Quick Sync devices visible in container (optional)** — run:
+
+   ```bash
+   docker exec immich-server ls /dev/dri
+   ```
+
+   Expected result: `card0` and `renderD128` appear (only relevant if you added the `/dev/dri` device mapping).
+
 **Next:** chapter `07` Home Assistant.
