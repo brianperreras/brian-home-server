@@ -11,7 +11,7 @@ This build uses the SSD pool named **`cache`** (Unraid default). Primary storage
 | Device | Role | Availability |
 |---|---|---|
 | Acer Predator GM7000 1 TB | SSD pool (`cache`) for appdata and databases | 24/7 |
-| Seagate IronWolf 6 TB | Array disk 1 (no parity) for photos, documents, media | 24/7 |
+| Seagate IronWolf 6 TB | Array disk 1 (no parity) for photos, documents, media, downloads | 24/7 |
 | Seagate Exos 6 TB | Unassigned Devices backup disk (add when ready) | Weekly only |
 
 No parity disk. You accept about one week of risk on new data in exchange for a separate backup copy.
@@ -287,6 +287,25 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 | SMB Security Settings | Case-sensitive names | **Auto** |
 | SMB Security Settings | Security | **Private** |
 
+#### `downloads`
+
+| Section | Field | Value |
+|---|---|---|
+| Share Settings | Share name | `downloads` |
+| Share Settings | Comments | Browser / PC downloads and staging files |
+| Share Settings | Minimum free space | `50G` |
+| Share Settings | Primary storage | **Array** |
+| Share Settings | Secondary storage | **None** |
+| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Allocation method | **High-water** |
+| Share Settings | Split level | Automatically split any directory as required |
+| Share Settings | Included disk(s) | **disk1** |
+| Share Settings | Excluded disk(s) | blank |
+| SMB Security Settings | Export | **Yes** (or **No** until chapter `15`) |
+| SMB Security Settings | Time Machine volume size limit | blank |
+| SMB Security Settings | Case-sensitive names | **Auto** |
+| SMB Security Settings | Security | **Private** |
+
 #### `public` (optional)
 
 | Section | Field | Value |
@@ -318,6 +337,7 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 | `documents` | `20G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
 | `media` | `100G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
 | `backups-incoming` | `50G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
+| `downloads` | `50G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
 | `public` | `10G` | Array | N/A (xfs) | **Yes** | Auto | **Secure** | blank |
 
 Named SMB users (who gets Read/Write) are configured in chapter `15`. Click **Apply** after each share.
@@ -329,6 +349,7 @@ You should now see paths like:
 - `/mnt/user/appdata`
 - `/mnt/user/photos`
 - `/mnt/user/media`
+- `/mnt/user/downloads`
 
 ## Step 5 — Exos backup disk (can wait)
 

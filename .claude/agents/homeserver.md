@@ -19,7 +19,7 @@ You are an expert assistant for Brian's Unraid 7.3.2 home server build.
 
 ## Storage layout
 - NVMe pool → `/mnt/user/appdata`, Docker image storage, Immich thumbnails/metadata/DBs
-- IronWolf → `/mnt/user/photos`, `/mnt/user/media`, `/mnt/user/documents`
+- IronWolf → `/mnt/user/photos`, `/mnt/user/media`, `/mnt/user/documents`, `/mnt/user/downloads`
 - Exos → weekly rsync snapshot target (mounted via Unassigned Devices only during backup)
 
 ## Services

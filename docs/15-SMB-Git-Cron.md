@@ -53,6 +53,7 @@ Do not use `root` for day-to-day SMB. Root is for the WebGUI / SSH only.
 | `documents` | **Read/Write** |
 | `media` | **Read/Write** |
 | `backups-incoming` | **Read/Write** |
+| `downloads` | **Read/Write** |
 | `public` | **Read/Write** (if you created it) |
 | `appdata` | **None** |
 | `system` | **None** |
@@ -91,6 +92,7 @@ For each share, open **Shares → [share name]** and set **SMB Security Settings
 | `documents` | **Yes** | blank | **Auto** | **Private** |
 | `media` | **Yes** | blank | **Auto** | **Private** |
 | `backups-incoming` | **Yes** | blank | **Auto** | **Private** |
+| `downloads` | **Yes** | blank | **Auto** | **Private** |
 
 User read/write checkboxes on the share page should match Step 2. Click **Apply**.
 
