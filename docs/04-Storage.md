@@ -89,9 +89,11 @@ You can use the WebGUI (below) **or** create/update all handbook shares in one s
 
 ### Optional — terminal (all shares at once)
 
-Array must be **started**. Copy `scripts/create-shares.sh` from this repo onto the server (or paste it), then:
+Array must be **started**. Copy the whole `scripts/` folder from this repo onto the server (needs `create-shares.sh`, `validate-shares.sh`, and `lib/share-defs.sh`), then:
 
 ```bash
+cd /path/to/scripts
+
 # Preview
 DRY_RUN=1 bash create-shares.sh
 
@@ -102,9 +104,19 @@ bash create-shares.sh
 FORCE=1 bash create-shares.sh
 ```
 
-Then **Main → Stop Array → Start Array** and confirm on the **Shares** tab (especially `photos`: Primary=`cache`, Secondary=**Array**, Mover=`cache→array`).
+Then **Main → Stop Array → Start Array**, and validate:
 
-The script writes `/boot/config/shares/*.cfg` and creates the Primary directories. It does **not** set named SMB users (chapter `15`).
+```bash
+bash validate-shares.sh
+
+# Optional later:
+CHECK_APPS=1 bash validate-shares.sh          # Immich/compose paths
+CHECK_BACKUP_ENV=1 bash validate-shares.sh    # require backup.env
+```
+
+`validate-shares.sh` checks `/boot/config/shares/*.cfg`, Primary dirs, `/mnt/user/...`, and whether handbook scripts are present. Exit code `0` = OK; non-zero = fix and re-run.
+
+The create script writes `/boot/config/shares/*.cfg` and creates the Primary directories. It does **not** set named SMB users (chapter `15`).
 
 ### WebGUI (one share at a time)
 
