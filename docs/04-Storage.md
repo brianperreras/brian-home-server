@@ -11,7 +11,7 @@ This build uses the SSD pool named **`cache`** (Unraid default). Primary storage
 | Device | Role | Availability |
 |---|---|---|
 | Acer Predator GM7000 1 TB | SSD pool (`cache`) for appdata and databases | 24/7 |
-| Seagate IronWolf 6 TB | Array disk 1 (no parity) for photos, documents, media, downloads | 24/7 |
+| Seagate IronWolf 6 TB | Array disk 1 (no parity); final home for photos (via mover), documents, media, downloads | 24/7 |
 | Seagate Exos 6 TB | Unassigned Devices backup disk (add when ready) | Weekly only |
 
 No parity disk. You accept about one week of risk on new data in exchange for a separate backup copy.
@@ -117,12 +117,13 @@ Fill **Share Settings**, then scroll to **SMB Security Settings**.
 | Share name | Exact name below (lowercase, no spaces) |
 | Comments | Short description |
 | Minimum free space | e.g. `20G` / `50G` / `100G` as listed per share |
-| Primary storage | `cache` (pool shares) or **Array** (data shares) |
-| Secondary storage | **None** |
+| Primary storage | `cache` for pool-only shares and for `photos`; **Array** for other data shares |
+| Secondary storage | **None** for pool-only and most array shares; **Array** for `photos` (mover) |
+| Mover action | Only when Secondary is set — for `photos` use **`cache→array`** |
 | Enable Copy-on-write | **Skip** on xfs (field hidden). If you ever use Btrfs and see it: leave **Auto** |
-| Allocation method | Array shares only → **High-water** |
-| Split level | Array shares only → Automatically split any directory as required |
-| Included disk(s) | Array shares → **disk1** |
+| Allocation method | When Array is Primary or Secondary → **High-water** |
+| Split level | When Array is Primary or Secondary → Automatically split any directory as required |
+| Included disk(s) | When Array is involved → **disk1** |
 | Excluded disk(s) | blank |
 
 #### SMB Security Settings (7.3.2)
@@ -144,7 +145,9 @@ Fill **Share Settings**, then scroll to **SMB Security Settings**.
 
 ### Pool shares (Primary = `cache`, Secondary = None)
 
-Create each of these. After creation, open the share and confirm **Primary storage: [your pool]** and **Secondary storage: None** are shown correctly.
+These stay on the GM7000 only. **Never** set Secondary to **Array** for them (no mover) — Docker, databases, and `docker.img` must not land on the IronWolf.
+
+Create each of these. After creation, open the share and confirm **Primary storage** / **Secondary storage** match the tables below.
 
 #### `appdata`
 
@@ -155,12 +158,12 @@ Create each of these. After creation, open the share and confirm **Primary stora
 | Share Settings | Minimum free space | `20G` |
 | Share Settings | Primary storage | `cache` |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | Share Settings | Allocation / Split / Include | not used (pool-only) |
 | SMB Security Settings | Export | **No** |
 | SMB Security Settings | Time Machine volume size limit | blank |
 | SMB Security Settings | Case-sensitive names | **Auto** |
-| SMB Security Settings | Security | leave default (not exported) |
+| SMB Security Settings | Security | **Private** (ignored while Export = No) |
 
 #### `system`
 
@@ -171,11 +174,11 @@ Create each of these. After creation, open the share and confirm **Primary stora
 | Share Settings | Minimum free space | `10G` |
 | Share Settings | Primary storage | `cache` |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | SMB Security Settings | Export | **No** |
 | SMB Security Settings | Time Machine volume size limit | blank |
 | SMB Security Settings | Case-sensitive names | **Auto** |
-| SMB Security Settings | Security | leave default (not exported) |
+| SMB Security Settings | Security | **Private** (ignored while Export = No) |
 
 #### `domains` (optional)
 
@@ -186,11 +189,11 @@ Create each of these. After creation, open the share and confirm **Primary stora
 | Share Settings | Minimum free space | `50G` |
 | Share Settings | Primary storage | `cache` |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | SMB Security Settings | Export | **No** |
 | SMB Security Settings | Time Machine volume size limit | blank |
 | SMB Security Settings | Case-sensitive names | **Auto** |
-| SMB Security Settings | Security | leave default (not exported) |
+| SMB Security Settings | Security | **Private** (ignored while Export = No) |
 
 #### `database-backups-staging`
 
@@ -201,26 +204,27 @@ Create each of these. After creation, open the share and confirm **Primary stora
 | Share Settings | Minimum free space | `10G` |
 | Share Settings | Primary storage | `cache` |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | SMB Security Settings | Export | **No** |
 | SMB Security Settings | Time Machine volume size limit | blank |
 | SMB Security Settings | Case-sensitive names | **Auto** |
-| SMB Security Settings | Security | leave default (not exported) |
+| SMB Security Settings | Security | **Private** (ignored while Export = No) |
 
-### Array shares (Primary = Array, Secondary = None)
+### Cache-assisted share (`photos`: Primary = cache, Secondary = Array)
 
-Do **not** set Primary to `cache` for these. Large libraries stay on the IronWolf.
+New Immich uploads land on the GM7000 (`cache`) first, then **mover** relocates them to the IronWolf (Array). Path stays `/mnt/user/photos/...` either way. **Minimum free space `50G`** is measured against the Primary (`cache`): when the SSD has less than ~50G free, new writes spill straight to the Array so Immich cannot fill the NVMe and starve `appdata` / Postgres.
 
 #### `photos`
 
 | Section | Field | Value |
 |---|---|---|
 | Share Settings | Share name | `photos` |
-| Share Settings | Comments | Immich photo library |
+| Share Settings | Comments | Immich photo library (cache → array) |
 | Share Settings | Minimum free space | `50G` |
-| Share Settings | Primary storage | **Array** |
-| Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Primary storage | `cache` |
+| Share Settings | Secondary storage | **Array** |
+| Share Settings | Mover action | **`cache→array`** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | Share Settings | Allocation method | **High-water** |
 | Share Settings | Split level | Automatically split any directory as required |
 | Share Settings | Included disk(s) | **disk1** |
@@ -229,6 +233,12 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 | SMB Security Settings | Time Machine volume size limit | blank |
 | SMB Security Settings | Case-sensitive names | **Auto** |
 | SMB Security Settings | Security | **Private** |
+
+Confirm mover schedule under **Settings → Scheduler → Mover settings** (daily off-peak is fine). Do not overlap mover with the weekly Exos backup (chapter `10`). Mover skips open files — for a full drain after a big import, stop Immich, run **Move Now**, then start Immich again.
+
+### Array shares (Primary = Array, Secondary = None)
+
+Do **not** set Primary to `cache` for these, and do **not** enable cache→array on `media`, `downloads`, `backups-incoming`, or `public`. The NVMe write cache is reserved for Immich (`photos`) plus pool-only appdata — large media, PC dumps, and downloads would fill or thrash the 1 TB SSD.
 
 #### `documents`
 
@@ -239,7 +249,7 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 | Share Settings | Minimum free space | `20G` |
 | Share Settings | Primary storage | **Array** |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | Share Settings | Allocation method | **High-water** |
 | Share Settings | Split level | Automatically split any directory as required |
 | Share Settings | Included disk(s) | **disk1** |
@@ -258,7 +268,7 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 | Share Settings | Minimum free space | `100G` |
 | Share Settings | Primary storage | **Array** |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | Share Settings | Allocation method | **High-water** |
 | Share Settings | Split level | Automatically split any directory as required |
 | Share Settings | Included disk(s) | **disk1** |
@@ -277,7 +287,7 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 | Share Settings | Minimum free space | `50G` |
 | Share Settings | Primary storage | **Array** |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | Share Settings | Allocation method | **High-water** |
 | Share Settings | Split level | Automatically split any directory as required |
 | Share Settings | Included disk(s) | **disk1** |
@@ -296,7 +306,7 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 | Share Settings | Minimum free space | `50G` |
 | Share Settings | Primary storage | **Array** |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | Share Settings | Allocation method | **High-water** |
 | Share Settings | Split level | Automatically split any directory as required |
 | Share Settings | Included disk(s) | **disk1** |
@@ -315,7 +325,7 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 | Share Settings | Minimum free space | `10G` |
 | Share Settings | Primary storage | **Array** |
 | Share Settings | Secondary storage | **None** |
-| Share Settings | Enable Copy-on-write | **Auto** |
+| Share Settings | Enable Copy-on-write | n/a (hidden on xfs) |
 | Share Settings | Allocation method | **High-water** |
 | Share Settings | Split level | Automatically split any directory as required |
 | Share Settings | Included disk(s) | **disk1** |
@@ -327,18 +337,18 @@ Do **not** set Primary to `cache` for these. Large libraries stay on the IronWol
 
 ### Quick reference
 
-| Share | Min free | Primary | CoW | Export | Case-sensitive | Security | TM size limit |
+| Share | Min free | Primary | Secondary | Mover | Export | Case-sensitive | Security |
 |---|---|---|---|---|---|---|---|
-| `appdata` | `20G` | `cache` | N/A (xfs) | **No** | Auto | **Private** | blank |
-| `system` | `10G` | `cache` | N/A (xfs) | **No** | Auto | **Private** | blank |
-| `domains` | `50G` | `cache` | N/A (xfs) | **No** | Auto | **Private** | blank |
-| `database-backups-staging` | `10G` | `cache` | N/A (xfs) | **No** | Auto | **Private** | blank |
-| `photos` | `50G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
-| `documents` | `20G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
-| `media` | `100G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
-| `backups-incoming` | `50G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
-| `downloads` | `50G` | Array | N/A (xfs) | **Yes** | Auto | **Private** | blank |
-| `public` | `10G` | Array | N/A (xfs) | **Yes** | Auto | **Secure** | blank |
+| `appdata` | `20G` | `cache` | **None** | — | **No** | Auto | **Private** |
+| `system` | `10G` | `cache` | **None** | — | **No** | Auto | **Private** |
+| `domains` | `50G` | `cache` | **None** | — | **No** | Auto | **Private** |
+| `database-backups-staging` | `10G` | `cache` | **None** | — | **No** | Auto | **Private** |
+| `photos` | `50G` | `cache` | **Array** | **`cache→array`** | **Yes** | Auto | **Private** |
+| `documents` | `20G` | Array | **None** | — | **Yes** | Auto | **Private** |
+| `media` | `100G` | Array | **None** | — | **Yes** | Auto | **Private** |
+| `backups-incoming` | `50G` | Array | **None** | — | **Yes** | Auto | **Private** |
+| `downloads` | `50G` | Array | **None** | — | **Yes** | Auto | **Private** |
+| `public` | `10G` | Array | **None** | — | **Yes** | Auto | **Secure** |
 
 Named SMB users (who gets Read/Write) are configured in chapter `15`. Click **Apply** after each share.
 
@@ -410,6 +420,7 @@ Watch reallocated, pending, and uncorrectable sectors. UDMA CRC errors often mea
 - [ ] Array started
 - [ ] All shares created with the field values above
 - [ ] Pool shares show Primary storage: cache and Secondary storage: None
+- [ ] Share `photos` shows Primary: cache, Secondary: Array, Mover: cache→array
 - [ ] No apps installed yet
 
 ## Verify your setup
@@ -426,8 +437,8 @@ Watch reallocated, pending, and uncorrectable sectors. UDMA CRC errors often mea
 4. **Share `appdata` exists on NVMe pool** — Shares tab → appdata.
    Expected result: Primary storage = `cache`, Secondary storage = `None`.
 
-5. **Share `photos` exists on IronWolf** — Shares tab → photos.
-   Expected result: Primary storage = `Array`, Included disk = `disk1`, Secondary storage = `None`.
+5. **Share `photos` uses cache → array** — Shares tab → photos.
+   Expected result: Primary storage = `cache`, Secondary storage = `Array`, Mover action = `cache→array`, Included disk = `disk1`.
 
 6. **Shares `documents` and `media` exist** — Shares tab.
    Expected result: both appear with Primary = `Array`, disk1, Secondary = `None`.

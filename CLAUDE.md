@@ -12,7 +12,7 @@ This repo is an ops handbook and config store for a 24/7 Unraid 7.3.2 home serve
 ## Key facts
 - OS: Unraid 7.3.2 on USB boot (NVMe is NOT the OS disk)
 - NVMe (GM7000 1 TB) → appdata, DBs, thumbnails, cache
-- IronWolf 6 TB → photos, media, documents (always mounted)
+- IronWolf 6 TB → photos (after mover from cache), media, documents (always mounted)
 - Exos 6 TB → weekly backup only (spins down; mounted via Unassigned Devices)
 - No parity drive — Exos is a backup disk, not parity
 - Services: Immich (2283), Jellyfin (8096), Home Assistant (8123)

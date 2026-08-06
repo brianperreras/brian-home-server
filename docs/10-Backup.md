@@ -9,6 +9,7 @@ You accept about one week of risk on new data. The **Seagate Exos 6 TB** mounts 
 ## What must be backed up
 
 - IronWolf data shares: photos, documents, media as desired.
+- Optional: `downloads` and `backups-incoming` if you want those in the weekly snapshot (not required for Immich/HA/Jellyfin recovery).
 - Immich PostgreSQL dump.
 - Home Assistant configuration/backup.
 - Jellyfin appdata (and media if not duplicated elsewhere).

@@ -26,9 +26,10 @@ v4.0
 
 ## Storage Strategy
 
-- GM7000: Docker, AppData, Home Assistant, PostgreSQL, MariaDB, Immich DB, Cache
-- IronWolf 6TB: Primary 24/7 storage
+- GM7000: Docker, AppData, Home Assistant, PostgreSQL, MariaDB, Immich DB, Cache; also Primary for `photos` (before mover)
+- IronWolf 6TB: Primary 24/7 storage (photos after mover, documents, media)
 - Exos 6TB: Weekly backup, spins down after backup
+- `photos` share: Primary=`cache`, Secondary=Array, Mover=`cache→array`
 
 ## Operating System
 
@@ -40,7 +41,7 @@ v4.0
 | Service | Host / placement | Guide order |
 |---|---|---|
 | Docker | Unraid built-in + **Compose Manager Plus**, data on GM7000 | After storage (`05`) |
-| Immich | Compose; library on IronWolf; DB on GM7000 | After Docker (`06`) |
+| Immich | Compose; library on `photos` (cache→array); DB on GM7000 | After Docker (`06`) |
 | Home Assistant | Container on Unraid | After Immich (`07`) |
 | PostgreSQL | Per-app on GM7000 (Immich) | With Immich |
 | MariaDB | Only if an app needs it | Later (`08`) |

@@ -9,7 +9,7 @@ Official Immich guide: https://docs.immich.app/install/docker-compose
 | Check | Where |
 |---|---|
 | Array started | **Main** |
-| Shares `appdata`, `photos`, `database-backups-staging` | **Shares** |
+| Shares `appdata`, `photos` (cache→array), `database-backups-staging` | **Shares** |
 | Docker enabled | **Settings → Docker** |
 | Compose Manager Plus installed | **Plugins** |
 | Projects Folder | **Settings → Compose** = `/mnt/user/appdata/compose-projects` (set in chapter `05`) |
@@ -21,7 +21,8 @@ If Projects Folder is still the USB default, fix it in chapter `05` first so the
 ```text
 Browser / phone → Immich (:2283)
                     ├── PostgreSQL → GM7000 (/mnt/user/appdata/immich/postgres)
-                    └── Uploads    → IronWolf (/mnt/user/photos/immich-library)
+                    └── Uploads    → /mnt/user/photos/immich-library
+                                      (write to cache SSD, mover → IronWolf)
 ```
 
 Compose project folder (also the Compose Manager Plus stack):
@@ -183,7 +184,7 @@ Open `http://192.168.0.10:2283` (or `http://brian-server:2283`) and create the a
 
 ## Step 6 — After it works (still on LAN)
 
-**Library:** uploads on IronWolf (`/mnt/user/photos/immich-library`); Postgres on GM7000. Do not hand-edit files inside the Immich library.
+**Library:** uploads use `/mnt/user/photos/immich-library` (share Primary = `cache`, Secondary = **Array**, mover **`cache→array`**). Postgres stays on GM7000 via `appdata`. Do not hand-edit files inside the Immich library. Avoid running mover during heavy uploads; for a full drain, Compose Down → **Main → Move Now** → Compose Up.
 
 **Quick Sync (optional):**
 
@@ -246,13 +247,13 @@ docker compose exec -T database pg_dumpall --clean --if-exists --username=postgr
 
    Expected result: directory exists and contains PostgreSQL data files (e.g. `PG_VERSION`, `base/`).
 
-5. **Upload directory on IronWolf** — run:
+5. **Upload directory exists (user share)** — run:
 
    ```bash
    ls /mnt/user/photos/immich-library
    ```
 
-   Expected result: directory exists (may be empty until first upload).
+   Expected result: directory exists (may be empty until first upload). Confirm **Shares → photos** is Primary=`cache`, Secondary=`Array`, Mover=`cache→array`.
 
 6. **Postgres responds and immich DB exists** — run:
 

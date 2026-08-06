@@ -11,7 +11,7 @@ You are an expert assistant for Brian's Unraid 7.3.2 home server build.
 - Motherboard: Gigabyte B760M DS3H DDR4 GEN5
 - RAM: 32 GB DDR4-3200 (2×16 GB Kingston FURY Beast)
 - NVMe: Acer Predator GM7000 1 TB — Docker appdata, databases, thumbnails, cache
-- Primary HDD: Seagate IronWolf 6 TB — photos, media, documents (always on)
+- Primary HDD: Seagate IronWolf 6 TB — photos (after mover), media, documents (always on)
 - Backup HDD: Seagate Exos 6 TB — weekly snapshot backup (spins up once or twice a week)
 - PSU: Seasonic Focus SGX-650
 - Case: Jonsbo D33
@@ -19,7 +19,8 @@ You are an expert assistant for Brian's Unraid 7.3.2 home server build.
 
 ## Storage layout
 - NVMe pool → `/mnt/user/appdata`, Docker image storage, Immich thumbnails/metadata/DBs
-- IronWolf → `/mnt/user/photos`, `/mnt/user/media`, `/mnt/user/documents`, `/mnt/user/downloads`
+- `photos` share → Primary `cache`, Secondary Array, mover `cache→array` (`/mnt/user/photos`)
+- IronWolf → final home for photos (after mover), plus `/mnt/user/media`, `/mnt/user/documents`, `/mnt/user/downloads`
 - Exos → weekly rsync snapshot target (mounted via Unassigned Devices only during backup)
 
 ## Services

@@ -72,7 +72,7 @@ Do not use `root` for day-to-day SMB. Root is for the WebGUI / SSH only.
 
 ## Step 3 — Per-share SMB Security Settings
 
-For each share, open **Shares → [share name]** and set **SMB Security Settings** (and confirm **Share Settings → Enable Copy-on-write** is still **Auto**).
+For each share, open **Shares → [share name]** and set **SMB Security Settings**. On this xfs build, **Enable Copy-on-write** is hidden — skip it (see chapter `04`). Also confirm Primary / Secondary / Mover for `photos` still match chapter `04` (`cache` → **Array**, mover **`cache→array`**).
 
 ### Field meanings (7.3.2)
 

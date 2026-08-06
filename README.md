@@ -26,8 +26,8 @@ Not everything runs in Docker. Only the app stacks do. SMB, Git, and cron stay o
 ```
 Unraid (host OS on USB → RAM)
 ├── Storage
-│   ├── GM7000 (SSD pool) → Docker, appdata, DBs, cache
-│   ├── IronWolf 6TB → photos, media, documents (primary data)
+│   ├── GM7000 (SSD pool) → Docker, appdata, DBs, cache; photos write cache
+│   ├── IronWolf 6TB → photos (after mover), media, documents (primary data)
 │   └── Exos 6TB → weekly backup (spins down)
 │
 ├── Docker (enabled in ch. 05)
@@ -80,7 +80,7 @@ Planning snapshot: [Brian Home Server v4.0](docs/reference/Brian_Home_Server_v4.
 - The primary IronWolf HDD remains available 24/7.
 - The Exos backup HDD is expected to spin up only once or twice a week.
 - The GM7000 NVMe stores Docker appdata, databases, thumbnails, metadata, and other latency-sensitive data.
-- Original photos and large media live on the IronWolf HDD.
+- Original photos land on the GM7000 cache share then mover (`cache→array`) places them on the IronWolf; large media stays on the IronWolf.
 - Unraid boots from USB; it does **not** install onto the NVMe.
 
 ## Safety rule
