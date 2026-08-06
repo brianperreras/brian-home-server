@@ -196,28 +196,21 @@ Or use a built-in weekly preset if you prefer. Click **Apply**.
 
 ### Suggested jobs
 
-| Script name | Schedule idea | Script body idea |
+| Script name | Schedule idea | What to paste / run |
 |---|---|---|
-| `create-shares` | **Run manually** | `FORCE=1 bash /boot/config/custom/shares/create-shares.sh` (chapter `04`) |
-| `validate-shares` | **Run manually** | `bash /boot/config/custom/shares/validate-shares.sh` (chapter `04`) |
+| `create-shares` | **Run manually** | Entire `scripts/create-shares.sh` (chapter `04`) |
+| `validate-shares` | **Run manually** | Entire `scripts/validate-shares.sh` (chapter `04`) |
 | `pre-backup-db-dumps` | Sunday 02:45 | dump Immich/HA DBs into `database-backups-staging` |
-| `weekly-backup` | Sunday 03:00 | `bash /boot/config/custom/backup/weekly-backup.sh` |
+| `weekly-backup` | Sunday 03:00 | paste or `bash /boot/config/custom/backup/weekly-backup.sh` |
 | `post-backup-check` | Sunday 04:00 | verify exit log / send notification |
 
 Avoid overlapping SMART extended tests, big Immich imports, and Jellyfin library scans.
 
-### Install scripts on the server
+### Install backup scripts on the server (chapter 10)
 
-From a terminal on Unraid (or after copying files from your Mac):
+Share create/validate scripts are pasted into User Scripts (no files on flash). Weekly backup scripts can stay as files if you prefer:
 
 ```bash
-# Share create/validate (chapter 04) — used by User Scripts wrappers
-mkdir -p /boot/config/custom/shares/lib
-cp /path/to/Brian-HomeServer/scripts/create-shares.sh /boot/config/custom/shares/
-cp /path/to/Brian-HomeServer/scripts/validate-shares.sh /boot/config/custom/shares/
-cp /path/to/Brian-HomeServer/scripts/lib/share-defs.sh /boot/config/custom/shares/lib/
-
-# Weekly backup (chapter 10)
 mkdir -p /boot/config/custom/backup
 cp /path/to/Brian-HomeServer/scripts/weekly-backup.sh /boot/config/custom/backup/
 cp /path/to/Brian-HomeServer/scripts/pre-backup-db-dumps.sh /boot/config/custom/backup/
@@ -225,7 +218,7 @@ cp /path/to/Brian-HomeServer/scripts/post-backup-check.sh /boot/config/custom/ba
 cp /path/to/Brian-HomeServer/scripts/backup.env.example /boot/config/custom/backup/
 ```
 
-Do **not** rely on `chmod +x` on `/boot` under Unraid 7.3.x — always run with `bash /path/to/script.sh` from a User Scripts entry.
+Do **not** rely on `chmod +x` on `/boot` under Unraid 7.3.x — always run with `bash /path/to/script.sh`, or paste the full script into User Scripts like `create-shares`.
 
 Copy `backup.env.example` to `backup.env` beside the backup scripts and keep `backup.env` out of Git.
 

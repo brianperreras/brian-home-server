@@ -1,73 +1,89 @@
-#!/usr/bin/env bash
-# Create / update handbook user shares on Unraid 7.3.2 (docs/04-Storage.md).
-# Intended path on server: /boot/config/custom/shares/create-shares.sh
-# Call from User Scripts with: FORCE=1 bash /boot/config/custom/shares/create-shares.sh
-# (Always use bash — /boot is not executable on Unraid 7.3.x.)
+#!/bin/bash
+# =============================================================================
+# User Scripts → Add New Script → name: create-shares
+# Schedule: Run manually
+# Paste this ENTIRE file into Edit Script. No repo / no extra files needed.
+# Array must be STARTED. After Run: Main → Stop Array → Start Array → run validate-shares.
 #
-# Usage:
-#   DRY_RUN=1 bash create-shares.sh          # print what would happen
-#   bash create-shares.sh                    # write missing .cfg + mkdir (skip existing .cfg)
-#   FORCE=1 bash create-shares.sh            # overwrite existing .cfg (backs up first)
-#   bash validate-shares.sh                  # check configs/dirs after Stop/Start array
-#
-# After running: Main → Stop Array → Start Array, then run validate-shares User Script.
-# Does not delete share data. SMB user ACLs still come from chapter 15.
+# Optional env overrides (edit lines below or prefix when testing from terminal):
+#   FORCE=0   → skip existing .cfg (default is FORCE=1 overwrite with .bak)
+#   DRY_RUN=1 → print only
+# =============================================================================
 set -Eeuo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck disable=SC1091
-source "${SCRIPT_DIR}/lib/share-defs.sh"
-
-FORCE="${FORCE:-0}"
+FORCE="${FORCE:-1}"
 DRY_RUN="${DRY_RUN:-0}"
+POOL="${POOL:-cache}"
+ARRAY_DISK="${ARRAY_DISK:-disk1}"
+CFG_DIR="${CFG_DIR:-/boot/config/shares}"
 
-need_array() {
-  [[ -d "/mnt/${POOL}" ]] || {
-    echo "ERROR: /mnt/${POOL} missing — is pool '${POOL}' online and array started?" >&2
-    exit 1
-  }
-  [[ -d "/mnt/${ARRAY_DISK}" ]] || {
-    echo "ERROR: /mnt/${ARRAY_DISK} missing — is Disk 1 assigned and array started?" >&2
-    exit 1
-  }
+# name|comment|floor|useCache|export|security
+# useCache: only=cache/None | yes=cache→array | no=Array/None
+# export: - = No | e = Yes
+SHARES=(
+  "appdata|Docker configs and databases|20G|only|-|private"
+  "system|Docker system data|10G|only|-|private"
+  "domains|Future VMs|50G|only|-|private"
+  "database-backups-staging|Temporary DB dumps before weekly backup|10G|only|-|private"
+  "photos|Immich photo library (cache → array)|50G|yes|e|private"
+  "documents|Personal documents|20G|no|e|private"
+  "media|Jellyfin media libraries|100G|no|e|private"
+  "backups-incoming|Incoming backups from PCs|50G|no|e|private"
+  "downloads|Browser / PC downloads and staging files|50G|no|e|private"
+  "public|Temporary transfer folder|10G|no|e|secure"
+)
+
+floor_kb() {
+  local human="$1" num unit
+  num="${human%%[A-Za-z]*}"
+  unit="${human##*[0-9.]}"
+  case "${unit^^}" in
+    G|GB) echo $(( ${num%.*} * 1000 * 1000 )) ;;
+    M|MB) echo $(( ${num%.*} * 1000 )) ;;
+    T|TB) echo $(( ${num%.*} * 1000 * 1000 * 1000 )) ;;
+    *) echo "ERROR: bad floor '$human'" >&2; exit 1 ;;
+  esac
 }
 
-write_cfg() {
+need_array() {
+  [[ -d "/mnt/${POOL}" ]] || { echo "ERROR: /mnt/${POOL} missing — start the array / check pool name '${POOL}'" >&2; exit 1; }
+  [[ -d "/mnt/${ARRAY_DISK}" ]] || { echo "ERROR: /mnt/${ARRAY_DISK} missing — assign Disk 1 and start the array" >&2; exit 1; }
+}
+
+write_one() {
   local name="$1" comment="$2" floor_h="$3" use="$4" export="$5" security="$6"
   local cfg="${CFG_DIR}/${name}.cfg"
-  local floor include pool_line
+  local floor include pool_line primary
   floor="$(floor_kb "$floor_h")"
 
   case "$use" in
     only)
       pool_line="shareCachePool=\"${POOL}\""
       include=""
+      primary="/mnt/${POOL}/${name}"
       ;;
     yes)
       pool_line="shareCachePool=\"${POOL}\""
       include="${ARRAY_DISK}"
+      primary="/mnt/${POOL}/${name}"
       ;;
     no)
       pool_line='shareCachePool=""'
       include="${ARRAY_DISK}"
+      primary="/mnt/${ARRAY_DISK}/${name}"
       ;;
-    *)
-      echo "ERROR: bad useCache=$use" >&2
-      exit 1
-      ;;
+    *) echo "ERROR: bad useCache=$use" >&2; exit 1 ;;
   esac
 
   if [[ -f "$cfg" && "$FORCE" != "1" ]]; then
-    echo "SKIP cfg (exists): $cfg  (FORCE=1 to overwrite)"
-    return 0
-  fi
-  if [[ -f "$cfg" && "$FORCE" == "1" ]]; then
-    cp -a "$cfg" "${cfg}.bak.$(date +%Y%m%d%H%M%S)"
-    echo "BACKED UP $cfg"
-  fi
-
-  local body
-  body=$(cat <<EOF
+    echo "SKIP cfg (exists): $cfg"
+  else
+    if [[ -f "$cfg" && "$FORCE" == "1" ]]; then
+      cp -a "$cfg" "${cfg}.bak.$(date +%Y%m%d%H%M%S)"
+      echo "BACKED UP $cfg"
+    fi
+    local body
+    body=$(cat <<EOF
 # Generated settings:
 shareComment="${comment}"
 shareInclude="${include}"
@@ -91,51 +107,38 @@ shareSecurityNFS="public"
 shareHostListNFS=""
 EOF
 )
+    if [[ "$DRY_RUN" == "1" ]]; then
+      echo "=== DRY_RUN $cfg ==="
+      printf '%s\n' "$body"
+    else
+      mkdir -p "$CFG_DIR"
+      printf '%s\n' "$body" >"$cfg"
+      echo "WROTE $cfg (UseCache=${use}, Floor=${floor_h}, Export=${export})"
+    fi
+  fi
 
   if [[ "$DRY_RUN" == "1" ]]; then
-    echo "=== DRY_RUN would write $cfg ==="
-    printf '%s\n' "$body"
-    return 0
+    echo "DRY_RUN mkdir -p $primary"
+  else
+    mkdir -p "$primary"
+    echo "DIR  $primary"
   fi
-  mkdir -p "$CFG_DIR"
-  printf '%s\n' "$body" >"$cfg"
-  echo "WROTE $cfg  (UseCache=${use}, Floor=${floor_h}, Export=${export}, Security=${security})"
-}
-
-mkdir_primary() {
-  local name="$1" use="$2" path
-  path="$(primary_dir_for "$name" "$use")"
-  if [[ "$DRY_RUN" == "1" ]]; then
-    echo "DRY_RUN mkdir -p $path"
-    return 0
-  fi
-  mkdir -p "$path"
-  echo "DIR  $path"
-}
-
-create_share() {
-  local name="$1" comment="$2" floor_h="$3" use="$4" export="$5" security="$6"
-  write_cfg "$name" "$comment" "$floor_h" "$use" "$export" "$security"
-  mkdir_primary "$name" "$use"
 }
 
 need_array
+echo "Creating handbook shares (FORCE=${FORCE}, DRY_RUN=${DRY_RUN}, POOL=${POOL})..."
 
-echo "Creating handbook shares (FORCE=${FORCE}, DRY_RUN=${DRY_RUN})..."
-
-for line in "${SHARE_EXPECTATIONS[@]}"; do
+for line in "${SHARES[@]}"; do
   IFS='|' read -r name comment floor_h use export security <<<"$line"
-  create_share "$name" "$comment" "$floor_h" "$use" "$export" "$security"
+  write_one "$name" "$comment" "$floor_h" "$use" "$export" "$security"
 done
 
 cat <<'EOF'
 
-DONE writing cfgs + dirs.
+DONE.
 
-NEXT (required):
+NEXT:
   1) Main → Stop Array → Start Array
   2) User Scripts → validate-shares → Run Script
-     (or: bash /boot/config/custom/shares/validate-shares.sh)
-  3) Shares tab: confirm photos = Primary=cache, Secondary=Array, Mover=cache→array
-  4) Named SMB users still come from chapter 15
+  3) Shares tab: photos = Primary cache, Secondary Array, Mover cache→array
 EOF

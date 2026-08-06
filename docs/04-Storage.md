@@ -87,57 +87,26 @@ Exclusive access keeps `appdata` / `system` on the SSD pool without FUSE overhea
 
 You can use the WebGUI (below) **or** create/update all handbook shares in one shot from the Unraid terminal.
 
-### Optional — User Scripts (recommended on this build)
+### Optional — User Scripts (copy/paste, no repo on server)
 
-Use the **User Scripts** plugin (already in chapter `03`). Array must be **started**. Always run with `bash` — files on `/boot` are not executable on Unraid 7.3.x.
+Array must be **started**. Paste each script **in full** into User Scripts — nothing else to install on the flash.
 
-#### 1) Install scripts on the flash
+1. Open **Settings → User Scripts → Add New Script**.
+2. Create two scripts (**Run manually**, no cron):
 
-From the Unraid terminal (`>_`), after you have this repo available (USB copy, SMB, or `wget`/`curl`):
+| Script name | Paste from this repo |
+|---|---|
+| `create-shares` | entire [`scripts/create-shares.sh`](../scripts/create-shares.sh) |
+| `validate-shares` | entire [`scripts/validate-shares.sh`](../scripts/validate-shares.sh) |
 
-```bash
-mkdir -p /boot/config/custom/shares/lib
-cp /path/to/Brian-HomeServer/scripts/create-shares.sh /boot/config/custom/shares/
-cp /path/to/Brian-HomeServer/scripts/validate-shares.sh /boot/config/custom/shares/
-cp /path/to/Brian-HomeServer/scripts/lib/share-defs.sh /boot/config/custom/shares/lib/
-```
+3. In each script: gear → **Edit Script** → select all → paste → **Save**.
+4. Run order:
+   1. **`create-shares` → Run Script** (overwrites share `.cfg` with handbook values; backs up old `.cfg` first)
+   2. **Main → Stop Array → Start Array**
+   3. **`validate-shares` → Run Script** (look for `RESULT: OK`)
+   4. Spot-check **Shares** → `photos`: Primary=`cache`, Secondary=**Array**, Mover=`cache→array`
 
-#### 2) Add User Scripts entries
-
-**Settings → User Scripts → Add New Script** twice:
-
-| Script name | Schedule | Edit Script body |
-|---|---|---|
-| `create-shares` | **Run manually** (no cron) | see below |
-| `validate-shares` | **Run manually** (no cron) | see below |
-
-**`create-shares` body:**
-
-```bash
-#!/bin/bash
-# Preview: DRY_RUN=1 bash /boot/config/custom/shares/create-shares.sh
-# Overwrite existing .cfg: FORCE=1 bash /boot/config/custom/shares/create-shares.sh
-FORCE=1 bash /boot/config/custom/shares/create-shares.sh
-```
-
-**`validate-shares` body:**
-
-```bash
-#!/bin/bash
-bash /boot/config/custom/shares/validate-shares.sh
-# Later (optional):
-# CHECK_APPS=1 bash /boot/config/custom/shares/validate-shares.sh
-# CHECK_BACKUP_ENV=1 bash /boot/config/custom/shares/validate-shares.sh
-```
-
-#### 3) Run order
-
-1. User Scripts → **`create-shares` → Run Script**
-2. **Main → Stop Array → Start Array**
-3. User Scripts → **`validate-shares` → Run Script** (exit OK / PASS summary)
-4. Spot-check **Shares** tab (`photos` = Primary=`cache`, Secondary=**Array**, Mover=`cache→array`)
-
-`validate-shares` checks `/boot/config/shares/*.cfg`, Primary dirs, `/mnt/user/...`, and that the share scripts are installed under `/boot/config/custom/shares`. It does **not** set named SMB users (chapter `15`).
+These scripts are self-contained (no `share-defs` file). Named SMB users still come from chapter `15`.
 
 ### WebGUI (one share at a time)
 
