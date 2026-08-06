@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Validate handbook shares + scripts/configs on Unraid 7.3.2 (docs/04-Storage.md).
-# Run as root on the Unraid host with the array started.
+# Intended path on server: /boot/config/custom/shares/validate-shares.sh
+# Call from User Scripts with: bash /boot/config/custom/shares/validate-shares.sh
+# (Always use bash — /boot is not executable on Unraid 7.3.x.)
 #
 # Usage:
 #   bash validate-shares.sh
 #   CHECK_APPS=1 bash validate-shares.sh     # also check Immich/compose paths if present
-#   CHECK_BACKUP_ENV=1 bash validate-shares.sh  # require backup.env next to this script
+#   CHECK_BACKUP_ENV=1 bash validate-shares.sh  # require backup.env under custom/backup
 #
 # Exit 0 = all required checks passed; non-zero = failures.
 set -Eeuo pipefail
@@ -131,18 +133,13 @@ validate_share() {
 
 validate_handbook_scripts() {
   echo ""
-  echo "── handbook scripts (next to validate-shares.sh)"
+  echo "── share scripts (User Scripts install: /boot/config/custom/shares)"
   local f
-  for f in "${HANDBOOK_SCRIPTS[@]}"; do
+  for f in "${REQUIRED_SHARE_SCRIPTS[@]}"; do
     if [[ -f "${SCRIPT_DIR}/${f}" ]]; then
-      ok "script ${f}"
+      ok "script ${SCRIPT_DIR}/${f}"
     else
-      # On the server you may only copy a subset — warn unless it's this validator or defs
-      if [[ "$f" == "validate-shares.sh" || "$f" == "create-shares.sh" ]]; then
-        bad "missing required script ${SCRIPT_DIR}/${f}"
-      else
-        warn "missing optional script ${SCRIPT_DIR}/${f}"
-      fi
+      bad "missing required script ${SCRIPT_DIR}/${f}"
     fi
   done
 
@@ -151,27 +148,49 @@ validate_handbook_scripts() {
   else
     bad "missing ${SCRIPT_DIR}/lib/share-defs.sh"
   fi
+
+  echo ""
+  echo "── backup scripts (optional; ${BACKUP_SCRIPT_DIR})"
+  if [[ ! -d "$BACKUP_SCRIPT_DIR" ]]; then
+    warn "backup script dir missing ${BACKUP_SCRIPT_DIR} (ok until chapter 10 / User Scripts backup setup)"
+    return
+  fi
+  ok "backup script dir ${BACKUP_SCRIPT_DIR}"
+  for f in "${OPTIONAL_BACKUP_SCRIPTS[@]}"; do
+    if [[ -f "${BACKUP_SCRIPT_DIR}/${f}" ]]; then
+      ok "backup script ${f}"
+    else
+      warn "missing ${BACKUP_SCRIPT_DIR}/${f}"
+    fi
+  done
 }
 
 validate_backup_env() {
   echo ""
   echo "── backup.env"
-  local env_file="${SCRIPT_DIR}/backup.env"
-  local example="${SCRIPT_DIR}/backup.env.example"
+  local env_file="${BACKUP_SCRIPT_DIR}/backup.env"
+  local example="${BACKUP_SCRIPT_DIR}/backup.env.example"
   if [[ ! -f "$example" ]]; then
-    warn "backup.env.example not found beside scripts"
+    # fall back to repo layout when running from a full scripts/ checkout
+    if [[ -f "${SCRIPT_DIR}/backup.env.example" ]]; then
+      example="${SCRIPT_DIR}/backup.env.example"
+      env_file="${SCRIPT_DIR}/backup.env"
+    fi
+  fi
+  if [[ ! -f "$example" ]]; then
+    warn "backup.env.example not found (ok until chapter 10)"
   else
-    ok "backup.env.example present"
+    ok "backup.env.example present (${example})"
   fi
   if [[ ! -f "$env_file" ]]; then
     if [[ "$CHECK_BACKUP_ENV" == "1" ]]; then
-      bad "backup.env missing (copy from backup.env.example)"
+      bad "backup.env missing (copy from backup.env.example into ${BACKUP_SCRIPT_DIR})"
     else
       warn "backup.env not present yet (ok until chapter 10)"
     fi
     return
   fi
-  ok "backup.env present"
+  ok "backup.env present (${env_file})"
   # shellcheck disable=SC1090
   set +u
   # shellcheck disable=SC1091

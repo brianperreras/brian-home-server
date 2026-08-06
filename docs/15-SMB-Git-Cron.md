@@ -198,6 +198,8 @@ Or use a built-in weekly preset if you prefer. Click **Apply**.
 
 | Script name | Schedule idea | Script body idea |
 |---|---|---|
+| `create-shares` | **Run manually** | `FORCE=1 bash /boot/config/custom/shares/create-shares.sh` (chapter `04`) |
+| `validate-shares` | **Run manually** | `bash /boot/config/custom/shares/validate-shares.sh` (chapter `04`) |
 | `pre-backup-db-dumps` | Sunday 02:45 | dump Immich/HA DBs into `database-backups-staging` |
 | `weekly-backup` | Sunday 03:00 | `bash /boot/config/custom/backup/weekly-backup.sh` |
 | `post-backup-check` | Sunday 04:00 | verify exit log / send notification |
@@ -209,13 +211,23 @@ Avoid overlapping SMART extended tests, big Immich imports, and Jellyfin library
 From a terminal on Unraid (or after copying files from your Mac):
 
 ```bash
+# Share create/validate (chapter 04) — used by User Scripts wrappers
+mkdir -p /boot/config/custom/shares/lib
+cp /path/to/Brian-HomeServer/scripts/create-shares.sh /boot/config/custom/shares/
+cp /path/to/Brian-HomeServer/scripts/validate-shares.sh /boot/config/custom/shares/
+cp /path/to/Brian-HomeServer/scripts/lib/share-defs.sh /boot/config/custom/shares/lib/
+
+# Weekly backup (chapter 10)
 mkdir -p /boot/config/custom/backup
-cp /path/to/Brian-HomeServer/scripts/*.sh /boot/config/custom/backup/
+cp /path/to/Brian-HomeServer/scripts/weekly-backup.sh /boot/config/custom/backup/
+cp /path/to/Brian-HomeServer/scripts/pre-backup-db-dumps.sh /boot/config/custom/backup/
+cp /path/to/Brian-HomeServer/scripts/post-backup-check.sh /boot/config/custom/backup/
+cp /path/to/Brian-HomeServer/scripts/backup.env.example /boot/config/custom/backup/
 ```
 
-Do **not** rely on `chmod +x` on `/boot` under Unraid 7.3.x — always run with `bash /path/to/script.sh`.
+Do **not** rely on `chmod +x` on `/boot` under Unraid 7.3.x — always run with `bash /path/to/script.sh` from a User Scripts entry.
 
-Copy `scripts/backup.env.example` to `backup.env` beside the scripts and keep `backup.env` out of Git.
+Copy `backup.env.example` to `backup.env` beside the backup scripts and keep `backup.env` out of Git.
 
 ## Verify your setup
 

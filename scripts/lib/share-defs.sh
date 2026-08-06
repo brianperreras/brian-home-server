@@ -25,11 +25,18 @@ SHARE_EXPECTATIONS=(
   "public|Temporary transfer folder|10G|no|e|secure"
 )
 
-# Handbook scripts expected beside this file's parent (scripts/)
+# Required beside validate/create (this scripts dir, e.g. /boot/config/custom/shares)
 # shellcheck disable=SC2034
-HANDBOOK_SCRIPTS=(
+REQUIRED_SHARE_SCRIPTS=(
   create-shares.sh
   validate-shares.sh
+)
+
+# Optional backup scripts (default Unraid User Scripts install path)
+# shellcheck disable=SC2034
+BACKUP_SCRIPT_DIR="${BACKUP_SCRIPT_DIR:-/boot/config/custom/backup}"
+# shellcheck disable=SC2034
+OPTIONAL_BACKUP_SCRIPTS=(
   weekly-backup.sh
   pre-backup-db-dumps.sh
   post-backup-check.sh

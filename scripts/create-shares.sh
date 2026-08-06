@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Create / update handbook user shares on Unraid 7.3.2 (docs/04-Storage.md).
-# Run as root on the Unraid host with the array started.
+# Intended path on server: /boot/config/custom/shares/create-shares.sh
+# Call from User Scripts with: FORCE=1 bash /boot/config/custom/shares/create-shares.sh
+# (Always use bash — /boot is not executable on Unraid 7.3.x.)
 #
 # Usage:
 #   DRY_RUN=1 bash create-shares.sh          # print what would happen
@@ -8,7 +10,7 @@
 #   FORCE=1 bash create-shares.sh            # overwrite existing .cfg (backs up first)
 #   bash validate-shares.sh                  # check configs/dirs after Stop/Start array
 #
-# After running: Main → Stop Array → Start Array, then verify on Shares tab.
+# After running: Main → Stop Array → Start Array, then run validate-shares User Script.
 # Does not delete share data. SMB user ACLs still come from chapter 15.
 set -Eeuo pipefail
 
@@ -132,7 +134,8 @@ DONE writing cfgs + dirs.
 
 NEXT (required):
   1) Main → Stop Array → Start Array
-  2) bash validate-shares.sh
+  2) User Scripts → validate-shares → Run Script
+     (or: bash /boot/config/custom/shares/validate-shares.sh)
   3) Shares tab: confirm photos = Primary=cache, Secondary=Array, Mover=cache→array
   4) Named SMB users still come from chapter 15
 EOF
