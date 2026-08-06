@@ -101,12 +101,14 @@ Array must be **started**. Paste each script **in full** into User Scripts — n
 
 3. In each script: gear → **Edit Script** → select all → paste → **Save**.
 4. Run order:
-   1. **`create-shares` → Run Script** (overwrites share `.cfg` with handbook values; backs up old `.cfg` first)
-   2. **Main → Stop Array → Start Array**
+   1. **`create-shares` → Run Script** (optional if shares already exist in the WebGUI)
+   2. **Main → Stop Array → Start Array** (only needed after `create-shares` or cfg edits)
    3. **`validate-shares` → Run Script** (look for `RESULT: OK`)
    4. Spot-check **Shares** → `photos`: Primary=`cache`, Secondary=**Array**, Mover=`cache→array`
 
-These scripts are self-contained (no `share-defs` file). Named SMB users still come from chapter `15`.
+`validate-shares` defaults to **MODE=gui**: it **FAIL**s only on placement (`shareUseCache` / pool / missing `/mnt/user/...`). Export No, blank Include, and different Minimum free space are **WARN** (normal for GUI). Use `MODE=strict` only for exact handbook matches.
+
+These scripts are self-contained. Named SMB users still come from chapter `15`.
 
 ### WebGUI (one share at a time)
 
