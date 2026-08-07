@@ -149,6 +149,48 @@ Never commit `secrets.yaml` to Git.
 
 Do not port-forward `8123`. Do not publish HA without Access on `home.migulix.uk` ([D7b](09-Network-Security.md#d7b-home-assistant)).
 
+<a id="ha-trusted-proxies"></a>
+
+### Cloudflare URL returns `400: Bad Request`
+
+LAN IP works, but `https://home.migulix.uk` fails: Home Assistant rejects reverse-proxy requests until you trust `cloudflared`.
+
+1. Unraid Terminal — check the rejected proxy IP (optional but precise):
+
+```bash
+docker logs homeassistant 2>&1 | grep -i 'reverse proxy' | tail -5
+```
+
+2. Edit config:
+
+```bash
+nano /mnt/user/appdata/homeassistant/config/configuration.yaml
+```
+
+Add (keep any existing lines; do not duplicate a second `http:` block):
+
+```yaml
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - ::1
+    - 172.16.0.0/12
+```
+
+`172.16.0.0/12` covers typical Docker bridges where `cloudflared` lives. If logs show a different IP, add that address too.
+
+3. Restart HA (YAML reload is not enough):
+
+```bash
+cd /mnt/user/appdata/compose-projects/homeassistant
+docker compose restart
+```
+
+4. Retry `https://home.migulix.uk` (Access login, then HA).
+
+Official reverse-proxy notes: https://www.home-assistant.io/integrations/http/#reverse-proxies
+
 ## Verify your setup
 
 1. **Container running** — run from the compose directory:

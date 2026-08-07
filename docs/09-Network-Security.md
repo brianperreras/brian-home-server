@@ -506,6 +506,8 @@ Same clicks as [D7a](#d7a-immich): **Networks → Tunnels & Mesh** → **`brian-
 | Access app name | `Home Assistant` |
 | Public URL | `https://home.migulix.uk` |
 
+Then add HA `trusted_proxies` (required or you get **400 Bad Request**) — [07 — trusted proxies](07-Home-Assistant.md#ha-trusted-proxies).
+
 <a id="d7c-jellyfin"></a>
 
 ### D7c — Jellyfin: `media.migulix.uk`
