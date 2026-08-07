@@ -7,12 +7,13 @@ SSO_DIR="$PARKING_ROOT/resource-scheduler-sso-login"
 SCHEDULER_DIR="$PARKING_ROOT/resource-scheduler"
 CFG_DIR="${PARKING_CONFIG_DIR:-/data/config}"
 export HOME="${HOME:-/data/home}"
+export PARKING_LOCAL_CREDENTIALS_ONLY="${PARKING_LOCAL_CREDENTIALS_ONLY:-1}"
 
 # shellcheck source=/dev/null
 source "$PARKING_ROOT/scripts/log.sh"
 
 mkdir -p \
-  "$HOME/.config/resource-scheduler" \
+  "$HOME" \
   "$SSO_DIR/output" \
   "$SSO_DIR/logs" \
   "$SCHEDULER_DIR/logs/responses" \
@@ -46,11 +47,6 @@ if [ -f "$SCHEDULER_DIR/resources.txt" ]; then
 fi
 if [ -f "$SCHEDULER_DIR/reservation.env" ]; then
   touch "$SCHEDULER_DIR/.reservation-configured"
-fi
-
-# Prefer passphrase on the persistent home volume
-if [ -f "$CFG_DIR/sso-passphrase" ] && [ ! -e "$HOME/.config/resource-scheduler/sso-passphrase" ]; then
-  ln -sfn "$CFG_DIR/sso-passphrase" "$HOME/.config/resource-scheduler/sso-passphrase"
 fi
 
 ensure_crontab() {

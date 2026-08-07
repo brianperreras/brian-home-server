@@ -1,0 +1,17 @@
+#!/bin/bash
+# Unraid host wrapper — same CLI as inside the container.
+# Install: see UNRAID.md Step 10 ("Host wrapper").
+set -euo pipefail
+
+CONTAINER="${PARKING_CONTAINER:-parking}"
+
+if ! docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null | grep -qx true; then
+  echo "parking: container '$CONTAINER' is not running" >&2
+  echo "Start the Compose stack first (Docker → Compose → parking → Compose Up)." >&2
+  exit 1
+fi
+
+if [ -t 0 ] && [ -t 1 ]; then
+  exec docker exec -it "$CONTAINER" parking "$@"
+fi
+exec docker exec "$CONTAINER" parking "$@"

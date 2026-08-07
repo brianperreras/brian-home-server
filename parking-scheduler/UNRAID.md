@@ -41,9 +41,8 @@ Mac (this repo)
 After deploy on Unraid
   /mnt/user/appdata/compose-projects/parking/   ← Compose Manager Plus stack (build context)
   /mnt/user/appdata/parking/                    ← runtime config, session, logs
-    ├── config/
+    ├── config/       # .env with RS_USERNAME + RS_PASSWORD (no AWS)
     ├── home/
-    ├── aws/          # optional (SSM); omit if using RS_PASSWORD in .env
     ├── output/
     ├── logs-sso/
     └── logs-book/
@@ -108,7 +107,7 @@ Editing files with `nano`: **Ctrl+O**, Enter to save; **Ctrl+X** to exit.
 In the Unraid shell:
 
 ```bash
-mkdir -p /mnt/user/appdata/parking/{config,home/.config/resource-scheduler,aws,output,logs-sso,logs-book}
+mkdir -p /mnt/user/appdata/parking/{config,home,output,logs-sso,logs-book}
 mkdir -p /mnt/user/appdata/compose-projects/parking
 ```
 
@@ -170,13 +169,13 @@ Confirm those four paths are **files**, not directories.
 
 ---
 
-## Step 6 — Edit config (happy path: local password)
+## Step 6 — Edit config (local password only)
 
-Default for first-time Unraid setup: put the SSO password in `config/.env` and skip AWS SSM. (SSM is Appendix B.)
+This Unraid migration does **not** use AWS or SSM. Put the SSO password in `config/.env` only.
 
 | File | Set |
 |------|-----|
-| `/mnt/user/appdata/parking/config/.env` | `RS_USERNAME=…`, uncomment/set `RS_PASSWORD=…`, keep `HEADED=0`, timezone fields as needed |
+| `/mnt/user/appdata/parking/config/.env` | `RS_USERNAME=…`, `RS_PASSWORD=…`, keep `HEADED=0`, timezone fields as needed |
 | `…/config/schedule.env` | `RS_SCHEDULE_DAYS`, `RS_SCHEDULE_TIME` (Asia/Manila book time) |
 | `…/config/resources.txt` | Slot try order (see comments in the example) |
 | `…/config/reservation.env` | Start/end window on the booked day (`RS_START_HR` / `RS_END_HR`) |
@@ -187,7 +186,7 @@ Edit over SSH / Terminal:
 nano /mnt/user/appdata/parking/config/.env
 ```
 
-Minimal happy-path changes in `.env`:
+Required lines in `.env`:
 
 ```bash
 RS_USERNAME=your.username
@@ -195,7 +194,7 @@ RS_PASSWORD=your-password
 HEADED=0
 ```
 
-Leave `RS_CREDENTIALS_PASSPHRASE_FILE=...` as-is if unused; with local `RS_PASSWORD` you do not need the passphrase file or `aws/` credentials for login.
+Do not add AWS credentials, passphrase files, or `RS_CREDENTIALS_PASSPHRASE_FILE`.
 
 Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**. Repeat for `schedule.env`, `resources.txt`, and `reservation.env`.
 
@@ -279,14 +278,90 @@ You should see crontab lines with `CRON_TZ=Asia/Manila` (or equivalent) and a re
 
 ## Step 10 — Day-to-day on Unraid
 
+The container image includes the same `parking` CLI as the original kit (`bin/parking` on `PATH`). Use it with `docker exec`, or install the optional **host wrapper** below so Unraid SSH feels like the Mac/Linux install (`parking help`, `parking book`, …).
+
+### Same commands as the original CLI
+
+| Command | What it does |
+|---------|----------------|
+| `parking help` | Usage |
+| `parking book` | Try all slots until one books |
+| `parking book R405 R406` | Override slot list |
+| `parking book-first` | First slot only |
+| `parking login` | Full SSO + keep-alive (PingID) |
+| `parking refresh` | Keep-alive once |
+| `parking keepalive status` | Overnight loop `start` \| `stop` \| `status` |
+| `parking scheduled-login` | Evening SSO cron entrypoint |
+| `parking status` | Schedule, slots, session, cron |
+| `parking crontab` | Schedule in plain English (e.g. Tue–Fri at 9:00 PM) |
+| `parking install --schedules` | Setup / reinstall cron inside the container |
+| `parking uninstall` | Remove cron inside the container |
+
+Without the host wrapper, prefix with `docker exec -it parking`:
+
+```bash
+docker exec -it parking parking help
+docker exec -it parking parking book
+docker exec -it parking parking book R405 R406
+docker exec -it parking parking book-first
+docker exec -it parking parking login
+docker exec -it parking parking refresh
+docker exec -it parking parking keepalive status
+docker exec -it parking parking scheduled-login
+docker exec -it parking parking status
+docker exec -it parking parking crontab
+docker exec -it parking parking install --schedules
+docker exec -it parking parking uninstall
+```
+
+Extras that also work: `parking book --dry-run`, `parking dry-run`, `PARKING_CRON_RAW=1 docker exec -it parking parking crontab`.
+
+### Host wrapper (optional — type `parking` on Unraid)
+
+On Unraid (persists under appdata):
+
+```bash
+mkdir -p /mnt/user/appdata/parking/bin
+# From this repo on your Mac after scp, or paste from parking-docker/host-parking:
+cat > /mnt/user/appdata/parking/bin/parking <<'EOF'
+#!/bin/bash
+set -euo pipefail
+CONTAINER="${PARKING_CONTAINER:-parking}"
+if ! docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null | grep -qx true; then
+  echo "parking: container '$CONTAINER' is not running" >&2
+  exit 1
+fi
+if [ -t 0 ] && [ -t 1 ]; then
+  exec docker exec -it "$CONTAINER" parking "$@"
+fi
+exec docker exec "$CONTAINER" parking "$@"
+EOF
+chmod +x /mnt/user/appdata/parking/bin/parking
+
+# Current shell
+export PATH="/mnt/user/appdata/parking/bin:$PATH"
+
+# Persist for root SSH logins
+grep -q 'appdata/parking/bin' /root/.bash_profile 2>/dev/null || \
+  echo 'export PATH="/mnt/user/appdata/parking/bin:$PATH"' >> /root/.bash_profile
+```
+
+Then on Unraid:
+
+```bash
+parking help
+parking book
+parking login
+parking status
+parking crontab
+```
+
+Edit slots / schedule under `/mnt/user/appdata/parking/config/`, then `parking install --schedules` (or recreate the stack so the entrypoint reinstalls crontab).
+
 | Task | Command / where |
 |------|-----------------|
 | Shell from Mac | `ssh root@192.168.0.10` |
 | View logs | `cd /mnt/user/appdata/compose-projects/parking && docker compose logs -f` |
-| Manual book | `docker exec -it parking parking book` |
-| Dry-run book | `docker exec -it parking parking book --dry-run` |
-| Refresh session | `docker exec -it parking parking refresh` |
-| Change schedule / slots | `nano` under `/mnt/user/appdata/parking/config/`, then `docker exec -it parking parking install --schedules` |
 | Stop / start stack | Compose Stop / Compose Up, or `docker compose` in the project dir |
 | Rebuild after code update | `scp` a new zip → unzip/replace under `compose-projects/parking` → `docker compose --env-file .env up -d --build` |
 | Cleanup staging | `rm -rf /tmp/parking-scheduler-staging` |
@@ -326,6 +401,8 @@ docker compose --env-file .env up -d --build
 | Wrong book time | `TZ=Asia/Manila`, `schedule.env`, `parking crontab` |
 | PingID timeout | Approve within ~2 minutes; retry `parking login` |
 | SSO fails | Check `/mnt/user/appdata/parking/logs-sso/`; keep `HEADED=0` |
+| Asks for AWS / SSM | Rebuild from the updated zip (AWS removed); set `RS_PASSWORD` in `config/.env` |
+| Missing password | Ensure both `RS_USERNAME` and `RS_PASSWORD` are set in `/mnt/user/appdata/parking/config/.env` |
 
 ---
 
@@ -337,32 +414,7 @@ Use Docker above when possible. If you still want a VM:
 2. Enable autostart; set guest timezone or rely on `CRON_TZ`.
 3. `scp` the zip into the VM over SSH, then follow [INSTALL.md](INSTALL.md).
 
-Do not also run the Docker stack’s cron on the same nights.
-
----
-
-## Appendix B — Optional AWS SSM (instead of `RS_PASSWORD`)
-
-Only if you are **not** putting the password in `config/.env`:
-
-1. Create `/mnt/user/appdata/parking/aws/credentials` and `config` (standard AWS CLI files).
-2. Create passphrase file:
-
-```bash
-nano /mnt/user/appdata/parking/home/.config/resource-scheduler/sso-passphrase
-```
-
-(single line; `chmod 600`)
-
-3. In `config/.env`, leave `RS_PASSWORD` unset; keep:
-
-```bash
-RS_CREDENTIALS_PASSPHRASE_FILE=$HOME/.config/resource-scheduler/sso-passphrase
-```
-
-(`HOME` inside the container is `/data/home`.)
-
-4. Restart the stack after edits.
+Do not also run the Docker stack’s cron on the same nights. Prefer the Docker path above; it never uses AWS.
 
 ---
 
@@ -370,9 +422,9 @@ RS_CREDENTIALS_PASSPHRASE_FILE=$HOME/.config/resource-scheduler/sso-passphrase
 
 | Path | Role |
 |------|------|
-| `resource-scheduler-automation.zip` → `parking/Dockerfile` | Playwright base + JDK + cron + AWS CLI + app install |
+| `resource-scheduler-automation.zip` → `parking/Dockerfile` | Playwright base + JDK + cron + app install (no AWS) |
 | `…/docker-compose.yml` | Unraid appdata volume map via `PARKING_APPDATA` |
 | `…/docker/entrypoint.sh` | Link config, install crontab, run cron |
 | `parking-docker/` | Readable mirror of the same Docker files outside the zip |
 
-Full generic install reference: [INSTALL.md](INSTALL.md).
+Full generic install reference: [INSTALL.md](INSTALL.md) (Linux/VM; not used for this Unraid Docker migration).
