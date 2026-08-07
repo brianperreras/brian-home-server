@@ -1,0 +1,13 @@
+# Unraid 7.3.2 + Compose Manager Plus
+# Projects path: /mnt/user/appdata/compose-projects/cloudflared/
+# See docs/09-Network-Security.md Part D
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN}
+    # No host ports — outbound only to Cloudflare

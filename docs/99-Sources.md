@@ -87,6 +87,10 @@ These are the preferred references. Check them before major changes because menu
 | Plugin setup (EDACerton) | https://edac.dev/unraid/tailscale/plugin/ |
 | Plugin support thread | https://forums.unraid.net/topic/136889-plugin-tailscale/ |
 | Tailscale Unraid integration notes | https://tailscale.com/docs/integrations/unraid |
+| Cloudflare Tunnel docs | https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/ |
+| Cloudflare Zero Trust dashboard | https://one.dash.cloudflare.com |
+| cloudflared Docker image | https://hub.docker.com/r/cloudflare/cloudflared |
+| Handbook steps | chapter `09` Part D (`migulix.uk`) |
 
 ## General note
 
