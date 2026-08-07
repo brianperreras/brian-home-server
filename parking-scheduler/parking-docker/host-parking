@@ -11,7 +11,42 @@ if ! docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null | grep -qx 
   exit 1
 fi
 
+# Forward common overrides into the container when set on the host.
+# (CLI flags like --date / --headed set these inside the container; env is for
+# ad-hoc Unraid SSH: RESERVATION_DATE=… parking book, HEADED=1 parking login, …)
+_exec_env=()
+for _k in \
+  RESERVATION_DATE \
+  RS_RESERVATION_DAYS_AHEAD \
+  SKIP_SSO_LOGIN \
+  HEADED \
+  PARKING_CRON_RAW \
+  BOOK_DRY_RUN \
+  BOOK_DRY_FAIL_COUNT \
+  BOOK_DRY_SLEEP_SEC \
+  BOOK_DRY_SUCCESS_SLOT \
+  BOOK_DRY_TIMEOUT_SEC \
+  BOOK_RETRY_TIMEOUT_SEC \
+  BOOK_RETRY_SLEEP_SEC \
+  MAX_SESSION_AGE_HOURS \
+  SSO_MAX_ATTEMPTS \
+  SSO_RETRY_DELAY_MS \
+  SKIP_KEEPALIVE_LOOP \
+  SKIP_COMPILE \
+  SKIP_RUN_LOG \
+  SKIP_LOGIN_LOG \
+  SCHEDULED_EXECUTION_TIME \
+  KEEPALIVE_INTERVAL_MINUTES \
+  KEEPALIVE_UNTIL_HOUR \
+  KEEPALIVE_UNTIL_MINUTE \
+  KEEPALIVE_TZ
+do
+  if [ -n "${!_k+x}" ] && [ -n "${!_k}" ]; then
+    _exec_env+=(-e "${_k}=${!_k}")
+  fi
+done
+
 if [ -t 0 ] && [ -t 1 ]; then
-  exec docker exec -it "$CONTAINER" parking "$@"
+  exec docker exec -it "${_exec_env[@]}" "$CONTAINER" parking "$@"
 fi
-exec docker exec "$CONTAINER" parking "$@"
+exec docker exec "${_exec_env[@]}" "$CONTAINER" parking "$@"

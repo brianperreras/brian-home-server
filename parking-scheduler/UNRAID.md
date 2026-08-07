@@ -293,7 +293,11 @@ The container image includes the same `parking` CLI as the original kit (`bin/pa
 | `parking keepalive status` | Overnight loop `start` \| `stop` \| `status` |
 | `parking scheduled-login` | Evening SSO cron entrypoint |
 | `parking status` | Schedule, slots, session, cron |
+| `parking book --date tomorrow` | Force reservation date |
+| `parking dry-run` | Simulate booking (no submit) |
+| `parking login --headed` | SSO with visible browser |
 | `parking crontab` | Schedule in plain English (e.g. Tue–Fri at 9:00 PM) |
+| `parking crontab --raw` | Human schedule + raw cron lines |
 | `parking install --schedules` | Setup / reinstall cron inside the container |
 | `parking uninstall` | Remove cron inside the container |
 
@@ -314,28 +318,31 @@ docker exec -it parking parking install --schedules
 docker exec -it parking parking uninstall
 ```
 
-Extras that also work: `parking book --dry-run`, `parking dry-run`, `PARKING_CRON_RAW=1 docker exec -it parking parking crontab`.
+Extras that also work (flags preferred; env also forwarded by updated `host-parking`):
+
+```bash
+parking book --dry-run
+parking dry-run --date tomorrow
+parking book --date tomorrow
+parking book --date 2026-8-8 --skip-sso
+parking book --days-ahead 1
+parking book-first --date tomorrow
+parking login --headed
+parking crontab --raw
+# Env equivalents (host wrapper forwards these into the container):
+RESERVATION_DATE=2026-8-8 parking book
+HEADED=1 parking login
+PARKING_CRON_RAW=1 parking crontab
+```
 
 ### Host wrapper (optional — type `parking` on Unraid)
 
-On Unraid (persists under appdata):
+Install the env-forwarding wrapper from this repo (`parking-docker/host-parking`) so host flags/env reach the container:
 
 ```bash
 mkdir -p /mnt/user/appdata/parking/bin
-# From this repo on your Mac after scp, or paste from parking-docker/host-parking:
-cat > /mnt/user/appdata/parking/bin/parking <<'EOF'
-#!/bin/bash
-set -euo pipefail
-CONTAINER="${PARKING_CONTAINER:-parking}"
-if ! docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null | grep -qx true; then
-  echo "parking: container '$CONTAINER' is not running" >&2
-  exit 1
-fi
-if [ -t 0 ] && [ -t 1 ]; then
-  exec docker exec -it "$CONTAINER" parking "$@"
-fi
-exec docker exec "$CONTAINER" parking "$@"
-EOF
+# After scp of this kit (or from compose-projects/parking if you copied it there):
+cp /path/to/parking-docker/host-parking /mnt/user/appdata/parking/bin/parking
 chmod +x /mnt/user/appdata/parking/bin/parking
 
 # Current shell
