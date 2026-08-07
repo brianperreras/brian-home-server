@@ -235,17 +235,43 @@ Notes:
 
 ### Option A — Compose Manager Plus (preferred)
 
-1. WebGUI → top-right **>_** (or `ssh root@192.168.0.10`).
-2. Create the stack folder and files:
+Same pattern as Immich (`06`): one folder under Projects Folder → Compose Manager Plus shows the stack automatically. Kit: [`docker/cloudflared/`](../docker/cloudflared/).
+
+#### A1. Confirm Compose Manager Plus
+
+| Check | Where | Expected |
+|---|---|---|
+| Plugin installed | **Plugins** | **Compose Manager Plus** (mstrhakr) |
+| Projects Folder | **Settings → Compose Manager Plus** (or **Settings → Compose**) | `/mnt/user/appdata/compose-projects` |
+| Docker running | **Settings → Docker** | Enable Docker = **Yes** |
+
+If Projects Folder is wrong, fix it and **Apply** before continuing (chapter `05`).
+
+#### A2. Create the stack folder
+
+WebGUI → top-right **>_** (or `ssh root@192.168.0.10`):
 
 ```bash
 mkdir -p /mnt/user/appdata/compose-projects/cloudflared
 cd /mnt/user/appdata/compose-projects/cloudflared
+pwd
 ```
 
-3. Create `docker-compose.yml`:
+Expected: `/mnt/user/appdata/compose-projects/cloudflared`
+
+#### A3. Create `docker-compose.yml`
+
+```bash
+cd /mnt/user/appdata/compose-projects/cloudflared
+nano docker-compose.yml
+```
+
+Copy the YAML below into `nano` (no ports, no volumes — outbound tunnel only):
 
 ```yaml
+# Unraid 7.3.2 + Compose Manager Plus
+# Path: /mnt/user/appdata/compose-projects/cloudflared/
+
 services:
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -256,34 +282,94 @@ services:
       TUNNEL_TOKEN: ${TUNNEL_TOKEN}
 ```
 
-4. Create `.env` (paste your real token):
+Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**.
+
+#### A4. Create `.env` with the tunnel token
+
+Token from **D2** (Zero Trust → Tunnels → Docker install → value after `--token`). Do **not** commit this file or paste the real token into Git/chat.
 
 ```bash
-nano /mnt/user/appdata/compose-projects/cloudflared/.env
+cd /mnt/user/appdata/compose-projects/cloudflared
+nano .env
 ```
 
-```bash
+Copy this line into `nano`, then replace the placeholder with your real token (no quotes, no spaces around `=`):
+
+```dotenv
 TUNNEL_TOKEN=paste-your-tunnel-token-here
 ```
 
 Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**.
 
 ```bash
-chmod 600 /mnt/user/appdata/compose-projects/cloudflared/.env
+chmod 600 .env
+ls -la
 ```
 
-5. Open **Docker** → Compose section. You should see stack **`cloudflared`**.  
-   **Do not click Add Stack** if it already appears.
-6. Turn **Autostart** **On**.
-7. Stack menu → **Compose Up** (or Terminal):
+You should see `docker-compose.yml` and `.env`. Permissions on `.env` should be `-rw-------`.
+
+Confirm the key exists without printing the secret:
+
+```bash
+grep -E '^TUNNEL_TOKEN=' .env | sed 's/=.*/=***redacted***/'
+```
+
+Optional: **Docker** → **`cloudflared`** stack → **.ENV** tab → paste the same `TUNNEL_TOKEN=…` line → **Save All**.
+
+#### A5. Confirm the Compose Manager Plus stack
+
+1. Open **Docker** → Compose section.
+2. You should see a stack named **`cloudflared`**.
+3. **Do not click Add Stack** — that creates a duplicate like `cloudflared-001`.
+
+If no stack appears: refresh the Docker page. Still missing → confirm Projects Folder is `/mnt/user/appdata/compose-projects`, confirm `docker-compose.yml` exists under `cloudflared/`, then refresh again.
+
+If you already have **`cloudflared` and `cloudflared-001`**: delete the extra (stack menu → Delete). Keep the one on `/mnt/user/appdata/compose-projects/cloudflared`.
+
+#### A6. Optional stack Settings + Autostart
+
+**Settings tab** (name / description only — there is **no** Autostart here):
+
+**Docker** → Compose → open **`cloudflared`** → **Settings** tab:
+
+| Field | Value |
+|---|---|
+| Name | `cloudflared` (leave as-is) |
+| Description | optional, e.g. `Cloudflare Tunnel` |
+| WebUI URL | leave blank (no local web UI) |
+
+Save if you changed anything.
+
+**Autostart** is on the **Compose list row**, not under Settings:
+
+1. Go back to **Docker** → Compose section (the list of stacks).
+2. Find the **`cloudflared`** row.
+3. Turn the **Autostart** toggle **On** (same place as Immich — on the row, often near Compose Up / the stack controls).
+
+That makes the tunnel start when the array starts.
+
+#### A7. Start the stack
+
+**Preferred:** **Docker** → Compose → **`cloudflared`** → stack menu → **Compose Up**.
+
+**Or** Terminal:
 
 ```bash
 cd /mnt/user/appdata/compose-projects/cloudflared
 docker compose up -d
+docker compose ps
 docker compose logs --tail=50
 ```
 
-8. In Zero Trust → **Networks → Tunnels**, the tunnel should show **Healthy** / connector connected.
+Expected: container `cloudflared` is **Up**; logs mention the tunnel / connector without repeated auth errors.
+
+#### A8. Confirm the tunnel is healthy
+
+1. Open https://one.dash.cloudflare.com → **Networks → Tunnels**.
+2. Tunnel `brian-server` (or the name from D2) should show **Healthy** / connector connected.
+3. From a LAN browser, `http://192.168.0.10` should still work (tunnel does not replace LAN access).
+
+Do **not** open `https://unraid.migulix.uk` from the public internet yet — finish **D5** (Access) first.
 
 ### Option B — Community Apps template
 
@@ -293,25 +379,87 @@ docker compose logs --tail=50
 
 Without Access, anyone who learns `unraid.migulix.uk` hits your root login page.
 
-1. Zero Trust → **Access → Applications → Add an application**.
-2. Type: **Self-hosted**.
-3. Name: `Unraid WebGUI`.
-4. Application domain: `unraid.migulix.uk` (HTTPS).
-5. Create / next to **Policy**:
-   - Policy name: `Brian only`
-   - Action: **Allow**
-   - Include: **Emails** → your personal email (the one you control)
-6. Save.
+You already published the hostname on the tunnel in **D3**. Access only adds the login gate in front of that URL.
 
-Optional but better: Identity → add **One-time PIN** (email) or Google/GitHub login, and use that in the policy instead of a shared password.
+### D5a — Pick the application type (current Zero Trust UI)
 
-Test from a phone **off** Wi‑Fi (cellular):
+1. Open https://one.dash.cloudflare.com
+2. Go to **Access** → **Applications** (or **Access controls** → **Applications**).
+3. Click **Add an application** (or **Create new application**).
 
-1. Open `https://unraid.migulix.uk`
-2. Complete Cloudflare Access challenge
-3. Then Unraid root login
+You should see a modal: **Add an application** → **Select an application type to get started.**
 
-At home you can keep using `http://192.168.0.10` (no Cloudflare required).
+| Top tab | Choose? | Why |
+|---|---|---|
+| **Self-hosted and private** | **Yes — stay here** | Unraid is your own server behind the tunnel |
+| SaaS applications | No | For Google Workspace / Salesforce-style SaaS |
+| Infrastructure | No | For SSH / RDP / infra targets |
+| Bookmarks | No | Links only, no Access gate |
+
+Under **Self-hosted and private**, pick the destination style:
+
+| Chip / option | Choose? | Why |
+|---|---|---|
+| Private destinations | No | Needs Cloudflare WARP / private network; not this build |
+| Workers | No | Cloudflare Workers apps |
+| **Public DNS** | **Yes** | `unraid.migulix.uk` is a **public hostname** (tunnel + DNS from D3) |
+| Service auth | No | Machine/service tokens, not browser login |
+
+Then click the blue button: **Continue with Self-hosted and private**.
+
+(Official Cloudflare wording is the same idea: **Self-hosted and private** → **Add public hostname**.)
+
+### D5b — Application / public hostname
+
+Fill the next screens with:
+
+| Field (label may vary slightly) | Value |
+|---|---|
+| Application name | `Unraid WebGUI` |
+| Subdomain | `unraid` |
+| Domain | `migulix.uk` |
+| Full hostname | `unraid.migulix.uk` |
+| Path | leave empty / `*` unless the UI requires a path |
+
+If the UI says **Add public hostname** (or **Public hostname** / destination), add `unraid.migulix.uk` there. Do **not** enter `192.168.0.10` in Access — the tunnel already maps the hostname to the LAN IP (D3).
+
+### D5c — Access policy (who is allowed)
+
+Add a policy (create new if prompted):
+
+| Field | Value |
+|---|---|
+| Policy name | `Brian only` |
+| Action | **Allow** |
+| Include | **Emails** → your personal email (the one you control) |
+
+Default is deny; without an Allow policy nobody gets through.
+
+### D5d — Login method (identity)
+
+Still in the app wizard (or **Access** → **Settings** / **Identity providers** if asked earlier):
+
+1. Enable at least one login method. Recommended free options:
+   - **One-time PIN** (email code), and/or
+   - Google / GitHub / Apple (if you already use them)
+2. Leave other IdPs off unless you need them.
+3. Optional: turn on **Apply instant authentication** if you only use one IdP (skips the Cloudflare “pick a login” page).
+
+Session duration: default (e.g. 24 hours) is fine for Phase 1.
+
+### D5e — Save and test
+
+1. Click **Create** / **Save** / **Next** until the application is created.
+2. On a phone **off** Wi‑Fi (cellular):
+
+```text
+https://unraid.migulix.uk
+```
+
+3. Expected: Cloudflare Access challenge first → then Unraid root login.
+4. At home you can keep using `http://192.168.0.10` (no Cloudflare required).
+
+If you land on Unraid root login with **no** Access page, the application hostname does not match `unraid.migulix.uk` or the app was not saved — edit the application and confirm the public hostname.
 
 ## D6 — Hardening checklist
 
@@ -340,13 +488,73 @@ One app at a time; Access on each hostname.
 
 | Problem | Fix |
 |---------|-----|
-| Tunnel **Inactive** | Check `docker compose logs`; confirm `.env` token; container running |
+| Tunnel **Inactive** | `cd /mnt/user/appdata/compose-projects/cloudflared && docker compose logs --tail=50`; confirm `.env` has `TUNNEL_TOKEN`; `docker compose ps` shows Up; redo A7 |
+| Stack missing on Docker tab | Refresh; Projects Folder = `/mnt/user/appdata/compose-projects`; `ls` shows `docker-compose.yml` under `cloudflared/` (A5) |
+| Duplicate `cloudflared-001` | Delete the extra stack; keep the one on `compose-projects/cloudflared` |
 | DNS error / nowhere | Zone **Active**; public hostname saved; wait a few minutes for DNS |
 | 502 / bad gateway | Confirm Unraid GUI is up on LAN `http://192.168.0.10`; origin URL/port correct |
 | Infinite Access loop | Policy email matches the identity you use; try a private browser window |
+| No Access login page (goes straight to Unraid) | Access app must use **Public DNS** / public hostname `unraid.migulix.uk` (D5a–D5b), not Private destinations |
+| Confused on Add application modal | Top tab **Self-hosted and private** → chip **Public DNS** → **Continue with Self-hosted and private** |
 | Works on LAN Cloudflare URL but slow | Normal; for local use prefer `http://192.168.0.10` |
+| Chrome **Dangerous site** / Deceptive site ahead | Usually a **Safe Browsing false positive** on new domains + Access/Unraid login pages — see **D9** |
 
 ---
+
+## D9 — Chrome “Dangerous site” on `unraid.migulix.uk`
+
+Chrome’s red warning comes from **Google Safe Browsing**, not from Cloudflare TLS. Homelab tunnels often get false-flagged: a brand-new hostname that shows a login page (Access, then Unraid root) looks like phishing to automated scanners.
+
+This is common with Cloudflare Tunnel + Access. It does **not** mean your Unraid box was hacked by itself.
+
+### D9a — Confirm what Google thinks
+
+1. Open: https://transparencyreport.google.com/safe-browsing/search  
+2. Check both:
+   - `https://unraid.migulix.uk`
+   - `https://migulix.uk`
+3. Note whether it says unsafe / no available data / ok.
+
+Also open the warning’s **Details** (if shown) and use **Report a detection problem** / “Let us know” when it is your own server.
+
+### D9b — Use the server while the flag is up
+
+| Access method | Use now? |
+|---|---|
+| LAN `http://192.168.0.10` | Yes — preferred at home |
+| Tailscale (Part B) `http://100.x.y.z` | Yes — away from home without the public hostname |
+| `https://unraid.migulix.uk` | Only if you intentionally proceed past the warning on **your** machine |
+
+Do not turn Safe Browsing off globally as the “fix.”
+
+### D9c — Request a Safe Browsing review (clear the flag)
+
+1. Open https://search.google.com/search-console  
+2. **Add property** → Domain → `migulix.uk` (verify with the DNS TXT record Cloudflare shows).  
+3. After verified: **Security & Manual Actions** → **Security issues** (or the Security issues report).  
+4. If issues are listed, open them → **Request review**.  
+5. Review notes (example):
+
+```text
+Personal homelab Unraid WebGUI behind Cloudflare Tunnel + Cloudflare Access.
+Hostname unraid.migulix.uk is my own server; not a phishing site.
+Access email OTP/IdP gate is required before Unraid login.
+No malware hosted; origin is LAN-only via outbound tunnel (no port forwards).
+```
+
+6. Wait **1–3 days**, then recheck Chrome and the transparency report. List updates can lag a day after approval.
+
+### D9d — Reduce the chance of re-flagging
+
+| Do | Why |
+|---|---|
+| Keep **Access** on `unraid.migulix.uk` | Anonymous scanners should hit Access, not an open root login |
+| Strong Unraid root password + MFA on Cloudflare | Real security still matters |
+| Prefer Tailscale for admin when away | Avoids putting the Unraid UI on a public hostname at all |
+| Don’t publish Immich/Jellyfin until Access policies exist per hostname (D7) | Extra login pages on a new domain get scanned hard |
+| Don’t use the domain for email phishing tests / open relays | Instant Safe Browsing hit |
+
+If only the subdomain is flagged, you can remove the public hostname from the tunnel temporarily and use Tailscale until the review clears — then re-add it.
 
 ## Cheat sheet
 

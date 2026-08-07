@@ -1,6 +1,6 @@
 # Unraid 7.3.2 + Compose Manager Plus
-# Projects path: /mnt/user/appdata/compose-projects/cloudflared/
-# See docs/09-Network-Security.md Part D
+# Path: /mnt/user/appdata/compose-projects/cloudflared/
+# Guide: docs/09-Network-Security.md → Part D → D4 Option A
 
 services:
   cloudflared:
