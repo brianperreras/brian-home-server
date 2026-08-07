@@ -1,0 +1,81 @@
+# Slot try order (car / "C" only — motorcycles "M" excluded)
+# Tried sequentially until one books; then retries the list until BOOK_RETRY_TIMEOUT_SEC.
+# Primary (also used for SSO keep-alive TopicId)
+# Inline comments are OK: "R405  # P2-C18"
+#
+# Copy to resources.txt and reorder as needed:
+#   cp resources.txt.example resources.txt
+
+# P2 Parking
+R400  # P2-C12
+R401  # P2-C14
+R402  # P2-C15
+R403  # P2-C16
+R404  # P2-C17
+R405  # P2-C18
+R406  # P2-C19
+R407  # P2-C21
+
+# P3 Parking
+R471  # P3-C18
+R472  # P3-C19
+R473  # P3-C27
+R474  # P3-C28
+R475  # P3-C29
+R413  # P3-C30
+R414  # P3-C31
+R415  # P3-C32
+R416  # P3-C33
+R417  # P3-C34
+R418  # P3-C35
+R419  # P3-C36
+R420  # P3-C37
+R421  # P3-C38
+R422  # P3-C39
+
+# P4 Parking
+R435  # P4-C6
+R436  # P4-C7
+R437  # P4-C8
+R438  # P4-C9
+R429  # P4-C10
+R430  # P4-C11
+R431  # P4-C12
+R432  # P4-C13
+R433  # P4-C14
+R434  # P4-C15
+
+# P5 Parking
+R476  # P5-C4
+R466  # P5-C5
+R467  # P5-C6
+R468  # P5-C7
+R469  # P5-C8
+R470  # P5-C9
+R439  # P5-C10
+R440  # P5-C11
+R441  # P5-C12
+R442  # P5-C13
+R443  # P5-C14
+R444  # P5-C15
+R445  # P5-C16
+R446  # P5-C17
+R447  # P5-C18
+R448  # P5-C19
+R449  # P5-C21
+R450  # P5-C22
+R451  # P5-C23
+R452  # P5-C24
+R453  # P5-C25
+R454  # P5-C26
+R455  # P5-C27
+R456  # P5-C28
+R457  # P5-C29
+R458  # P5-C30
+R459  # P5-C31
+R460  # P5-C32
+R461  # P5-C33
+R462  # P5-C34
+R463  # P5-C35
+R464  # P5-C36
+R465  # P5-C37

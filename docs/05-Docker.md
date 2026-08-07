@@ -92,6 +92,7 @@ With Projects Folder set this way, each app is a **subfolder** under that path. 
 | `/mnt/user/appdata/compose-projects/homeassistant` | Home Assistant |
 | `/mnt/user/appdata/compose-projects/jellyfin` | Jellyfin |
 | `/mnt/user/appdata/compose-projects/cloudflared` | Cloudflare Tunnel ([09 Part D](09-Network-Security.md#part-d-cloudflare)) |
+| `/mnt/user/appdata/compose-projects/parking` | Parking scheduler ([parking-scheduler/UNRAID.md](../parking-scheduler/UNRAID.md)) |
 
 Manage stacks from **Docker** → Compose section. Support: https://forums.unraid.net/topic/197334-plugin-compose-manager-plus/
 

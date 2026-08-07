@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-07-01T12:00:00.000Z",
+  "scheduleUrl": "https://asurion.resourcescheduler.net/ResourceScheduler/schedule.asp?Topic=RES&TopicId=123&CDate=2026-7-4",
+  "secToken": "YOUR_SEC_TOKEN_HERE",
+  "displayName": "Last, First",
+  "cookieHeader": "SecurityToken=...; ASPSESSIONID...=...",
+  "cookies": [
+    {
+      "name": "SecurityToken",
+      "value": "...",
+      "domain": "asurion.resourcescheduler.net"
+    }
+  ]
+}

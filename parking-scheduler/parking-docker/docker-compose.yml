@@ -1,0 +1,36 @@
+# Unraid 7.3.2 + Compose Manager Plus.
+# Place this stack under: /mnt/user/appdata/compose-projects/parking/
+# Create a project .env beside this file with:
+#   PARKING_APPDATA=/mnt/user/appdata/parking
+# Compose Manager Plus substitutes ${PARKING_APPDATA} from that .env.
+# Full steps: UNRAID.md (host layout under /mnt/user/appdata/parking/).
+
+services:
+  parking:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: parking-automation:local
+    container_name: parking
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Manila
+      HOME: /data/home
+      PARKING_ROOT: /app/parking
+      PARKING_CONFIG_DIR: /data/config
+      AWS_SHARED_CREDENTIALS_FILE: /data/aws/credentials
+      AWS_CONFIG_FILE: /data/aws/config
+      # AWS_REGION: us-east-1
+      # AWS_PROFILE: default
+    volumes:
+      # Persistent home (passphrase under .config/resource-scheduler/)
+      - ${PARKING_APPDATA:-./unraid-appdata}/home:/data/home
+      # Editable configs (create files on host before first start — see UNRAID.md)
+      - ${PARKING_APPDATA:-./unraid-appdata}/config:/data/config
+      # Optional AWS CLI creds for SSM password fetch
+      - ${PARKING_APPDATA:-./unraid-appdata}/aws:/data/aws:ro
+      # Session + logs (survive image rebuilds)
+      - ${PARKING_APPDATA:-./unraid-appdata}/output:/app/parking/resource-scheduler-sso-login/output
+      - ${PARKING_APPDATA:-./unraid-appdata}/logs-sso:/app/parking/resource-scheduler-sso-login/logs
+      - ${PARKING_APPDATA:-./unraid-appdata}/logs-book:/app/parking/resource-scheduler/logs
+    # No host ports — outbound HTTPS only (SSO + Resource Scheduler + AWS)

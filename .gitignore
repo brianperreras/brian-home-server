@@ -25,3 +25,5 @@ Thumbs.db
 # Generated archives
 *.zip
 *.tar.gz
+# Parking deploy kit (checked-in on purpose)
+!parking-scheduler/resource-scheduler-automation.zip

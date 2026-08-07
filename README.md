@@ -33,7 +33,8 @@ Unraid (host OS on USB → RAM)
 ├── Docker (enabled in ch. 05)
 │   ├── Immich (+ Postgres)     ← container
 │   ├── Home Assistant          ← container
-│   └── Jellyfin                ← container
+│   ├── Jellyfin                ← container
+│   └── Parking scheduler       ← optional container (see parking-scheduler/)
 │
 └── Host / Unraid built-ins (ch. 15)
     ├── SMB          → Unraid user shares (not Docker)
@@ -73,6 +74,8 @@ Follow this order. Do not skip Storage or Docker.
 **Storage comes before Docker. Docker comes before Immich / HA / Jellyfin.**
 
 Planning snapshot: [Brian Home Server v4.0](docs/reference/Brian_Home_Server_v4.0.md).
+
+Optional: [Parking scheduler (Unraid)](parking-scheduler/UNRAID.md) — deploy kit under [`parking-scheduler/`](parking-scheduler/).
 
 ## Important design decisions
 
