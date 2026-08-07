@@ -102,6 +102,8 @@ Open `http://192.168.0.10:8123` (or `http://brian-server:8123`) and create the a
 
 ## Step 5 — Zigbee USB (optional)
 
+Skip this if you only use Tuya / Smart Life (Wi‑Fi) devices. You need it only for a Zigbee USB dongle.
+
 1. Use a USB extension cable.
 2. In Terminal:
 
@@ -121,11 +123,53 @@ devices:
 
 ---
 
-## Step 6 — Tuya / Smart Life
+## Step 6 — Tuya / Smart Life (bring existing devices into HA)
 
 Official integration: https://www.home-assistant.io/integrations/tuya/
 
----
+Devices stay in the **Smart Life** (or Tuya Smart) app. Home Assistant links that same account and pulls them in over Tuya’s cloud. You are not “moving” them off Smart Life.
+
+### Before you start
+
+| Need | Notes |
+|---|---|
+| Smart Life (or Tuya Smart) app | Same account that already controls your devices |
+| Devices online in that app | Add/fix any offline devices in Smart Life first |
+| Phone + PC | HA shows a QR code; you scan it with the app |
+
+### 6a — Get your User Code (phone)
+
+In **Smart Life** (or Tuya Smart):
+
+1. **Me** tab  
+2. **⚙️** (top right)  
+3. **Account and Security**  
+4. Note **User Code** at the bottom  
+
+### 6b — Add Tuya in Home Assistant (PC)
+
+1. Open `http://192.168.0.10:8123`
+2. **Settings → Devices & services → Add integration**
+3. Search **Tuya** → select it  
+4. Enter the **User Code** from the app when asked  
+5. HA shows a **QR code**
+
+### 6c — Link the account (phone)
+
+1. Smart Life → **+** / **Add Device** → **Scan** (QR)  
+2. Scan the QR code on the HA screen  
+3. Approve the link in the app  
+
+When setup finishes, your Smart Life devices should appear under **Settings → Devices & services → Tuya**.
+
+### Afterward
+
+- Keep using Smart Life if you want; HA controls the same cloud devices.
+- New devices added later in Smart Life: **Settings → Devices & services → Tuya → ⋮ → Reload**.
+- Some device features may be limited vs the app (Tuya’s SDK does not expose everything).
+- Prefer HA automations going forward so you’re not dependent only on Smart Life scenes.
+
+Do **not** factory-reset devices to “migrate” them unless a device never shows up and Tuya support/docs say to re-pair in Smart Life first.
 
 ## Step 7 — Backup and updates (Unraid)
 
@@ -151,45 +195,37 @@ Do not port-forward `8123`. Do not publish HA without Access on `home.migulix.uk
 
 <a id="ha-trusted-proxies"></a>
 
-### Cloudflare URL returns `400: Bad Request`
+### Before using `https://home.migulix.uk` — trust Cloudflare Tunnel (UI)
 
-LAN IP works, but `https://home.migulix.uk` fails: Home Assistant rejects reverse-proxy requests until you trust `cloudflared`.
+Home Assistant blocks tunnel traffic until you trust `cloudflared`. Configure this in the **HA UI only**.
 
-1. Unraid Terminal — check the rejected proxy IP (optional but precise):
+**Do not** add an `http:` / `trusted_proxies` block to `configuration.yaml`. On current Home Assistant that YAML is ignored after migration and triggers the repair: *“HTTP YAML configuration is ignored after migration.”*
 
-```bash
-docker logs homeassistant 2>&1 | grep -i 'reverse proxy' | tail -5
-```
-
-2. Edit config:
+1. Find the `cloudflared` container IP (Unraid **Docker** tab, or Terminal):
 
 ```bash
-nano /mnt/user/appdata/homeassistant/config/configuration.yaml
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' cloudflared
 ```
 
-Add (keep any existing lines; do not duplicate a second `http:` block):
+On this build it is typically `172.19.0.2` (confirm on your server).
 
-```yaml
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - 127.0.0.1
-    - ::1
-    - 172.16.0.0/12
-```
+2. Open HA on the LAN: `http://192.168.0.10:8123`
+3. **Settings → System → Network**
+4. Set:
+   - **Trust X-Forwarded-For** = **On**
+   - **Trusted proxies**:
+     - `172.19.0.2` (or the IP from step 1)
+     - `172.16.0.0/12` (Docker networks)
+     - `127.0.0.1`
+5. **Save**
+6. Restart Home Assistant:
+   - **Settings → System** → top-right **⋮** → **Restart Home Assistant**, or
+   - Unraid Terminal: `docker restart homeassistant`
+7. Finish tunnel + Access for `home.migulix.uk` ([09 D7b](09-Network-Security.md#d7b-home-assistant)), then open `https://home.migulix.uk`.
 
-`172.16.0.0/12` covers typical Docker bridges where `cloudflared` lives. If logs show a different IP, add that address too.
+If you already added `http:` to `configuration.yaml`, delete that whole block, save, restart HA, and keep only the UI settings above. The repair warning should clear.
 
-3. Restart HA (YAML reload is not enough):
-
-```bash
-cd /mnt/user/appdata/compose-projects/homeassistant
-docker compose restart
-```
-
-4. Retry `https://home.migulix.uk` (Access login, then HA).
-
-Official reverse-proxy notes: https://www.home-assistant.io/integrations/http/#reverse-proxies
+Official docs: https://www.home-assistant.io/integrations/http/#reverse-proxies
 
 ## Verify your setup
 
@@ -220,5 +256,8 @@ Official reverse-proxy notes: https://www.home-assistant.io/integrations/http/#r
 
    Expected result: no lines with `ERROR` or `fatal` that block startup; normal integration warnings are acceptable.
 
+5. **Cloudflare hostname (after D7b + trusted proxies)** — open `https://home.migulix.uk`.
+   Expected result: Access login, then HA login — not `400: Bad Request`. No repeating `reverse proxy` errors in `docker logs homeassistant`.
+
 **Next:** [14 Jellyfin](14-Jellyfin.md).  
-**Remote HA URL (later):** [09 D7b — `home.migulix.uk`](09-Network-Security.md#d7b-home-assistant).
+**Remote HA URL:** [09 D7b — `home.migulix.uk`](09-Network-Security.md#d7b-home-assistant) (after [trusted proxies](#ha-trusted-proxies)).

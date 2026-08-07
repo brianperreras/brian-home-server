@@ -495,7 +495,14 @@ For the Immich **phone app** while away, use [Tailscale](#part-b-tailscale) (`ht
 
 Prerequisite: HA running on LAN — [07 Home Assistant](07-Home-Assistant.md).
 
-Same clicks as [D7a](#d7a-immich): **Networks → Tunnels & Mesh** → **`brian-server`** → add public hostname, then **Access controls → Applications**.
+**1. Trust the tunnel in HA (required first)**  
+Follow [07 — trust Cloudflare Tunnel (UI)](07-Home-Assistant.md#ha-trusted-proxies).  
+**Settings → System → Network** → Trust X-Forwarded-For **On** → trusted proxies include your `cloudflared` IP (e.g. `172.19.0.2`) + `172.16.0.0/12` + `127.0.0.1`.  
+Do **not** put this in `configuration.yaml`.
+
+**2. Tunnel + Access** (same clicks as [D7a](#d7a-immich)):
+
+**Networks → Tunnels & Mesh** → **`brian-server`** → add public hostname, then **Access controls → Applications**.
 
 | Field | Value |
 |---|---|
@@ -506,7 +513,9 @@ Same clicks as [D7a](#d7a-immich): **Networks → Tunnels & Mesh** → **`brian-
 | Access app name | `Home Assistant` |
 | Public URL | `https://home.migulix.uk` |
 
-Then add HA `trusted_proxies` (required or you get **400 Bad Request**) — [07 — trusted proxies](07-Home-Assistant.md#ha-trusted-proxies).
+**3. Test** `https://home.migulix.uk` → Access → HA login (not `400 Bad Request`).
+
+Companion app while away: use [Tailscale](#part-b-tailscale) (`http://100.x.y.z:8123`), same idea as Immich.
 
 <a id="d7c-jellyfin"></a>
 
@@ -534,6 +543,7 @@ Same clicks as [D7a](#d7a-immich): **Networks → Tunnels & Mesh** → **`brian-
 | Duplicate `cloudflared-001` | Delete the extra stack; keep `compose-projects/cloudflared` |
 | DNS error | Zone **Active**; public hostname saved on tunnel |
 | 502 / bad gateway | LAN origin up (`http://192.168.0.10` or `:2283` etc.); tunnel URL/port correct |
+| HA `400 Bad Request` on `home.migulix.uk` | Set Trust X-Forwarded-For + trusted proxies in HA **UI** ([07](07-Home-Assistant.md#ha-trusted-proxies)); remove any `http:` block from `configuration.yaml` |
 | No Access login page | Access app hostname must match (e.g. `photos.migulix.uk`); type **Public DNS** |
 
 ## Cheat sheet
