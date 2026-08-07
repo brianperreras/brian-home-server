@@ -64,7 +64,7 @@ If the creator tool is unavailable, use the [manual install method](https://docs
 
 7. Install / activate your **paid registration key** only after disks and NIC appear correctly on **Main** and **Dashboard**.
 
-**Local access now:** from another PC on your LAN, open `http://brian-server` or `http://192.168.0.10` and log in as root. LAN URLs for apps are in chapter `09` Part A. Tailscale remote access is chapter `09` Part B (after apps work).
+**Local access now:** from another PC on your LAN, open `http://brian-server` or `http://192.168.0.10` and log in as root. LAN URLs for apps are in [09 Part A](09-Network-Security.md#part-a-lan). Tailscale remote access is [09 Part B](09-Network-Security.md#part-b-tailscale) (after apps work). Cloudflare DNS URLs: [09 Part D](09-Network-Security.md#part-d-cloudflare).
 
 Do not expose the Unraid web UI via router port forwarding.
 
@@ -111,7 +111,7 @@ Do not expose the Unraid web UI via router port forwarding.
 
 | Search in Apps | When |
 |---|---|
-| **Tailscale** (Plugin) | After apps work on the LAN — full steps in chapter `09` |
+| **Tailscale** (Plugin) | After apps work on the LAN — full steps in [09 Part B](09-Network-Security.md#part-b-tailscale) |
 
 ### Do not install / skip
 

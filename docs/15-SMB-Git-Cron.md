@@ -147,7 +147,7 @@ Only if you want Mac Time Machine on Unraid (separate from Phase 1 shares):
 2. Path: `\\brian-server` or `\\192.168.0.10`.
 3. Sign in as `brian` (not root).
 
-Full LAN access for Unraid UI / SMB / apps: chapter `09` Part A. Remote (Tailscale): chapter `09` Part B after apps work.
+Full LAN access for Unraid UI / SMB / apps: [09 Part A](09-Network-Security.md#part-a-lan). Remote (Tailscale): [09 Part B](09-Network-Security.md#part-b-tailscale) after apps work. Browser apps via DNS: [09 Part D](09-Network-Security.md#part-d-cloudflare) / Immich [D7a](09-Network-Security.md#d7a-immich).
 
 ## Step 5 — Git
 

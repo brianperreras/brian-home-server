@@ -2,9 +2,9 @@
 
 **Unraid OS 7.3.2.** This build’s LAN IP is **`192.168.0.10`**.
 
-- **While installing Immich / Home Assistant / Jellyfin:** use **Part A (LAN only)**.
-- **Tailscale (Part B):** optional, after apps work on the LAN. Do not mix Tailscale into app install chapters.
-- **Cloudflare Tunnel + Access (Part D):** browser WebGUI at `https://unraid.migulix.uk` without Tailscale — after LAN WebGUI works.
+- **While installing Immich / Home Assistant / Jellyfin:** use [**Part A (LAN only)**](#part-a-lan).
+- **Tailscale ([Part B](#part-b-tailscale)):** optional, after apps work on the LAN. Do not mix Tailscale into app install chapters.
+- **Cloudflare Tunnel + Access ([Part D](#part-d-cloudflare)):** browser URLs at `*.migulix.uk` without Tailscale — after LAN works. Immich: [D7a](#d7a-immich).
 
 Do not open router port forwards to Unraid or apps.
 
@@ -18,6 +18,8 @@ Do not open router port forwards to Unraid or apps.
 | Array | **Main** | Started |
 
 ---
+
+<a id="part-a-lan"></a>
 
 # Part A — Local access (home LAN)
 
@@ -66,6 +68,8 @@ Do not publish port 22 on the router.
 
 ---
 
+<a id="part-b-tailscale"></a>
+
 # Part B — Remote access with Tailscale (do later)
 
 Tailscale connects your phone/laptop to Unraid over a private mesh VPN. No port forwarding.
@@ -80,7 +84,6 @@ Official references (if UI labels differ slightly by plugin version, use **Help*
 
 1. Open https://login.tailscale.com and sign up / sign in.
 2. Enable MFA on that account.
-3. Optional now: install Tailscale on your Mac or phone from https://tailscale.com/download and log in with the **same** account (you need at least one client later anyway).
 
 ## B2. Install the plugin on Unraid
 
@@ -105,8 +108,6 @@ The settings page is **not** under Docker. It is a system plugin page:
 7. Wait until the plugin page shows the server as connected / online.
 
 **Do not turn on** “Use Tailscale Subnets” / subnet router for Phase 1 unless you know you need it (a common cause of WebGUI confusion).
-
-Optional: click **Help** (?) on the Tailscale settings page for the real field descriptions for your plugin version.
 
 ## B4. Find Unraid’s Tailscale address
 
@@ -169,12 +170,20 @@ Do not tunnel Unraid WebGUI without Cloudflare Access (login gate) in front.
 
 ---
 
+<a id="part-d-cloudflare"></a>
+
 # Part D — Browser remote WebGUI (Cloudflare Tunnel + Access)
 
 Use this when you want Unraid WebGUI in **any browser** without Tailscale on the phone/laptop. No router port forwards.
 
-**Domain for this build:** `migulix.uk`  
-**Public WebGUI URL:** `https://unraid.migulix.uk`
+**Domain for this build:** `migulix.uk`
+
+| Public URL | Service | Guide |
+|---|---|---|
+| [`https://unraid.migulix.uk`](https://unraid.migulix.uk) | Unraid WebGUI | Part D first ([D3](#d3-public-hostname) + [D5](#d5-cloudflare-access)) |
+| [`https://photos.migulix.uk`](https://photos.migulix.uk) | Immich | [D7a](#d7a-immich) (after [06](06-Immich.md)) |
+| [`https://home.migulix.uk`](https://home.migulix.uk) | Home Assistant | [D7b](#d7b-home-assistant) (after [07](07-Home-Assistant.md)) |
+| [`https://media.migulix.uk`](https://media.migulix.uk) | Jellyfin | [D7c](#d7c-jellyfin) (after [14](14-Jellyfin.md)) |
 
 Tunnel dials **out** from Unraid to Cloudflare. Cloudflare Access asks you to prove identity before Unraid’s root login appears.
 
@@ -189,7 +198,7 @@ Kit files in this repo: [`docker/cloudflared/`](../docker/cloudflared/).
 | Domain `migulix.uk` registered and active | Cloudflare dashboard → **Domain registration** / **Websites** |
 | DNS for `migulix.uk` on Cloudflare | **Websites → migulix.uk** (nameservers active) |
 | Array Started; Docker on | **Main** / **Settings → Docker** |
-| Compose Manager Plus; Projects Folder | `/mnt/user/appdata/compose-projects` (chapter `05`) |
+| Compose Manager Plus; Projects Folder | `/mnt/user/appdata/compose-projects` ([05 Docker](05-Docker.md)) |
 | MFA on your Cloudflare account | Cloudflare account settings (recommended) |
 
 ## D1 — Add the site (if not already)
@@ -203,37 +212,49 @@ Kit files in this repo: [`docker/cloudflared/`](../docker/cloudflared/).
 
 1. Open https://one.dash.cloudflare.com (Zero Trust).
 2. If prompted, create a Zero Trust org (free team name is fine).
-3. Go to **Networks → Tunnels → Create a tunnel**.
-4. Connector: **Cloudflared**.
-5. Tunnel name: `brian-server` (or `unraid`).
-6. Save tunnel.
-7. Environment: **Docker**.
-8. Copy the long **token** after `--token` (or the `TUNNEL_TOKEN` value). Store it in your password manager — treat it like a root password.
+3. Left sidebar → **Networks** → **Tunnels & Mesh** (older UI may say **Tunnels** only).
+4. Click **Create a tunnel**.
+5. Connector: **Cloudflared**.
+6. Tunnel name: `brian-server` (or `unraid`).
+7. Save tunnel.
+8. Environment: **Docker**.
+9. Copy the long **token** after `--token` (or the `TUNNEL_TOKEN` value). Store it in your password manager — treat it like a root password.
 
 Do **not** paste the token into Git or chat logs.
 
+<a id="d3-public-hostname"></a>
+
 ## D3 — Public hostname → Unraid WebGUI
 
-Still in the tunnel config (**Public Hostname** tab):
+Hostnames live on the **tunnel**, not under **Access settings**.
+
+### Where to click (current Zero Trust UI)
+
+1. Open https://one.dash.cloudflare.com
+2. Left sidebar → **Networks** (expand if needed)
+3. Click **Tunnels & Mesh** (you should see your tunnel list; older label: **Tunnels**)
+4. In the table, click the blue tunnel name **`brian-server`**
+5. Open the **Published application routes** (or **Public Hostname**) tab
+6. Click **Add a public hostname** (or **Add**)
+
+### Hostname fields (Unraid)
 
 | Field | Value |
 |-------|--------|
 | Subdomain | `unraid` |
 | Domain | `migulix.uk` |
 | Path | *(leave empty)* |
-| Type | **HTTP** |
+| Type / Service | **HTTP** |
 | URL | `192.168.0.10:80` |
 
 Notes:
 
-- Unraid WebGUI is usually on **port 80** (HTTP) on the LAN. If you forced HTTPS-only on the LAN GUI, use `https://192.168.0.10` and enable **No TLS Verify** / skip verify for the origin (self-signed), or keep LAN HTTP and terminate TLS at Cloudflare only.
 - Save the public hostname. Cloudflare creates the DNS CNAME for `unraid.migulix.uk` automatically.
+- Origin is LAN HTTP on port **80**.
 
-**Do not** add SSH, SMB, or random Docker ports here yet.
+**Do not** add SSH, SMB, or other Docker ports here yet.
 
 ## D4 — Deploy cloudflared on Unraid
-
-### Option A — Compose Manager Plus (preferred)
 
 Same pattern as Immich (`06`): one folder under Projects Folder → Compose Manager Plus shows the stack automatically. Kit: [`docker/cloudflared/`](../docker/cloudflared/).
 
@@ -314,8 +335,6 @@ Confirm the key exists without printing the secret:
 grep -E '^TUNNEL_TOKEN=' .env | sed 's/=.*/=***redacted***/'
 ```
 
-Optional: **Docker** → **`cloudflared`** stack → **.ENV** tab → paste the same `TUNNEL_TOKEN=…` line → **Save All**.
-
 #### A5. Confirm the Compose Manager Plus stack
 
 1. Open **Docker** → Compose section.
@@ -326,27 +345,9 @@ If no stack appears: refresh the Docker page. Still missing → confirm Projects
 
 If you already have **`cloudflared` and `cloudflared-001`**: delete the extra (stack menu → Delete). Keep the one on `/mnt/user/appdata/compose-projects/cloudflared`.
 
-#### A6. Optional stack Settings + Autostart
+#### A6. Autostart
 
-**Settings tab** (name / description only — there is **no** Autostart here):
-
-**Docker** → Compose → open **`cloudflared`** → **Settings** tab:
-
-| Field | Value |
-|---|---|
-| Name | `cloudflared` (leave as-is) |
-| Description | optional, e.g. `Cloudflare Tunnel` |
-| WebUI URL | leave blank (no local web UI) |
-
-Save if you changed anything.
-
-**Autostart** is on the **Compose list row**, not under Settings:
-
-1. Go back to **Docker** → Compose section (the list of stacks).
-2. Find the **`cloudflared`** row.
-3. Turn the **Autostart** toggle **On** (same place as Immich — on the row, often near Compose Up / the stack controls).
-
-That makes the tunnel start when the array starts.
+On **Docker** → Compose → **`cloudflared` row**, turn **Autostart** **On** (not on the Settings tab).
 
 #### A7. Start the stack
 
@@ -371,190 +372,167 @@ Expected: container `cloudflared` is **Up**; logs mention the tunnel / connector
 
 Do **not** open `https://unraid.migulix.uk` from the public internet yet — finish **D5** (Access) first.
 
-### Option B — Community Apps template
-
-**Apps** → search `cloudflared` / `cloudflare-tunnel` → install a maintained template → paste **TUNNEL_TOKEN** → apply. Prefer Option A so the stack lives under `compose-projects` like Immich.
+<a id="d5-cloudflare-access"></a>
 
 ## D5 — Cloudflare Access (required gate)
 
-Without Access, anyone who learns `unraid.migulix.uk` hits your root login page.
+Without Access, anyone who learns `unraid.migulix.uk` hits your root login page. The tunnel hostname from [D3](#d3-public-hostname) already exists — Access only adds the login gate.
 
-You already published the hostname on the tunnel in **D3**. Access only adds the login gate in front of that URL.
+1. https://one.dash.cloudflare.com → left sidebar **Access controls** → **Applications** → **Add an application**
+2. Top tab: **Self-hosted and private**
+3. Chip: **Public DNS**
+4. **Continue with Self-hosted and private**
+5. Fill:
 
-### D5a — Pick the application type (current Zero Trust UI)
-
-1. Open https://one.dash.cloudflare.com
-2. Go to **Access** → **Applications** (or **Access controls** → **Applications**).
-3. Click **Add an application** (or **Create new application**).
-
-You should see a modal: **Add an application** → **Select an application type to get started.**
-
-| Top tab | Choose? | Why |
-|---|---|---|
-| **Self-hosted and private** | **Yes — stay here** | Unraid is your own server behind the tunnel |
-| SaaS applications | No | For Google Workspace / Salesforce-style SaaS |
-| Infrastructure | No | For SSH / RDP / infra targets |
-| Bookmarks | No | Links only, no Access gate |
-
-Under **Self-hosted and private**, pick the destination style:
-
-| Chip / option | Choose? | Why |
-|---|---|---|
-| Private destinations | No | Needs Cloudflare WARP / private network; not this build |
-| Workers | No | Cloudflare Workers apps |
-| **Public DNS** | **Yes** | `unraid.migulix.uk` is a **public hostname** (tunnel + DNS from D3) |
-| Service auth | No | Machine/service tokens, not browser login |
-
-Then click the blue button: **Continue with Self-hosted and private**.
-
-(Official Cloudflare wording is the same idea: **Self-hosted and private** → **Add public hostname**.)
-
-### D5b — Application / public hostname
-
-Fill the next screens with:
-
-| Field (label may vary slightly) | Value |
+| Field | Value |
 |---|---|
 | Application name | `Unraid WebGUI` |
 | Subdomain | `unraid` |
 | Domain | `migulix.uk` |
-| Full hostname | `unraid.migulix.uk` |
-| Path | leave empty / `*` unless the UI requires a path |
+| Path | leave empty |
 
-If the UI says **Add public hostname** (or **Public hostname** / destination), add `unraid.migulix.uk` there. Do **not** enter `192.168.0.10` in Access — the tunnel already maps the hostname to the LAN IP (D3).
-
-### D5c — Access policy (who is allowed)
-
-Add a policy (create new if prompted):
+6. Policy:
 
 | Field | Value |
 |---|---|
 | Policy name | `Brian only` |
 | Action | **Allow** |
-| Include | **Emails** → your personal email (the one you control) |
+| Include | **Emails** → your personal email |
 
-Default is deny; without an Allow policy nobody gets through.
+7. If the wizard asks for a login method, enable **One-time PIN** (email). Leave other options at defaults.
+8. **Create** / **Save**.
+9. On cellular (off home Wi‑Fi), open `https://unraid.migulix.uk` → Access challenge → Unraid root login.
 
-### D5d — Login method (identity)
-
-Still in the app wizard (or **Access** → **Settings** / **Identity providers** if asked earlier):
-
-1. Enable at least one login method. Recommended free options:
-   - **One-time PIN** (email code), and/or
-   - Google / GitHub / Apple (if you already use them)
-2. Leave other IdPs off unless you need them.
-3. Optional: turn on **Apply instant authentication** if you only use one IdP (skips the Cloudflare “pick a login” page).
-
-Session duration: default (e.g. 24 hours) is fine for Phase 1.
-
-### D5e — Save and test
-
-1. Click **Create** / **Save** / **Next** until the application is created.
-2. On a phone **off** Wi‑Fi (cellular):
-
-```text
-https://unraid.migulix.uk
-```
-
-3. Expected: Cloudflare Access challenge first → then Unraid root login.
-4. At home you can keep using `http://192.168.0.10` (no Cloudflare required).
-
-If you land on Unraid root login with **no** Access page, the application hostname does not match `unraid.migulix.uk` or the app was not saved — edit the application and confirm the public hostname.
+At home keep using `http://192.168.0.10`.
 
 ## D6 — Hardening checklist
 
 | Rule | Why |
 |------|-----|
-| Access policy on `unraid.migulix.uk` | Blocks anonymous probes of the root UI |
+| Access on every public hostname (`unraid` / `photos` / `home` / `media`) | Blocks anonymous access |
 | Strong Unraid root password | Second factor after Access |
 | MFA on Cloudflare account | Protects DNS + tunnel + Access |
 | No port forwards for 80/443/22 | Tunnel is outbound-only |
-| Do not publish SSH via Tunnel | Use Tailscale/WireGuard later if you need remote SSH |
-| Autostart `cloudflared` | Remote access survives reboot |
+| Autostart `cloudflared` | Survives reboot |
 
-## D7 — Optional later (apps)
+<a id="d7-app-hostnames"></a>
 
-When ready, add more public hostnames on the **same** tunnel (each with its own Access policy):
+## D7 — App hostnames on the same tunnel (Immich, HA, Jellyfin)
 
-| Hostname | Service URL (LAN) |
-|----------|-------------------|
-| `photos.migulix.uk` | `http://192.168.0.10:2283` |
-| `home.migulix.uk` | `http://192.168.0.10:8123` |
-| `media.migulix.uk` | `http://192.168.0.10:8096` |
+After `unraid.migulix.uk` works with Access, you can publish apps on the **same** `cloudflared` tunnel. Do **one hostname at a time**. Each needs its own Access application.
 
-One app at a time; Access on each hostname.
+**Domain:** `migulix.uk`
+
+| Public URL | Service | LAN origin (tunnel Type = HTTP) | App chapter |
+|---|---|---|---|
+| `https://unraid.migulix.uk` | Unraid WebGUI | `192.168.0.10:80` (already [D3](#d3-public-hostname)) | — |
+| `https://photos.migulix.uk` | Immich | `192.168.0.10:2283` | [06 Immich](06-Immich.md) → [D7a](#d7a-immich) |
+| `https://home.migulix.uk` | Home Assistant | `192.168.0.10:8123` | [07 Home Assistant](07-Home-Assistant.md) → [D7b](#d7b-home-assistant) |
+| `https://media.migulix.uk` | Jellyfin | `192.168.0.10:8096` | [14 Jellyfin](14-Jellyfin.md) → [D7c](#d7c-jellyfin) |
+
+Do not port-forward `2283`, `8123`, or `8096`.
+
+<a id="d7a-immich"></a>
+
+### D7a — Immich: `photos.migulix.uk`
+
+Prerequisite: Immich running on LAN — [06 Immich](06-Immich.md).  
+Reuse tunnel **`brian-server`** (do **not** create a second tunnel).
+
+**1. Add Immich hostname on the tunnel**
+
+Exact clicks:
+
+1. https://one.dash.cloudflare.com  
+2. Left sidebar → **Networks** → **Tunnels & Mesh**  
+3. Click **`brian-server`** (blue name in the table)  
+4. Tab: **Published application routes** / **Public Hostname**  
+5. Button: **Add a public hostname** (or **Add**)  
+
+| Field | Value |
+|---|---|
+| Subdomain | `photos` |
+| Domain | `migulix.uk` |
+| Path | *(leave empty)* |
+| Type / Service | **HTTP** |
+| URL | `192.168.0.10:2283` |
+
+Save. Cloudflare creates DNS for `photos.migulix.uk`.
+
+You should now see both `unraid.migulix.uk` and `photos.migulix.uk` listed on **this same** tunnel.
+
+**2. Access application (login gate — separate from hostname)**
+
+Hostname is already done in step 1. Now protect it:
+
+1. Left sidebar → **Access controls** → **Applications**
+2. **Add an application**
+3. **Self-hosted and private** → **Public DNS** → **Continue**
+4. Name: `Immich`
+5. Subdomain `photos`, domain `migulix.uk`
+6. Policy: **Allow** → Include **Emails** → your email
+7. If asked for a login method, enable **One-time PIN** → **Create** / Save
+
+(Same path as [D5](#d5-cloudflare-access).)
+
+**3. Test**
+
+On cellular (or off home Wi‑Fi):
+
+```text
+https://photos.migulix.uk
+```
+
+Expected: Cloudflare Access → then Immich login.
+
+At home you can keep using `http://192.168.0.10:2283`.
+
+For the Immich **phone app** while away, use [Tailscale](#part-b-tailscale) (`http://100.x.y.z:2283`). Use `https://photos.migulix.uk` in a browser.
+
+<a id="d7b-home-assistant"></a>
+
+### D7b — Home Assistant: `home.migulix.uk`
+
+Prerequisite: HA running on LAN — [07 Home Assistant](07-Home-Assistant.md).
+
+Same clicks as [D7a](#d7a-immich): **Networks → Tunnels & Mesh** → **`brian-server`** → add public hostname, then **Access controls → Applications**.
+
+| Field | Value |
+|---|---|
+| Subdomain | `home` |
+| Domain | `migulix.uk` |
+| Type / Service | **HTTP** |
+| URL | `192.168.0.10:8123` |
+| Access app name | `Home Assistant` |
+| Public URL | `https://home.migulix.uk` |
+
+<a id="d7c-jellyfin"></a>
+
+### D7c — Jellyfin: `media.migulix.uk`
+
+Prerequisite: Jellyfin running on LAN — [14 Jellyfin](14-Jellyfin.md).
+
+Same clicks as [D7a](#d7a-immich): **Networks → Tunnels & Mesh** → **`brian-server`** → add public hostname, then **Access controls → Applications**.
+
+| Field | Value |
+|---|---|
+| Subdomain | `media` |
+| Domain | `migulix.uk` |
+| Type / Service | **HTTP** |
+| URL | `192.168.0.10:8096` |
+| Access app name | `Jellyfin` |
+| Public URL | `https://media.migulix.uk` |
 
 ## D8 — Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| Tunnel **Inactive** | `cd /mnt/user/appdata/compose-projects/cloudflared && docker compose logs --tail=50`; confirm `.env` has `TUNNEL_TOKEN`; `docker compose ps` shows Up; redo A7 |
-| Stack missing on Docker tab | Refresh; Projects Folder = `/mnt/user/appdata/compose-projects`; `ls` shows `docker-compose.yml` under `cloudflared/` (A5) |
-| Duplicate `cloudflared-001` | Delete the extra stack; keep the one on `compose-projects/cloudflared` |
-| DNS error / nowhere | Zone **Active**; public hostname saved; wait a few minutes for DNS |
-| 502 / bad gateway | Confirm Unraid GUI is up on LAN `http://192.168.0.10`; origin URL/port correct |
-| Infinite Access loop | Policy email matches the identity you use; try a private browser window |
-| No Access login page (goes straight to Unraid) | Access app must use **Public DNS** / public hostname `unraid.migulix.uk` (D5a–D5b), not Private destinations |
-| Confused on Add application modal | Top tab **Self-hosted and private** → chip **Public DNS** → **Continue with Self-hosted and private** |
-| Works on LAN Cloudflare URL but slow | Normal; for local use prefer `http://192.168.0.10` |
-| Chrome **Dangerous site** / Deceptive site ahead | Usually a **Safe Browsing false positive** on new domains + Access/Unraid login pages — see **D9** |
-
----
-
-## D9 — Chrome “Dangerous site” on `unraid.migulix.uk`
-
-Chrome’s red warning comes from **Google Safe Browsing**, not from Cloudflare TLS. Homelab tunnels often get false-flagged: a brand-new hostname that shows a login page (Access, then Unraid root) looks like phishing to automated scanners.
-
-This is common with Cloudflare Tunnel + Access. It does **not** mean your Unraid box was hacked by itself.
-
-### D9a — Confirm what Google thinks
-
-1. Open: https://transparencyreport.google.com/safe-browsing/search  
-2. Check both:
-   - `https://unraid.migulix.uk`
-   - `https://migulix.uk`
-3. Note whether it says unsafe / no available data / ok.
-
-Also open the warning’s **Details** (if shown) and use **Report a detection problem** / “Let us know” when it is your own server.
-
-### D9b — Use the server while the flag is up
-
-| Access method | Use now? |
-|---|---|
-| LAN `http://192.168.0.10` | Yes — preferred at home |
-| Tailscale (Part B) `http://100.x.y.z` | Yes — away from home without the public hostname |
-| `https://unraid.migulix.uk` | Only if you intentionally proceed past the warning on **your** machine |
-
-Do not turn Safe Browsing off globally as the “fix.”
-
-### D9c — Request a Safe Browsing review (clear the flag)
-
-1. Open https://search.google.com/search-console  
-2. **Add property** → Domain → `migulix.uk` (verify with the DNS TXT record Cloudflare shows).  
-3. After verified: **Security & Manual Actions** → **Security issues** (or the Security issues report).  
-4. If issues are listed, open them → **Request review**.  
-5. Review notes (example):
-
-```text
-Personal homelab Unraid WebGUI behind Cloudflare Tunnel + Cloudflare Access.
-Hostname unraid.migulix.uk is my own server; not a phishing site.
-Access email OTP/IdP gate is required before Unraid login.
-No malware hosted; origin is LAN-only via outbound tunnel (no port forwards).
-```
-
-6. Wait **1–3 days**, then recheck Chrome and the transparency report. List updates can lag a day after approval.
-
-### D9d — Reduce the chance of re-flagging
-
-| Do | Why |
-|---|---|
-| Keep **Access** on `unraid.migulix.uk` | Anonymous scanners should hit Access, not an open root login |
-| Strong Unraid root password + MFA on Cloudflare | Real security still matters |
-| Prefer Tailscale for admin when away | Avoids putting the Unraid UI on a public hostname at all |
-| Don’t publish Immich/Jellyfin until Access policies exist per hostname (D7) | Extra login pages on a new domain get scanned hard |
-| Don’t use the domain for email phishing tests / open relays | Instant Safe Browsing hit |
-
-If only the subdomain is flagged, you can remove the public hostname from the tunnel temporarily and use Tailscale until the review clears — then re-add it.
+| Tunnel **Inactive** | `cd /mnt/user/appdata/compose-projects/cloudflared && docker compose logs --tail=50`; confirm `.env` has `TUNNEL_TOKEN`; container Up |
+| Stack missing on Docker tab | Refresh; Projects Folder = `/mnt/user/appdata/compose-projects`; `docker-compose.yml` under `cloudflared/` |
+| Duplicate `cloudflared-001` | Delete the extra stack; keep `compose-projects/cloudflared` |
+| DNS error | Zone **Active**; public hostname saved on tunnel |
+| 502 / bad gateway | LAN origin up (`http://192.168.0.10` or `:2283` etc.); tunnel URL/port correct |
+| No Access login page | Access app hostname must match (e.g. `photos.migulix.uk`); type **Public DNS** |
 
 ## Cheat sheet
 
@@ -572,6 +550,9 @@ smb://192.168.0.10
 
 ```text
 https://unraid.migulix.uk
+https://photos.migulix.uk
+https://home.migulix.uk
+https://media.migulix.uk
 ```
 
 **Away (Tailscale on)** — optional, Part B
@@ -611,10 +592,16 @@ http://100.x.y.z:8096
 7. **Access gate works** — on cellular data, open `https://unraid.migulix.uk`.
    Expected result: Cloudflare Access prompt first, then Unraid login; no Tailscale app required.
 
+8. **Immich via DNS (after [D7a](#d7a-immich))** — on cellular, open [`https://photos.migulix.uk`](https://photos.migulix.uk).
+   Expected result: Access prompt first, then Immich login. At home, `http://192.168.0.10:2283` still works.
+
 ## Related
 
-- Network IP: `03`
-- Docker / Compose: `05`
-- SMB users: `15`
-- Apps (LAN install only): `06`, `07`, `14`
+- Network IP: [03 Unraid](03-Unraid.md)
+- Docker / Compose: [05 Docker](05-Docker.md)
+- SMB users: [15 SMB / Git / cron](15-SMB-Git-Cron.md)
+- Apps (LAN install first): [06 Immich](06-Immich.md) · [07 Home Assistant](07-Home-Assistant.md) · [14 Jellyfin](14-Jellyfin.md)
+- Immich public URL steps: [D7a](#d7a-immich)
+- HA public URL steps: [D7b](#d7b-home-assistant)
+- Jellyfin public URL steps: [D7c](#d7c-jellyfin)
 - cloudflared compose kit: [`docker/cloudflared/`](../docker/cloudflared/)

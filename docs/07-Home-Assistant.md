@@ -139,7 +139,15 @@ docker compose up -d
 
 Never commit `secrets.yaml` to Git.
 
-**Remote access:** when HA works on the LAN, use chapter `09` Part B. Do not port-forward `8123`.
+**Remote access** (after HA works on LAN — [09 Access](09-Network-Security.md)):
+
+| Method | URL | Guide |
+|---|---|---|
+| LAN | `http://192.168.0.10:8123` | [09 Part A](09-Network-Security.md#part-a-lan) |
+| Cloudflare Tunnel + Access | [`https://home.migulix.uk`](https://home.migulix.uk) | [09 D7b](09-Network-Security.md#d7b-home-assistant) |
+| Tailscale | `http://100.x.y.z:8123` | [09 Part B](09-Network-Security.md#part-b-tailscale) |
+
+Do not port-forward `8123`. Do not publish HA without Access on `home.migulix.uk` ([D7b](09-Network-Security.md#d7b-home-assistant)).
 
 ## Verify your setup
 
@@ -170,4 +178,5 @@ Never commit `secrets.yaml` to Git.
 
    Expected result: no lines with `ERROR` or `fatal` that block startup; normal integration warnings are acceptable.
 
-**Next:** chapter `14` Jellyfin.
+**Next:** [14 Jellyfin](14-Jellyfin.md).  
+**Remote HA URL (later):** [09 D7b — `home.migulix.uk`](09-Network-Security.md#d7b-home-assistant).

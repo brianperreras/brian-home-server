@@ -135,7 +135,15 @@ Or Compose Manager Plus → **Compose Up** / Update.
 
 Update Jellyfin separately from Immich and Home Assistant.
 
-**Remote access:** when Jellyfin works on the LAN, use chapter `09` Part B. Do not port-forward `8096`.
+**Remote access** (after Jellyfin works on LAN — [09 Access](09-Network-Security.md)):
+
+| Method | URL | Guide |
+|---|---|---|
+| LAN | `http://192.168.0.10:8096` | [09 Part A](09-Network-Security.md#part-a-lan) |
+| Cloudflare Tunnel + Access | [`https://media.migulix.uk`](https://media.migulix.uk) | [09 D7c](09-Network-Security.md#d7c-jellyfin) |
+| Tailscale | `http://100.x.y.z:8096` | [09 Part B](09-Network-Security.md#part-b-tailscale) |
+
+Do not port-forward `8096`. Do not publish Jellyfin without Access on `media.migulix.uk` ([D7c](09-Network-Security.md#d7c-jellyfin)).
 
 ## Verify your setup
 
@@ -174,4 +182,5 @@ Update Jellyfin separately from Immich and Home Assistant.
 
    Expected result: no lines with `fatal` or repeated `ERROR` that block startup.
 
-**Next:** chapter `15` SMB / Git / cron.
+**Next:** [15 SMB / Git / cron](15-SMB-Git-Cron.md).  
+**Remote Jellyfin URL (later):** [09 D7c — `media.migulix.uk`](09-Network-Security.md#d7c-jellyfin).

@@ -51,6 +51,7 @@ Unraid (host OS on USB → RAM)
 | Git | Mac + GitHub for Phase 1 (Gitea container only if you add it later) |
 | Cron / schedules | Unraid **User Scripts** plugin |
 | Tailscale | Remote access (see network chapter) |
+| Cloudflare Tunnel + Access | [`unraid.migulix.uk`](https://unraid.migulix.uk) · [`photos.migulix.uk`](https://photos.migulix.uk) · [`home.migulix.uk`](https://home.migulix.uk) · [`media.migulix.uk`](https://media.migulix.uk) — [09 Part D](docs/09-Network-Security.md#part-d-cloudflare) · Immich [D7a](docs/09-Network-Security.md#d7a-immich) |
 | Weekly backup | Scripts + Exos HDD |
 
 ## Start here (one chapter at a time)

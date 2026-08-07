@@ -205,7 +205,15 @@ Docs: https://docs.immich.app/features/hardware-transcoding
 
 **Mobile (home Wi‑Fi):** Immich app → server URL `http://192.168.0.10:2283` → enable backup. Confirm uploads before deleting phone copies.
 
-**Remote access:** not part of Immich install. When Immich works on the LAN, follow chapter `09` Part B (Tailscale). Do not port-forward `2283`.
+**Remote access** (after Immich works on LAN — [09 Access](09-Network-Security.md)):
+
+| Method | URL | Guide |
+|---|---|---|
+| LAN | `http://192.168.0.10:2283` | [09 Part A](09-Network-Security.md#part-a-lan) |
+| Cloudflare Tunnel + Access | [`https://photos.migulix.uk`](https://photos.migulix.uk) | [09 D7a](09-Network-Security.md#d7a-immich) |
+| Tailscale | `http://100.x.y.z:2283` | [09 Part B](09-Network-Security.md#part-b-tailscale) |
+
+Do not port-forward `2283`. Do not publish Immich without Access on `photos.migulix.uk` ([D7a](09-Network-Security.md#d7a-immich)).
 
 **Backup before upgrades** (media + DB):
 
@@ -271,4 +279,5 @@ docker compose exec -T database pg_dumpall --clean --if-exists --username=postgr
 
    Expected result: `card0` and `renderD128` appear (only relevant if you added the `/dev/dri` device mapping).
 
-**Next:** chapter `07` Home Assistant.
+**Next:** [07 Home Assistant](07-Home-Assistant.md).  
+**Remote Immich URL (later):** [09 D7a — `photos.migulix.uk`](09-Network-Security.md#d7a-immich).

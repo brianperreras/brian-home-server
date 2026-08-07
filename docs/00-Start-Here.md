@@ -24,7 +24,7 @@ This build uses **Unraid OS 7.3.2** (paid). UI click paths in the chapters match
 **Storage before Docker:** Unraid must know where `appdata` and data shares live before Docker starts.  
 **Docker before Immich/Jellyfin/HA:** those services are containers; enabling Docker is only the engine, not the apps.
 
-**Access from other computers:** use LAN URLs in chapter `09` Part A while installing apps (`http://192.168.0.10`, Immich `:2283`, etc.). Optional remote: Tailscale (`09` Part B) or browser WebGUI via Cloudflare Tunnel + Access (`09` Part D, domain `migulix.uk`) — after apps work on the LAN.
+**Access from other computers:** use LAN URLs in [09 Part A](09-Network-Security.md#part-a-lan) while installing apps (`http://192.168.0.10`, Immich `:2283`, etc.). Optional remote: [Tailscale (09 Part B)](09-Network-Security.md#part-b-tailscale) or [Cloudflare Tunnel + Access (09 Part D)](09-Network-Security.md#part-d-cloudflare) — [`unraid.migulix.uk`](https://unraid.migulix.uk), [`photos.migulix.uk`](https://photos.migulix.uk), [`home.migulix.uk`](https://home.migulix.uk), [`media.migulix.uk`](https://media.migulix.uk) — after apps work on the LAN.
 
 ## Before assembly
 
