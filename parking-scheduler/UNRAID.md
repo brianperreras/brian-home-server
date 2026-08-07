@@ -39,9 +39,9 @@ Mac (this repo)
     UNRAID.md
 
 After deploy on Unraid
-  /mnt/user/appdata/compose-projects/parking/   ← Compose Manager Plus stack (build context)
-  /mnt/user/appdata/parking/                    ← runtime config, session, logs
-    ├── config/       # .env with RS_USERNAME + RS_PASSWORD (no AWS)
+  /mnt/user/appdata/compose-projects/parking/   ← Compose stack (Dockerfile + **one .env**)
+  /mnt/user/appdata/parking/                    ← runtime session, logs, generated config
+    ├── config/       # auto-written from stack .env on container start (do not edit by hand)
     ├── home/
     ├── output/
     ├── logs-sso/
@@ -132,77 +132,60 @@ You should see at least:
 Dockerfile
 docker-compose.yml
 docker/
+.env.example
 resource-scheduler-sso-login/
 resource-scheduler/
 bin/
 ```
 
-Create the Compose project env file (Compose Manager Plus substitutes `${PARKING_APPDATA}` from this):
+Create the **unified** stack `.env` from the example (Compose Manager Plus + entrypoint both read this one file). `-n` skips overwrite if `.env` already exists:
 
 ```bash
-cat > /mnt/user/appdata/compose-projects/parking/.env <<'EOF'
-PARKING_APPDATA=/mnt/user/appdata/parking
-EOF
+cd /mnt/user/appdata/compose-projects/parking
+cp -n .env.example .env
+chmod 600 .env
+nano .env
 ```
+
+Set at least `PARKING_APPDATA`, `RS_USERNAME`, `RS_PASSWORD`, and `PARKING_SLOTS` (see Step 6). Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**.
+
+Do **not** replace this with a tiny `PARKING_APPDATA`-only file — the full boxed sections in `.env.example` are required.
 
 ---
 
-## Step 5 — Seed config files on the host
+## Step 5 — Single stack `.env` materializes app config
 
-Create real config **files** before the first container start. If a bind-mounted path is missing, Docker may create a **directory** instead of a file — avoid that by seeding first.
+There is **one** config source: `/mnt/user/appdata/compose-projects/parking/.env`.
 
-```bash
-APPDATA=/mnt/user/appdata/parking
-SRC=/mnt/user/appdata/compose-projects/parking
+On container start, with `PARKING_MANAGE_FROM_STACK_ENV=1` (default), the entrypoint writes snapshots under `/mnt/user/appdata/parking/config/` (`.env`, `schedule.env`, `reservation.env`, `resources.txt`) and installs crontab.
 
-cp "$SRC/resource-scheduler-sso-login/.env.example" "$APPDATA/config/.env"
-cp "$SRC/resource-scheduler/schedule.env.example" "$APPDATA/config/schedule.env"
-cp "$SRC/resource-scheduler/resources.txt.example" "$APPDATA/config/resources.txt"
-cp "$SRC/resource-scheduler/reservation.env.example" "$APPDATA/config/reservation.env"
+- Edit the **stack** `.env` only (Compose → **parking** → **.ENV**, or `nano` in the project folder).
+- Recreate/restart the stack so materialization runs again.
+- Do **not** hand-edit files under `/mnt/user/appdata/parking/config/` — they are overwritten on start.
 
-ls -la "$APPDATA/config/"
-file "$APPDATA/config/.env" "$APPDATA/config/schedule.env" \
-  "$APPDATA/config/resources.txt" "$APPDATA/config/reservation.env"
-```
-
-Confirm those four paths are **files**, not directories.
+Runtime dirs from Step 3 (`config/`, `home/`, `output/`, logs) still need to exist so Docker bind-mounts correctly; you do **not** need to seed the four config files by hand.
 
 ---
 
-## Step 6 — Edit config (local password only)
+## Step 6 — Required stack `.env` variables
 
-This Unraid migration does **not** use AWS or SSM. Put the SSO password in `config/.env` only.
+This Unraid migration does **not** use AWS or SSM. Put the SSO password in the **stack** `.env` only.
 
-| File | Set |
-|------|-----|
-| `/mnt/user/appdata/parking/config/.env` | `RS_USERNAME=…`, `RS_PASSWORD=…`, keep `HEADED=0`, timezone fields as needed |
-| `…/config/schedule.env` | `RS_SCHEDULE_DAYS`, `RS_SCHEDULE_TIME` (Asia/Manila book time) |
-| `…/config/resources.txt` | Slot try order (see comments in the example) |
-| `…/config/reservation.env` | Start/end window on the booked day (`RS_START_HR` / `RS_END_HR`) |
+| Variable | Purpose |
+|----------|---------|
+| `PARKING_APPDATA` | Host path for session/logs/generated config (`/mnt/user/appdata/parking`) |
+| `RS_USERNAME` / `RS_PASSWORD` | SSO login (local only; no AWS) |
+| `HEADED` | Keep `0` on Unraid (headless Chromium) |
+| `RS_SCHEDULE_DAYS` / `RS_SCHEDULE_TIME` | Book cron DOW + Asia/Manila submit time |
+| `RS_RESERVATION_DAYS_AHEAD` | Reservation date = run date + N (override with `parking book --date …`) |
+| `RS_START_HR` / `RS_END_HR` | Reservation window on the booked day |
+| `PARKING_SLOTS` | Comma-separated slot try order (e.g. `R405,R406,…`) |
+| `TZ` / `SSO_SCHEDULE_*` | Container TZ + evening SSO cron hour/minute |
+| `PARKING_MANAGE_FROM_STACK_ENV` | Keep `1` so entrypoint regenerates app config from this file |
 
-Edit over SSH / Terminal:
+Optional / advanced keys are commented in `.env.example` (boxed sections). Do not add AWS credentials, passphrase files, or `RS_CREDENTIALS_PASSPHRASE_FILE`.
 
-```bash
-nano /mnt/user/appdata/parking/config/.env
-```
-
-Required lines in `.env`:
-
-```bash
-RS_USERNAME=your.username
-RS_PASSWORD=your-password
-HEADED=0
-```
-
-Do not add AWS credentials, passphrase files, or `RS_CREDENTIALS_PASSPHRASE_FILE`.
-
-Save: **Ctrl+O**, Enter. Exit: **Ctrl+X**. Repeat for `schedule.env`, `resources.txt`, and `reservation.env`.
-
-```bash
-chmod 600 /mnt/user/appdata/parking/config/.env
-```
-
-Compose Manager Plus **Compose** / **.ENV** tabs only edit files under `compose-projects/parking/`. App secrets under `appdata/parking/config/` still need `nano` over SSH/Terminal.
+Passwords with special characters: use quotes, e.g. `RS_PASSWORD='p@ss#word'`.
 
 ---
 
@@ -231,7 +214,7 @@ ls -la /mnt/user/appdata/compose-projects/parking/docker-compose.yml
 | WebUI URL | leave blank |
 | Autostart | **On** (Compose **row** toggle — not only Settings) |
 
-Project **.ENV** tab should show `PARKING_APPDATA=/mnt/user/appdata/parking`. **Save All** if you edited anything.
+Project **.ENV** tab is the **full unified** stack file (same as `.env` beside `docker-compose.yml`) — paths, SSO, schedule, reservation window, and `PARKING_SLOTS`, not only `PARKING_APPDATA`. **Save All** if you edited anything.
 
 ---
 
@@ -363,7 +346,7 @@ parking status
 parking crontab
 ```
 
-Edit slots / schedule under `/mnt/user/appdata/parking/config/`, then `parking install --schedules` (or recreate the stack so the entrypoint reinstalls crontab).
+Edit slots / schedule in the stack `.env` (Compose **.ENV** or `nano`), then recreate/restart the stack so the entrypoint rematerializes config and crontab (`parking install --schedules` also works inside the container).
 
 | Task | Command / where |
 |------|-----------------|
@@ -399,17 +382,17 @@ docker compose --env-file .env up -d --build
 |---------|-----|
 | `Permission denied` on SSH | **Settings → Management Access → SSH = Yes**; log in as **`root`** |
 | `scp` hangs / timeout | Confirm LAN IP, array **Started**; for remote use Tailscale ([09](../docs/09-Network-Security.md)) |
-| Bind mount became a directory | Remove mistaken dir under `appdata/parking/config/`, recreate the **file**, recreate container |
+| Bind mount became a directory | Rare with stack `.env` materialization; remove mistaken dirs under `appdata/parking/config/`, recreate stack |
 | Stack missing on Docker tab | Refresh; Projects Folder; `docker-compose.yml` under `compose-projects/parking` |
 | Duplicate stack (`parking-001`) | Remove duplicate; keep folder-backed `parking` |
 | Build fails / Docker vDisk full | Increase Docker vDisk size; free images |
-| Container exits immediately | `docker compose logs`; fix config; seed files must be files not dirs |
+| Container exits immediately | `docker compose logs`; fix stack `.env`; ensure `PARKING_APPDATA` dirs from Step 3 exist |
 | Cron not firing overnight | `docker exec parking crontab -l`; Autostart **On**; container stayed up |
-| Wrong book time | `TZ=Asia/Manila`, `schedule.env`, `parking crontab` |
+| Wrong book time | `TZ=Asia/Manila` + `RS_SCHEDULE_*` in stack `.env`, then recreate; check `parking crontab` |
 | PingID timeout | Approve within ~2 minutes; retry `parking login` |
 | SSO fails | Check `/mnt/user/appdata/parking/logs-sso/`; keep `HEADED=0` |
-| Asks for AWS / SSM | Rebuild from the updated zip (AWS removed); set `RS_PASSWORD` in `config/.env` |
-| Missing password | Ensure both `RS_USERNAME` and `RS_PASSWORD` are set in `/mnt/user/appdata/parking/config/.env` |
+| Asks for AWS / SSM | Rebuild from the updated zip (AWS removed); set `RS_PASSWORD` in the stack `.env` |
+| Missing password | Ensure both `RS_USERNAME` and `RS_PASSWORD` are set in the stack `.env`, then recreate/restart |
 
 ---
 
@@ -430,8 +413,9 @@ Do not also run the Docker stack’s cron on the same nights. Prefer the Docker 
 | Path | Role |
 |------|------|
 | `resource-scheduler-automation.zip` → `parking/Dockerfile` | Playwright base + JDK + cron + app install (no AWS) |
-| `…/docker-compose.yml` | Unraid appdata volume map via `PARKING_APPDATA` |
-| `…/docker/entrypoint.sh` | Link config, install crontab, run cron |
+| `…/.env.example` | Unified stack env template (copy to `.env`) |
+| `…/docker-compose.yml` | `env_file: .env`; Unraid appdata via `PARKING_APPDATA` |
+| `…/docker/entrypoint.sh` | Materialize config from stack `.env`, install crontab, run cron |
 | `parking-docker/` | Readable mirror of the same Docker files outside the zip |
 
 Full generic install reference: [INSTALL.md](INSTALL.md) (Linux/VM; not used for this Unraid Docker migration).

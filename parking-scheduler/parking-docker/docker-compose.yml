@@ -1,10 +1,10 @@
 # Unraid 7.3.2 + Compose Manager Plus.
 # Place this stack under: /mnt/user/appdata/compose-projects/parking/
-# Create a project .env beside this file with:
-#   PARKING_APPDATA=/mnt/user/appdata/parking
-# Compose Manager Plus substitutes ${PARKING_APPDATA} from that .env.
-# Full steps: UNRAID.md (host layout under /mnt/user/appdata/parking/).
-# Credentials: RS_USERNAME + RS_PASSWORD in appdata config/.env only (no AWS).
+#
+# Single config file: .env beside this compose file (Compose → parking → .ENV).
+# Copy from .env.example, set RS_USERNAME / RS_PASSWORD / PARKING_SLOTS, then
+# Compose Up. Entrypoint materializes SSO/schedule/reservation/slots from env.
+# Full steps: UNRAID.md
 
 services:
   parking:
@@ -14,15 +14,18 @@ services:
     image: parking-automation:local
     container_name: parking
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      TZ: Asia/Manila
+      TZ: ${TZ:-Asia/Manila}
       HOME: /data/home
       PARKING_ROOT: /app/parking
       PARKING_CONFIG_DIR: /data/config
-      PARKING_LOCAL_CREDENTIALS_ONLY: "1"
+      PARKING_LOCAL_CREDENTIALS_ONLY: ${PARKING_LOCAL_CREDENTIALS_ONLY:-1}
+      PARKING_MANAGE_FROM_STACK_ENV: ${PARKING_MANAGE_FROM_STACK_ENV:-1}
     volumes:
       - ${PARKING_APPDATA:-./unraid-appdata}/home:/data/home
-      # Editable configs (create files on host before first start — see UNRAID.md)
+      # Generated config snapshots (entrypoint writes these from stack .env)
       - ${PARKING_APPDATA:-./unraid-appdata}/config:/data/config
       # Session + logs (survive image rebuilds)
       - ${PARKING_APPDATA:-./unraid-appdata}/output:/app/parking/resource-scheduler-sso-login/output

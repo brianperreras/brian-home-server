@@ -15,8 +15,8 @@ Kit location in this repo:
 | `UNRAID.md` | **Start here** — Docker deploy on Unraid 7.3.2 |
 | `INSTALL.md` | Generic Linux / Ubuntu VM install (use only if not Docker) |
 | `PARKING-README.md` | Project overview |
-| `parking-docker/` | Readable copy of `Dockerfile`, `docker-compose.yml`, entrypoint, `host-parking` wrapper |
-| `config-examples/` | Example configs (no secrets) |
+| `parking-docker/` | Readable copy of `Dockerfile`, `docker-compose.yml`, `.env.example`, entrypoint, `host-parking` |
+| `config-examples/` | Example configs + `stack.env.example` (unified stack `.env`, no secrets) |
 | `resource-scheduler-automation.zip` | Full app + Docker files to `scp` onto Unraid |
 
 ## Quick start
@@ -26,4 +26,4 @@ Kit location in this repo:
 3. `scp` the zip to Unraid (Step 1).
 4. Build/start with Compose Manager Plus; run `docker exec -it parking parking login` (or install the host wrapper in UNRAID.md Step 10) and approve PingID. Same CLI as the original: `help`, `book`, `login`, `status`, `crontab`, …
 
-Prefer Docker over a VM. Do **not** install Playwright on the Unraid host via User Scripts. Cron runs **inside** the `parking` container.
+Prefer Docker over a VM. Config is a **single stack `.env`** beside `docker-compose.yml` (see `.env.example`); the entrypoint materializes app config on start. Do **not** install Playwright on the Unraid host via User Scripts. Cron runs **inside** the `parking` container.

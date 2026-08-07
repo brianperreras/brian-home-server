@@ -1,5 +1,5 @@
 #!/bin/bash
-# Container entrypoint: link Unraid/appdata config, install crontab, run cron or a one-shot command.
+# Container entrypoint: materialize config from stack .env, install crontab, run cron.
 set -euo pipefail
 
 PARKING_ROOT="${PARKING_ROOT:-/app/parking}"
@@ -19,6 +19,61 @@ mkdir -p \
   "$SCHEDULER_DIR/logs/responses" \
   "$CFG_DIR"
 
+write_kv_file() {
+  local dest="$1"
+  shift
+  local key value
+  : >"$dest"
+  for key in "$@"; do
+    value="${!key-}"
+    if [ -n "$value" ]; then
+      # Quote so passwords with # / spaces survive `source`
+      printf '%s=%q\n' "$key" "$value" >>"$dest"
+    fi
+  done
+}
+
+materialize_from_stack_env() {
+  log_step "Materializing config from stack environment"
+
+  if [ -z "${RS_USERNAME:-}" ] || [ -z "${RS_PASSWORD:-}" ]; then
+    log_error "RS_USERNAME and RS_PASSWORD must be set in the stack .env"
+    return 1
+  fi
+
+  write_kv_file "$CFG_DIR/.env" \
+    RS_USERNAME RS_PASSWORD RS_ENTRY_URL RS_DOMAIN HEADED \
+    SSO_MAX_ATTEMPTS SSO_RETRY_DELAY_MS SSO_POST_LOGIN_TIMEOUT_MS \
+    SESSION_OUTPUT SSO_SCHEDULE_TZ SSO_SCHEDULE_HOUR SSO_SCHEDULE_MINUTE \
+    SSO_SCHEDULE_DAYS RS_TOPIC_ID RS_SCHEDULE_URL
+
+  write_kv_file "$CFG_DIR/schedule.env" \
+    RS_SCHEDULE_TZ RS_SCHEDULE_DAYS RS_SCHEDULE_TIME BOOK_PREWARM_MINUTES \
+    RS_RESERVATION_DAYS_AHEAD BOOK_RETRY_TIMEOUT_SEC BOOK_RETRY_SLEEP_SEC \
+    MAX_SESSION_AGE_HOURS
+
+  write_kv_file "$CFG_DIR/reservation.env" \
+    RS_START_HR RS_END_HR RS_END_MIN
+
+  local slots="${PARKING_SLOTS:-}"
+  if [ -z "$slots" ]; then
+    log_error "PARKING_SLOTS must be set in the stack .env (comma-separated, e.g. R405,R406)"
+    return 1
+  fi
+  {
+    echo "# Generated from PARKING_SLOTS in stack .env — edit the stack .env, not this file"
+    echo "$slots" | tr ',;' '\n\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -E '^R[0-9]+' || true
+  } >"$CFG_DIR/resources.txt"
+
+  if ! grep -qE '^R[0-9]+' "$CFG_DIR/resources.txt"; then
+    log_error "PARKING_SLOTS produced no valid slots (expected R405,R406,...)"
+    return 1
+  fi
+
+  chmod 600 "$CFG_DIR/.env" 2>/dev/null || true
+  log_ok "Wrote .env, schedule.env, reservation.env, resources.txt under $CFG_DIR"
+}
+
 link_or_seed() {
   local name="$1"
   local dest="$2"
@@ -32,16 +87,19 @@ link_or_seed() {
   fi
   if [ -n "$example" ] && [ -f "$example" ] && [ ! -e "$dest" ]; then
     cp "$example" "$dest"
-    log_warn "Seeded $dest from example — edit $CFG_DIR/$name (or this file) before relying on cron"
+    log_warn "Seeded $dest from example — prefer stack .env (PARKING_MANAGE_FROM_STACK_ENV=1)"
   fi
 }
+
+if [ "${PARKING_MANAGE_FROM_STACK_ENV:-1}" = "1" ]; then
+  materialize_from_stack_env
+fi
 
 link_or_seed ".env" "$SSO_DIR/.env" "$SSO_DIR/.env.example"
 link_or_seed "schedule.env" "$SCHEDULER_DIR/schedule.env" "$SCHEDULER_DIR/schedule.env.example"
 link_or_seed "resources.txt" "$SCHEDULER_DIR/resources.txt" "$SCHEDULER_DIR/resources.txt.example"
 link_or_seed "reservation.env" "$SCHEDULER_DIR/reservation.env" "$SCHEDULER_DIR/reservation.env.example"
 
-# Optional markers so interactive install prompts are skipped when files exist
 if [ -f "$SCHEDULER_DIR/resources.txt" ]; then
   touch "$SCHEDULER_DIR/.booking-configured"
 fi
@@ -69,7 +127,6 @@ case "$cmd" in
   cron)
     ensure_crontab
     log_ok "Starting cron (TZ=${TZ:-Asia/Manila})"
-    # Ubuntu cron has no long-lived -f; start daemon and keep PID 1 alive.
     if command -v service >/dev/null 2>&1; then
       service cron start
     else
